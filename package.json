@@ -1,0 +1,17 @@
+{
+  "name": "getinhere",
+  "version": "1.0.0",
+  "description": "making_my_own_weapon",
+  "main": "index.js",
+  "scripts": {
+    "start": "sudo node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "https": "^1.0.0",
+    "redirect-https": "^1.3.1"
+  }
+}

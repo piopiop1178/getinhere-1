@@ -1,0 +1,6 @@
+# dependencies
+/node_modules
+
+# SSL key
+fullchain.pem
+privkey.pem
