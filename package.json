@@ -4,7 +4,7 @@
   "description": "making_my_own_weapon",
   "main": "index.js",
   "scripts": {
-    "start": "sudo node index.js",
+    "start": "sudo node server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -12,6 +12,8 @@
   "dependencies": {
     "express": "^4.17.1",
     "https": "^1.0.0",
-    "redirect-https": "^1.3.1"
+    "redirect-https": "^1.3.1",
+    "simple-peer": "^9.9.3",
+    "socket.io": "^4.0.0"
   }
 }
