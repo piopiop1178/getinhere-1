@@ -60,12 +60,12 @@ module.exports = (io) => {
         /**
          * remove the disconnected peer connection from all other connected clients
          */
-        socket.on('disconnect', () => {
-            let roomName = roomManager.findRoomName(socket);
-            socket.to(roomName).emit('removePeer', socket.id)
+        socket.on('disconnect', () => {            
             roomManager.disconnect(socket);
             lobbyManager.kick(socket);
 
+            let roomName = roomManager.findRoomName(socket);
+            io.to(roomName).emit('removePeer', socket.id)
             console.log('socket disconnected ' + socket.id)
             delete peers[socket.id]
         })
