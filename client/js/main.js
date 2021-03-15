@@ -81,13 +81,15 @@ function init() {
     socket = io("/", { query: query_param })
 
     var GAME_SETTINGS = null;
+    const LEFT = 'ArrowLeft', UP = 'ArrowUp', RIGHT = 'ArrowRight', DOWN = 'ArrowDown';
 
     var canvas = document.createElement("canvas");
     var ctx = canvas.getContext("2d");
     var ctx_obj = canvas.getContext("2d");
-    $(canvas).css("display", "block");
-    $(canvas).css("border", "black 1px solid");
-    $(canvas).css("margin", "0 auto");
+
+    canvas.style.display = "block"
+    canvas.style.border = "black 1px solid"
+    canvas.style.margin = "0 auto"
 
     const body = document.querySelector('body')
 
@@ -96,22 +98,22 @@ function init() {
         let parsed_status = JSON.parse(st);
         let curr_x = parsed_status.x;
         let curr_y = parsed_status.y;
-        socket.emit('keydown', e.keyCode);
-        if(e.keyCode == RIGHT) e.preventDefault(); parsed_status.x = parsed_status.x + TILE_LENGTH
-        if(e.keyCode == LEFT)  e.preventDefault(); parsed_status.x = parsed_status.x - TILE_LENGTH
-        if(e.keyCode == DOWN)  e.preventDefault(); parsed_status.y = parsed_status.y + TILE_LENGTH
-        if(e.keyCode == UP)    e.preventDefault(); parsed_status.y = parsed_status.y - TILE_LENGTH
+        socket.emit('keydown', e.code);
+        if(e.code == RIGHT) e.preventDefault(); parsed_status.x = parsed_status.x + TILE_LENGTH
+        if(e.code == LEFT)  e.preventDefault(); parsed_status.x = parsed_status.x - TILE_LENGTH
+        if(e.code == DOWN)  e.preventDefault(); parsed_status.y = parsed_status.y + TILE_LENGTH
+        if(e.code == UP)    e.preventDefault(); parsed_status.y = parsed_status.y - TILE_LENGTH
     })
     body.addEventListener("keyup", function (e) {
-        socket.emit("keyup", e.keyCode);
+        socket.emit("keyup", e.code);
     });
     socket.on("connected", function (SERVER_GAME_SETTINGS) {
         GAME_SETTINGS = SERVER_GAME_SETTINGS;
-        $(canvas).attr("width", GAME_SETTINGS.WIDTH);
-        $(canvas).attr("height", GAME_SETTINGS.HEIGHT);
+        canvas.setAttribute("width", GAME_SETTINGS.WIDTH);
+        canvas.setAttribute("height", GAME_SETTINGS.HEIGHT);
         document.body.appendChild(canvas);
 
-        localStorage.setItem('bitmap', GAME_SETTINGS.BITMAP);
+        localStorage.setItem('BLOCKED_AREA', GAME_SETTINGS.BLOCKED_AREA);
         TILE_LENGTH = GAME_SETTINGS.TILE_LENGTH
         TILE_WIDTH = GAME_SETTINGS.TILE_WIDTH
         TILE_HEIGHT = GAME_SETTINGS.TILE_HEIGHT
@@ -119,25 +121,24 @@ function init() {
         WIDTH = GAME_SETTINGS.WIDTH
         HEIGHT = GAME_SETTINGS.HEIGHT
     });
-    socket.on("update", function (statuses) {
+    // socket.on("update", function (statuses) {
+    socket.on("update", function (statuses, idArray) {
         if (GAME_SETTINGS == null) return;
         drawBackground(ctx, GAME_SETTINGS);
+        storelocalStorage(statuses[socket.id].status);
+        updateWindowCenter(statuses[socket.id].status);
 
-        statuses.forEach(function (status_pair) {
-            if (status_pair.id == socket.id) {
-                storelocalStorage(status_pair.status);
-                updateWindowCenter(status_pair.status);
-            }
-            ctx.fillStyle = status_pair.status.color;
+        idArray.forEach(function (id) {
+            ctx.fillStyle = statuses[id].status.color;
             ctx.fillRect(
-                status_pair.status.x,
-                status_pair.status.y,
-                status_pair.status.width,
-                status_pair.status.height
+                statuses[id].status.x,
+                statuses[id].status.y,
+                statuses[id].status.width,
+                statuses[id].status.height
             );
         });
 
-        drawBlockZone(localStorage.getItem('bitmap'), ctx_obj);
+        drawBlockZone(localStorage.getItem('BLOCKED_AREA').split(','), ctx_obj);
     });
 
     socket.on("waiting", function () {
@@ -389,20 +390,7 @@ function drawBackground(ctx, GAME_SETTINGS) {
     );
 }
 
-function drawBlockZone(bitmap, ctx_obj) {
-    let bin = (bitmap >>> 0).toString(2);
-    let reversed_arr = findAllIndex(bin, 1);
-    let arr = reversed_arr.map(x=> bin.length-1-x);
-    for(let i =0; i< arr.length; i++) {
-        let tile_row_col = convertNumToTileRowCol(arr[i]) 
-        let pixel_x = (tile_row_col[1] - 1) * TILE_LENGTH;
-        let pixel_y = (tile_row_col[0] - 1) * TILE_LENGTH;
-        ctx_obj.fillStyle = "black";
-        ctx_obj.fillRect(pixel_x, pixel_y, TILE_LENGTH, TILE_LENGTH);
-    }
-}
-
-function convertNumToTileRowCol(num) {
+convertNumToTileRowCol = function(num) {
     let arr = []
     // let row = parseInt(num / TILE_WIDTH) + 1
     let row = num % TILE_WIDTH ? parseInt(num / TILE_WIDTH) + 1 : parseInt(num / TILE_WIDTH);
@@ -412,12 +400,13 @@ function convertNumToTileRowCol(num) {
     return arr;
 }
 
-function findAllIndex(string, char) { //! ?����???????? arr??? ???????����????????. 
-    let arr = [];
-    for (let i = 0; i < string.length; i++) {
-        if (string[i] == char) {
-        arr.push(i);
-        }
+function drawBlockZone(area, ctx_obj) { //todo bitmap을 받는게 아니라 array를 받는다고 생각하자.
+    let arr = area;
+    for(let i =0; i< arr.length; i++) {
+        let tile_row_col = convertNumToTileRowCol(arr[i]) 
+        let pixel_x = (tile_row_col[1] - 1) * TILE_LENGTH;
+        let pixel_y = (tile_row_col[0] - 1) * TILE_LENGTH;
+        ctx_obj.fillStyle = "black";
+        ctx_obj.fillRect(pixel_x, pixel_y, TILE_LENGTH, TILE_LENGTH);
     }
-    return arr;
 }

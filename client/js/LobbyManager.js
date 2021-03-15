@@ -1,5 +1,5 @@
 function LobbyManager(io) {
-    var LbMg = this;
+    let LbMg = this;
     LbMg.lobby = [];
     LbMg.updating = false;
 
@@ -10,12 +10,13 @@ function LobbyManager(io) {
 
     /* Delete socket from lobby */
     LbMg.kick = function(socket) {
-        var index = LbMg.lobby.indexOf(socket);
+        let index = LbMg.lobby.indexOf(socket);
         if (index >= 0) LbMg.lobby.splice(index, 1);
     };
 
+    //소켓 연결 정상적인 애들만 남긴다.
     LbMg.clean = function() {
-        var sockets = LbMg.lobby;
+        let sockets = LbMg.lobby;
         LbMg.lobby = sockets.filter(function(socket) {return socket !== null;});
     };
 
@@ -24,15 +25,16 @@ function LobbyManager(io) {
         LbMg.dispatching = true;
 
         while (LbMg.lobby.length >= 1) {
-            var player = LbMg.lobby.splice(0, 1)[0];
+            let player = LbMg.lobby.splice(0, 1)[0];
 
             const roomName = player.handshake.query.room;
+
             if (roomName != undefined)
             {
-                var valid = false;
+                let valid = false;
                 let roomList = Object.values(RmMg.rooms);
-                for (var room of roomList) {
-                    if (room.name == roomName) {
+                for (let room of roomList) {
+                    if (room.name == roomName) { //여기서 조건 추가해서 몇명 제한 넣을 수 있음 
                         RmMg.join(player, room);
                         valid = true;
                         break;

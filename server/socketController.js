@@ -1,25 +1,6 @@
-const TILE_LENGTH = 60, TILE_WIDTH = 7, TILE_HEIGHT = 5;
-const CHAR_SIZE = 60
-const WIDTH = TILE_LENGTH * TILE_WIDTH
-const HEIGHT = TILE_LENGTH * TILE_HEIGHT
-
-
-// let BITMAP = 1<<9 | 1<<11 | 1<<20 | 1<<25 | 1<<31;
-let BITMAP_array = [9, 11, 20, 25, 31] //! dummy data
-let BITMAP = arrayToBitmap(BITMAP_array);
-
-const GAME_SETTINGS = {
-    TILE_LENGTH : TILE_LENGTH, 
-    TILE_WIDTH : TILE_WIDTH,
-    TILE_HEIGHT : TILE_HEIGHT,
-    CHAR_SIZE : CHAR_SIZE,
-    WIDTH : WIDTH, 
-    HEIGHT : HEIGHT, 
-    BACKGROUND_COLOR : "#FFFFFF",
-    BITMAP : BITMAP,
-};
-
 module.exports = (io) => {
+
+    let GAME_SETTINGS = new (require('./MapManager.js'))(); //! 나중에 여기에 인자로 원하는 맵 number가 들어가면 된다. 그러면 MAP.js가 DB랑 통신해서 MAP정보를 받아온다
     const lobbyManager = new (require('../client/js/LobbyManager.js'))(io);
     const roomManager = new (require('../client/js/RoomManager.js'))(io, GAME_SETTINGS);
     
@@ -66,7 +47,6 @@ module.exports = (io) => {
               
             roomManager.disconnect(socket);
             lobbyManager.kick(socket);
-
             
             console.log('socket disconnected ' + socket.id)
             delete peers[socket.id]
@@ -94,12 +74,4 @@ module.exports = (io) => {
             }
         });
     })
-}
-
-function arrayToBitmap(arr) {
-    let bitmap = 0
-    for(let i=0; i<arr.length; i++) {
-        bitmap += 1<<(arr[i]);
-    }
-    return bitmap;
 }
