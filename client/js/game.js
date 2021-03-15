@@ -6,7 +6,7 @@ let WIDTH = TILE_LENGTH * TILE_WIDTH
 let HEIGHT = TILE_LENGTH * TILE_HEIGHT
 const LEFT = 37, UP = 38, RIGHT = 39, DOWN = 40;
 
-console.log('game.js!!!!!!!!!!!!!!!!!')
+console.log('game.js!!!!!!!!!!!!!!!!!@@@@')
 
 $(function () {
     var GAME_SETTINGS = null;
