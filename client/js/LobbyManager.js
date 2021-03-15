@@ -30,9 +30,10 @@ function LobbyManager(io) {
             if (roomName != undefined)
             {
                 var valid = false;
-                for (var i = 0; i < RmMg.rooms.length; i++) {
-                    if (RmMg.rooms[i].name == roomName) {
-                        RmMg.join(player, RmMg.rooms[i]);
+                let roomList = Object.values(RmMg.rooms);
+                for (var room of roomList) {
+                    if (room.name == roomName) {
+                        RmMg.join(player, room);
                         valid = true;
                         break;
                     }
@@ -48,6 +49,7 @@ function LobbyManager(io) {
             }
         }
         LbMg.dispatching = false;
+        console.log(RmMg.rooms);
     };
 }
 module.exports = LobbyManager;

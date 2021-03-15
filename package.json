@@ -4,7 +4,7 @@
   "description": "making_my_own_weapon",
   "main": "index.js",
   "scripts": {
-    "start": "sudo node server/index.js",
+    "start": "node server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

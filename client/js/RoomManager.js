@@ -1,22 +1,17 @@
 function RoomManager(io, SETTINGS) {
     var RmMg = this;
-    
-    RmMg.rooms = [];
 
     RmMg.rooms = {};
 
     RmMg.create = function(socket) {
         const roomName = socket.id;
         var room = new Room(roomName, socket);
+        room.peers[socket.id] = socket;
         socket.join(roomName);
         
         RmMg.rooms[roomName] = room;
 
-        RmMg.rooms.push(room);
-        // room.peers[socket.id] = socket
-        // console.log(io.sockets.manager)
-        // // console.log(io.sockets.manager.roomClients[socket.id])
-        // console.log('Room Created :', roomName);
+        console.log('Room Created :', roomName);
     };
 
     RmMg.join = function(socket, room) {
@@ -24,13 +19,17 @@ function RoomManager(io, SETTINGS) {
         socket.join(room.name);
         room.players.push(socket);
         room.objects[socket.id] = new UserObject(socket.id);
-        room.peers[socket.id] = socket
+        room.peers[socket.id] = socket;
         console.log('Joined room :', room.name);
     }
 
     RmMg.disconnect = function(socket) {
-        var roomindex = RmMg.findRoomIndex(socket);
-        var players = RmMg.rooms[roomindex].players;
+        var roomName = RmMg.findRoomName(socket);
+        if (roomName === null) {
+            console.log("error : can't find socket in Room");
+            return;
+        }
+        var players = RmMg.rooms[roomName].players;
         const playerindex = players.findIndex(function(player) {
             return player.id === socket.id
         });
@@ -38,30 +37,33 @@ function RoomManager(io, SETTINGS) {
             players.splice(playerindex, 1);
         } else {
             console.log("error : can't find socket in Room");
+            return;
         }
-        delete RmMg.rooms[roomindex].objects[socket.id];
-        delete RmMg.rooms[roomindex].peers[socket.id];
+        delete RmMg.rooms[roomName].objects[socket.id];
+        delete RmMg.rooms[roomName].peers[socket.id];
     }
 
     //TODO compare socket.id and key in objects
-    RmMg.findRoomIndex = function(socket) {
-        var roomIndex = null;
-        RmMg.rooms.some(function(room, index) {
+    RmMg.findRoomName = function(socket) {
+        let roomName = null;
+        let roomList = Object.values(RmMg.rooms);
+        roomList.some(function(room, index) {
             for (var object in room.objects) {
                 var obj = room.objects[object];
                 if (obj.id == socket.id) {
-                    roomIndex = index;
+                    roomName = room.name;
                     return true;
                 }
             }
         });
-        return roomIndex;
+        return roomName;
     };
     
     //TODO delete the room when no socket exist
 
     RmMg.update = setInterval(function() {
-        RmMg.rooms.forEach(function(room) {
+        let roomList = Object.values(RmMg.rooms);
+        roomList.forEach(function(room) {
             var statuses = [];
             for (var object in room.objects) {
                 var obj = room.objects[object];
@@ -145,7 +147,7 @@ function dec2bin(num) {
     return (num >>> 0).toString(2);
 }
 
-function checkBitmap(bitmap, row, col) { // Àß¸øµÈ ÀÌµ¿ÀÌ¸é true¸¦ returnÇÑ´Ù
+function checkBitmap(bitmap, row, col) { // ï¿½ß¸ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½Ì¸ï¿½ trueï¿½ï¿½ returnï¿½Ñ´ï¿½
     let target = convertLocToNum(row, col)
 
     let bin = dec2bin(bitmap);
@@ -157,7 +159,7 @@ function checkBitmap(bitmap, row, col) { // Àß¸øµÈ ÀÌµ¿ÀÌ¸é true¸¦ returnÇÑ´Ù
     }
 }
 
-function findAllIndex(string, char) { //! ÇØ´çÇÏ´Â arr¸¦ ¸®ÅÏÇØÁÝ´Ï´Ù. 
+function findAllIndex(string, char) { //! ï¿½Ø´ï¿½ï¿½Ï´ï¿½ arrï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý´Ï´ï¿½. 
     let arr = [];
     for (let i = 0; i < string.length; i++) {
       if (string[i] == char) {

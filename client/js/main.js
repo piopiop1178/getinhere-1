@@ -60,7 +60,7 @@ let constraints = {
 /////////////////////////////////////////////////////////
 
 constraints.video.facingMode = {
-    ideal: "user" //Àü¸éÄ«¸Þ¶ó°¡ Á¦ÀÏ ÀÌ»óÀûÀÌ´Ù ¾ÈµÇ¸é ÈÄ¸éÀ¸·Î ¹ÝÈ¯¹ÞÀ½
+    ideal: "user" //ï¿½ï¿½ï¿½ï¿½Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì»ï¿½ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ÈµÇ¸ï¿½ ï¿½Ä¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½ï¿½ï¿½ï¿½
 }
 
 // enabling the camera at startup
@@ -79,7 +79,7 @@ function init() {
     
     var query_param = get_query();
     socket = io("/", { query: query_param })
-    console.log(socket)
+
     var GAME_SETTINGS = null;
 
     var canvas = document.createElement("canvas");
@@ -91,13 +91,11 @@ function init() {
 
     const body = document.querySelector('body')
 
-    body.addEventListener('keydown' ,(e)=> {/*¡§????? 3.12*/
+    body.addEventListener('keydown' ,(e)=> {/*ï¿½ï¿½????? 3.12*/
         let st = localStorage.getItem('myStatus');
         let parsed_status = JSON.parse(st);
         let curr_x = parsed_status.x;
         let curr_y = parsed_status.y;
-        let col = curr_x/TILE_LENGTH + 1;
-        let row = curr_y/TILE_LENGTH + 1;
         socket.emit('keydown', e.keyCode);
         if(e.keyCode == RIGHT) e.preventDefault(); parsed_status.x = parsed_status.x + TILE_LENGTH
         if(e.keyCode == LEFT)  e.preventDefault(); parsed_status.x = parsed_status.x - TILE_LENGTH
@@ -170,7 +168,7 @@ function init() {
 
     socket.on('disconnect', () => {
         console.log('GOT DISCONNECTED')
-        for (let socket_id in peers) { //¹è¿­ for in ÇÏ¸é index·Î ³ª°£´Ù.
+        for (let socket_id in peers) { //ï¿½è¿­ for in ï¿½Ï¸ï¿½ indexï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
             removePeer(socket_id)
         }
     })
@@ -194,14 +192,15 @@ function removePeer(socket_id) {
 
         const tracks = videoEl.srcObject.getTracks();
 
-        tracks.forEach(function (track) { //forEach() ÁÖ¾îÁø ÇÔ¼ö¸¦ ¹è¿­ ¿ä¼Ò °¢°¢¿¡ ´ëÇØ ½ÇÇà
+        tracks.forEach(function (track) { //forEach() ï¿½Ö¾ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½è¿­ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             track.stop()
         })
 
         videoEl.srcObject = null
+        console.log('removePeer test@@@@@');
         videoEl.parentNode.removeChild(videoEl)
     }
-    if (peers[socket_id]) peers[socket_id].destroy() //destroy¿Í remove??? 
+    if (peers[socket_id]) peers[socket_id].destroy() //destroyï¿½ï¿½ remove??? 
     delete peers[socket_id]
 }
 
@@ -245,7 +244,7 @@ function addPeer(socket_id, am_initiator) {
  * @param {HTMLVideoElement} el video element to put in pip mode
  */
 function openPictureMode(el) {
-    console.log('opening pip') //pip¸ðµå 
+    console.log('opening pip') //pipï¿½ï¿½ï¿½ 
     el.requestPictureInPicture()
 }
 
@@ -370,7 +369,7 @@ function get_query() {
     return result;
 }
 
-function storelocalStorage(myStatus) {/*¡§????? 3.12*/
+function storelocalStorage(myStatus) {/*ï¿½ï¿½????? 3.12*/
     localStorage.setItem('myStatus', JSON.stringify(myStatus));
     let row = myStatus.y/TILE_LENGTH + 1;
     let col = myStatus.x/TILE_LENGTH + 1;
@@ -413,7 +412,7 @@ function convertNumToTileRowCol(num) {
     return arr;
 }
 
-function findAllIndex(string, char) { //! ?¡§¨£???????? arr??? ???????¡§¨£????????. 
+function findAllIndex(string, char) { //! ?ï¿½ï¿½ï¿½ï¿½???????? arr??? ???????ï¿½ï¿½ï¿½ï¿½????????. 
     let arr = [];
     for (let i = 0; i < string.length; i++) {
         if (string[i] == char) {

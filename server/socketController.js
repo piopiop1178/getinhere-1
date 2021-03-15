@@ -1,5 +1,3 @@
-peers = {}
-
 const TILE_LENGTH = 60, TILE_WIDTH = 7, TILE_HEIGHT = 5;
 const CHAR_SIZE = 60
 const WIDTH = TILE_LENGTH * TILE_WIDTH
@@ -29,20 +27,16 @@ module.exports = (io) => {
         console.log('user connected: ', socket.id);
         // Initiate the connection process as soon as the client connects
         
-        //°ÔÀÓ Á¤º¸ initialize
+        //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ initialize
         socket.emit('connected', GAME_SETTINGS);
 
         lobbyManager.push(socket);
         lobbyManager.dispatch(roomManager);
 
         // console.log(io.sockets.adapter.rooms);
-        console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        console.log(socket)
-        console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 
-        // peers[socket.id] = socket
-        
-        // peers = 
+        let roomName = roomManager.findRoomName(socket);
+        let peers = roomManager.rooms[roomName].peers;
 
         // Asking all other clients to setup the peer connection receiver
         for(let id in peers) {
@@ -67,11 +61,12 @@ module.exports = (io) => {
          * remove the disconnected peer connection from all other connected clients
          */
         socket.on('disconnect', () => {
+            let roomName = roomManager.findRoomName(socket);
+            socket.to(roomName).emit('removePeer', socket.id)
             roomManager.disconnect(socket);
             lobbyManager.kick(socket);
 
             console.log('socket disconnected ' + socket.id)
-            socket.broadcast.emit('removePeer', socket.id)
             delete peers[socket.id]
         })
 
@@ -85,15 +80,15 @@ module.exports = (io) => {
         })
 
         socket.on('keydown', function(keyCode) {
-            var roomIndex = roomManager.findRoomIndex(socket);
-            if (roomIndex !== null) {
-                roomManager.rooms[roomIndex].objects[socket.id].keypress[keyCode] = true;
+            var roomName = roomManager.findRoomName(socket);
+            if (roomName !== null) {
+                roomManager.rooms[roomName].objects[socket.id].keypress[keyCode] = true;
             }
         });
         socket.on('keyup', function (keyCode) {
-            var roomIndex = roomManager.findRoomIndex(socket);
-            if (roomIndex !== null) {
-                delete roomManager.rooms[roomIndex].objects[socket.id].keypress[keyCode];
+            var roomName = roomManager.findRoomName(socket);
+            if (roomName !== null) {
+                delete roomManager.rooms[roomName].objects[socket.id].keypress[keyCode];
             }
         });
     })
