@@ -70,6 +70,10 @@ function init() {
 
     const body = document.querySelector('body')
 
+    // 캐릭터 이미지
+    let among = new Image();
+    among.src = "../image/among.jpg";
+
     body.addEventListener('keydown' ,(e)=> {/*��????? 3.12*/
         let st = localStorage.getItem('myStatus');
         let parsed_status = JSON.parse(st);
@@ -106,13 +110,20 @@ function init() {
         updateWindowCenter(statuses[socket.id].status);
 
         idArray.forEach(function (id) {
-            ctx.fillStyle = statuses[id].status.color;
-            ctx.fillRect(
+            // ctx.fillStyle = statuses[id].status.color;
+            // ctx.fillRect(
+            //     statuses[id].status.x,
+            //     statuses[id].status.y,
+            //     statuses[id].status.width,
+            //     statuses[id].status.height
+            // );
+            // 캐릭터 삽입 코드
+            ctx_obj.drawImage(among, 
                 statuses[id].status.x,
                 statuses[id].status.y,
                 statuses[id].status.width,
                 statuses[id].status.height
-            );
+                );
         });
 
         drawBlockZone(localStorage.getItem('BLOCKED_AREA').split(','), ctx_obj);
@@ -351,13 +362,28 @@ function updateWindowCenter(myStatus) {
 }
 
 function drawBackground(ctx, GAME_SETTINGS) {
-    ctx.fillStyle = GAME_SETTINGS.BACKGROUND_COLOR;
-    ctx.fillRect(
-        0,
-        0,
-        GAME_SETTINGS.WIDTH,
-        GAME_SETTINGS.HEIGHT
-    );
+    // ctx.fillStyle = GAME_SETTINGS.BACKGROUND_COLOR;
+    // ctx.fillRect(
+    //     0,
+    //     0,
+    //     GAME_SETTINGS.WIDTH,
+    //     GAME_SETTINGS.HEIGHT
+    // );
+
+    // 배경 이미지
+    // let backgroundImage = new Image();
+    // backgroundImage.src = "../image/back.jpg";
+    // ctx.drawImage(backgroundImage, 0, 0, GAME_SETTINGS.WIDTH, GAME_SETTINGS.HEIGHT);
+
+    // 배경 타일
+    let backgroundTile = new Image();
+    backgroundTile.src = "../image/tile.jpg";
+
+    for(let y = 0; y < GAME_SETTINGS.HEIGHT; y += TILE_LENGTH){
+        for(let x = 0; x < GAME_SETTINGS.WIDTH; x += TILE_LENGTH){
+            ctx.drawImage(backgroundTile, x, y, TILE_LENGTH, TILE_LENGTH);
+        }
+    }
 }
 
 convertNumToTileRowCol = function(num) {
