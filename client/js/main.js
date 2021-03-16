@@ -1,10 +1,4 @@
-/**
- * Socket.io socket
- */
 let socket;
-/**
- * The stream object used to send media
- */
 let localStream = null;
 /**
  * All peer connections
@@ -27,8 +21,6 @@ const configuration = {
     "iceServers": [{
             "urls": "stun:stun.l.google.com:19302"
         },
-        // public turn server from https://gist.github.com/sagivo/3a4b2f2c7ac6e1b5267c2f1f59ac6c6b
-        // set your own servers here
         // {
         //     url: 'turn:192.158.29.39:3478?transport=udp',
         //     credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
@@ -44,28 +36,25 @@ const configuration = {
     ]
 }
 
-/**
- * UserMedia constraints
- */
 let constraints = {
     audio: true,
     video: {
         width: {
-            max: 1920
+            max: 1280,
+            ideal: 720
+
         },
         height: {
-            max: 1080
+            max: 720,
+            ideal: 480
         }
     }
 }
 
-/////////////////////////////////////////////////////////
-
 constraints.video.facingMode = {
-    ideal: "user" //����ī�޶� ���� �̻����̴� �ȵǸ� �ĸ����� ��ȯ����
+    ideal: "user" 
 }
 
-// enabling the camera at startup
 navigator.mediaDevices.getUserMedia(constraints).then(stream => {
     console.log('Received local stream');
 
@@ -74,9 +63,6 @@ navigator.mediaDevices.getUserMedia(constraints).then(stream => {
     init()
 }).catch(e => alert(`getusermedia error ${e.name}`))
 
-/**
- * initialize the socket connections
- */
 function init() {
     
     var query_param = get_query();
@@ -166,14 +152,6 @@ function init() {
         });
     });
 
-    socket.on("waiting", function () {
-        console.log("I'm waiting!");
-    });
-
-    socket.on("in", function () {
-        console.log("I'm in!");
-    });
-
     // ----------------------------!!RTC!!---------------------------
     socket.on('initReceive', socket_id => {
         console.log('INIT RECEIVE ' + socket_id)
@@ -218,7 +196,7 @@ function removePeer(socket_id) {
 
         const tracks = videoEl.srcObject.getTracks();
 
-        tracks.forEach(function (track) { //forEach() �־��� �Լ��� �迭 ��� ������ ���� ����
+        tracks.forEach(function (track) { //forEach() �־��� �Լ��� �迭 ���? ������ ���� ����
             track.stop()
         })
 
@@ -270,7 +248,7 @@ function addPeer(socket_id, am_initiator) {
  * @param {HTMLVideoElement} el video element to put in pip mode
  */
 function openPictureMode(el) {
-    console.log('opening pip') //pip��� 
+    console.log('opening pip') //pip���? 
     el.requestPictureInPicture()
 }
 
@@ -401,6 +379,7 @@ function storelocalStorage(myStatus) {/*��????? 3.12*/
     let col = myStatus.x/TILE_LENGTH + 1;
     localStorage.setItem('position', JSON.stringify({row, col}))
 }
+
 function updateWindowCenter(myStatus) {
     window.scrollTo(myStatus.x - window.innerWidth/2  + TILE_LENGTH/2 , myStatus.y - window.innerHeight/2 + TILE_LENGTH/2 )
 }
@@ -458,7 +437,7 @@ convertNumToTileRowCol = function(num) {
     return arr;
 }
 
-function drawBlockZone(area, ctx_obj) { //todo bitmap을 받는게 아니라 array를 받는다고 생각하자.
+function drawBlockZone(area, ctx_obj) { //todo bitmap?�� 받는�? ?��?��?�� array�? 받는?���? ?��각하?��.
     let arr = area;
     for(let i =0; i< arr.length; i++) {
         let tile_row_col = convertNumToTileRowCol(arr[i]) 
