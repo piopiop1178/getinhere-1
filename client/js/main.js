@@ -74,6 +74,9 @@ function init() {
     let among = new Image();
     among.src = "../image/among.jpg";
 
+    let icon = new Image();
+    icon.src = "../image/icon.png";
+
     body.addEventListener('keydown' ,(e)=> {/*ï¿½ï¿½????? 3.12*/
         let st = localStorage.getItem('myStatus');
         let parsed_status = JSON.parse(st);
@@ -118,7 +121,7 @@ function init() {
             //     statuses[id].status.height
             // );
             // ìºë¦­í„° ì‚½ì… ì½”ë“œ
-            ctx_obj.drawImage(among, 
+            ctx_obj.drawImage(icon, 
                 statuses[id].status.x,
                 statuses[id].status.y,
                 statuses[id].status.width,
@@ -173,7 +176,7 @@ function removePeer(socket_id) {
 
         const tracks = videoEl.srcObject.getTracks();
 
-        tracks.forEach(function (track) { //forEach() ï¿½Ö¾ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½è¿­ ï¿½ï¿½ï¿? ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        tracks.forEach(function (track) { //forEach() ï¿½Ö¾ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½è¿­ ï¿½ï¿½ï¿½? ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             track.stop()
         })
 
@@ -225,7 +228,7 @@ function addPeer(socket_id, am_initiator) {
  * @param {HTMLVideoElement} el video element to put in pip mode
  */
 function openPictureMode(el) {
-    console.log('opening pip') //pipï¿½ï¿½ï¿? 
+    console.log('opening pip') //pipï¿½ï¿½ï¿½? 
     el.requestPictureInPicture()
 }
 
@@ -396,7 +399,7 @@ convertNumToTileRowCol = function(num) {
     return arr;
 }
 
-function drawBlockZone(area, ctx_obj) { //todo bitmap?„ ë°›ëŠ”ê²? ?•„?‹ˆ?¼ arrayë¥? ë°›ëŠ”?‹¤ê³? ?ƒê°í•˜?.
+function drawBlockZone(area, ctx_obj) { //todo bitmap?ï¿½ï¿½ ë°›ëŠ”ï¿½? ?ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½ arrayï¿½? ë°›ëŠ”?ï¿½ï¿½ï¿½? ?ï¿½ï¿½ê°í•˜?ï¿½ï¿½.
     let arr = area;
     for(let i =0; i< arr.length; i++) {
         let tile_row_col = convertNumToTileRowCol(arr[i]) 
