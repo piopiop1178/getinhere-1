@@ -78,6 +78,7 @@ navigator.mediaDevices.getUserMedia(constraints).then(stream => {
 function init() {
     
     var query_param = get_query();
+    console.log(query_param);
     socket = io("/", { query: query_param })
 
     var GAME_SETTINGS = null;

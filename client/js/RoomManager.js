@@ -1,3 +1,5 @@
+const uuid = require('uuid')
+
 function RoomManager(io, SETTINGS) {
     const LEFT = 'ArrowLeft', UP = 'ArrowUp', RIGHT = 'ArrowRight', DOWN = 'ArrowDown';
     TILE_LENGTH = SETTINGS.TILE_LENGTH
@@ -13,7 +15,8 @@ function RoomManager(io, SETTINGS) {
     RmMg.rooms = {};
 
     RmMg.create = function(socket) {
-        const roomName = socket.id;
+        const tokens = uuid.v4().split('-');
+        const roomName = tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
         var room = new Room(roomName, socket);
         room.peers[socket.id] = socket;
         socket.join(roomName);
