@@ -22,10 +22,6 @@ app2.use(function(req, res, next){
 
 const httpServer = http.createServer(app2).listen(80);
 
-// http.createServer(function (req, res) {
-//     res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
-// }).listen(80);
-
 const io = require('socket.io')(httpsServer)
 
 require('./socketController')(io)

@@ -1,32 +1,14 @@
-/**
- * Socket.io socket
- */
 let socket;
-/**
- * The stream object used to send media
- */
 let localStream = null;
 /**
  * All peer connections
  */
 let peers = {}
 
-// redirect if not https
-// if(location.href.substr(0,5) !== 'https') 
-//     location.href = 'https' + location.href.substr(4, location.href.length - 4)
-
-
-//////////// CONFIGURATION //////////////////
-
-/**
- * RTCPeerConnection configuration 
- */
 const configuration = {
     "iceServers": [{
             "urls": "stun:stun.l.google.com:19302"
         },
-        // public turn server from https://gist.github.com/sagivo/3a4b2f2c7ac6e1b5267c2f1f59ac6c6b
-        // set your own servers here
         // {
         //     url: 'turn:192.158.29.39:3478?transport=udp',
         //     credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
@@ -42,28 +24,25 @@ const configuration = {
     ]
 }
 
-/**
- * UserMedia constraints
- */
 let constraints = {
     audio: true,
     video: {
         width: {
-            max: 1920
+            max: 1280,
+            ideal: 720
+
         },
         height: {
-            max: 1080
+            max: 720,
+            ideal: 480
         }
     }
 }
 
-/////////////////////////////////////////////////////////
-
 constraints.video.facingMode = {
-    ideal: "user" //ï¿½ï¿½ï¿½ï¿½Ä«ï¿½Ş¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì»ï¿½ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ÈµÇ¸ï¿½ ï¿½Ä¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½ï¿½ï¿½ï¿½
+    ideal: "user" 
 }
 
-// enabling the camera at startup
 navigator.mediaDevices.getUserMedia(constraints).then(stream => {
     console.log('Received local stream');
 
@@ -72,9 +51,6 @@ navigator.mediaDevices.getUserMedia(constraints).then(stream => {
     init()
 }).catch(e => alert(`getusermedia error ${e.name}`))
 
-/**
- * initialize the socket connections
- */
 function init() {
     
     var query_param = get_query();
@@ -142,14 +118,6 @@ function init() {
         drawBlockZone(localStorage.getItem('BLOCKED_AREA').split(','), ctx_obj);
     });
 
-    socket.on("waiting", function () {
-        console.log("I'm waiting!");
-    });
-
-    socket.on("in", function () {
-        console.log("I'm in!");
-    });
-
     // ----------------------------!!RTC!!---------------------------
     socket.on('initReceive', socket_id => {
         console.log('INIT RECEIVE ' + socket_id)
@@ -194,7 +162,7 @@ function removePeer(socket_id) {
 
         const tracks = videoEl.srcObject.getTracks();
 
-        tracks.forEach(function (track) { //forEach() ï¿½Ö¾ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½è¿­ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        tracks.forEach(function (track) { //forEach() ï¿½Ö¾ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½è¿­ ï¿½ï¿½ï¿? ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             track.stop()
         })
 
@@ -246,7 +214,7 @@ function addPeer(socket_id, am_initiator) {
  * @param {HTMLVideoElement} el video element to put in pip mode
  */
 function openPictureMode(el) {
-    console.log('opening pip') //pipï¿½ï¿½ï¿½ 
+    console.log('opening pip') //pipï¿½ï¿½ï¿? 
     el.requestPictureInPicture()
 }
 
@@ -377,6 +345,7 @@ function storelocalStorage(myStatus) {/*ï¿½ï¿½????? 3.12*/
     let col = myStatus.x/TILE_LENGTH + 1;
     localStorage.setItem('position', JSON.stringify({row, col}))
 }
+
 function updateWindowCenter(myStatus) {
     window.scrollTo(myStatus.x - window.innerWidth/2  + TILE_LENGTH/2 , myStatus.y - window.innerHeight/2 + TILE_LENGTH/2 )
 }
@@ -401,7 +370,7 @@ convertNumToTileRowCol = function(num) {
     return arr;
 }
 
-function drawBlockZone(area, ctx_obj) { //todo bitmapì„ ë°›ëŠ”ê²Œ ì•„ë‹ˆë¼ arrayë¥¼ ë°›ëŠ”ë‹¤ê³  ìƒê°í•˜ì.
+function drawBlockZone(area, ctx_obj) { //todo bitmap?„ ë°›ëŠ”ê²? ?•„?‹ˆ?¼ arrayë¥? ë°›ëŠ”?‹¤ê³? ?ƒê°í•˜?.
     let arr = area;
     for(let i =0; i< arr.length; i++) {
         let tile_row_col = convertNumToTileRowCol(arr[i]) 
