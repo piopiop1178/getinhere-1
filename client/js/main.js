@@ -7,10 +7,13 @@ let peers = {}
 
 let tile = new Image();
 tile.src = "../image/tile2.jpg";
-// redirect if not https
-// if(location.href.substr(0,5) !== 'https') 
-//     location.href = 'https' + location.href.substr(4, location.href.length - 4)
 
+let among = new Image();
+among.src = "../image/among.jpg";
+
+let audio = new Audio('../music/all_falls_down.mp3');
+let audio_on = false;
+// audio.src = '../music/Redone.mp3';
 
 //////////// CONFIGURATION //////////////////
 
@@ -98,6 +101,10 @@ function init() {
         let parsed_status = JSON.parse(st);
         let curr_x = parsed_status.x;
         let curr_y = parsed_status.y;
+
+        if (curr_x <= 60 && 1200 - curr_y <= 120 && e.code === "KeyX")
+            socket.emit('music');
+
         socket.emit('keydown', e.code);
         if(e.code == RIGHT) e.preventDefault();
         if(e.code == LEFT)  e.preventDefault();
@@ -181,6 +188,17 @@ function init() {
         peers[data.socket_id].signal(data.signal)
     })
 
+    socket.on('music', () => {
+        if (audio_on === false) {
+            audio_on = true;
+            audio.play();
+        }
+        else {
+            audio_on = false;
+            audio.pause();
+        }
+            
+    })
     // --------------------------------------------------------------
 }
 
@@ -446,4 +464,11 @@ function drawBlockZone(area, ctx_obj) { //todo bitmap?�� 받는�? ?��?
         ctx_obj.fillStyle = "black";
         ctx_obj.fillRect(pixel_x, pixel_y, TILE_LENGTH, TILE_LENGTH);
     }
+
+    ctx_obj.drawImage(among, 
+        0 * TILE_LENGTH,
+        19 * TILE_LENGTH,
+        TILE_LENGTH,
+        TILE_LENGTH
+        );
 }
