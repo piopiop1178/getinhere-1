@@ -12,6 +12,9 @@ let audio = new Audio('../music/all_falls_down.mp3');
 let audio_on = false;
 // audio.src = '../music/Redone.mp3';
 
+let audioctx
+let gains = {}
+
 const configuration = {
     "iceServers": [{
             "urls": "stun:stun.l.google.com:19302"
@@ -88,6 +91,12 @@ function init() {
     icon.src = `../image/${charNameList[Math.floor(Math.random()*charNameList.length)]}`;
     // tmp
 
+    // Initialize AudioContext
+    audioctx = new AudioContext()
+
+    // Initialize distance
+    let dist;
+
     body.addEventListener('keydown' ,(e)=> {
         let st = localStorage.getItem('myStatus');
         let parsed_status = JSON.parse(st);
@@ -142,6 +151,12 @@ function init() {
         contextCharacter.clearRect(0, 0, WIDTH, HEIGHT);
         contextCharacter.beginPath();
         idArray.forEach(function (id) {
+            // Audio volume change
+            if (id !== socket.id && gains[id] != undefined) {
+                dist = calcDistance(statuses[id].status, statuses[socket.id].status)
+                console.log(dist)
+                gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
+            }
             // 캐릭터 삽입 코드
             contextCharacter.drawImage(icon, 
                 statuses[id].status.x,
@@ -214,9 +229,21 @@ function removePeer(socket_id) {
 }
 
 function addPeer(socket_id, am_initiator) {
+    let newStream = new MediaStream(localStream)
+    let newAudioTrack = localStream.getAudioTracks()[0]
+    let src = audioctx.createMediaStreamSource(new MediaStream([newAudioTrack]))
+    let dst = audioctx.createMediaStreamDestination()
+    let gainNode = audioctx.createGain()
+    gainNode.gain.value = 0
+    gains[socket_id] = gainNode
+    ;[src, gainNode, dst].reduce((a, b) => a && a.connect(b))
+    newStream.removeTrack(newAudioTrack)
+    newStream.addTrack(dst.stream.getAudioTracks()[0])
+
     peers[socket_id] = new SimplePeer({
         initiator: am_initiator,
-        stream: localStream,
+        // stream: localStream,
+        stream: newStream,
         config: configuration
     })
 
@@ -365,4 +392,8 @@ function drawBlockZone(area, ctx_obj) {
         TILE_LENGTH
         );
 //--------------------------tmp----------------------
+}
+
+function calcDistance(status1, status2) {
+    return Math.sqrt(Math.pow((status1.x - status2.x)/CHAR_SIZE, 2) + Math.pow((status1.y - status2.y)/CHAR_SIZE, 2))
 }
