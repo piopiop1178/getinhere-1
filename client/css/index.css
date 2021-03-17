@@ -1,0 +1,50 @@
+canvas {
+    position: absolute;
+    display: block;
+    border: black 1px solid;
+    margin: 0 auto;
+}
+canvas #background-layer{
+    z-index: 3;
+}
+canvas #object-layer{
+    z-index: 2;
+}
+canvas #character-layer{
+    z-index: 2;
+}
+
+.video-box {
+    position: fixed;
+    z-index: 3;
+}
+
+/* 기존 코드 */
+.containers {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: repeat(auto-fit, 1fr);
+    grid-template-rows: repeat(auto-fit, 300px);
+}
+
+.container {
+    display: flex;
+}
+
+.vid {
+    flex: 0 1 auto;
+    height: 150px;
+}
+
+.settings {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 2px 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 10px;
+    margin: 2px 2px;
+    cursor: pointer;
+}

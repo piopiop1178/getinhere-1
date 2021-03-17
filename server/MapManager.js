@@ -1,4 +1,3 @@
-// TODO 나중에 DB에서 데이터를 가지고 올 수 있도록 설정해주기
 function MapManager(Map_Number) {
 
     this.TILE_LENGTH = 60   // length of tile itself

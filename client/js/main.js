@@ -5,6 +5,18 @@ let localStream = null;
  */
 let peers = {}
 
+let tile = new Image();
+tile.src = "../image/tile2.jpg";
+// redirect if not https
+// if(location.href.substr(0,5) !== 'https') 
+//     location.href = 'https' + location.href.substr(4, location.href.length - 4)
+
+
+//////////// CONFIGURATION //////////////////
+
+/**
+ * RTCPeerConnection configuration 
+ */
 const configuration = {
     "iceServers": [{
             "urls": "stun:stun.l.google.com:19302"
@@ -57,16 +69,20 @@ function init() {
     console.log(query_param);
     socket = io("/", { query: query_param })
 
-    var GAME_SETTINGS = null;
+    let GAME_SETTINGS = null;
     const LEFT = 'ArrowLeft', UP = 'ArrowUp', RIGHT = 'ArrowRight', DOWN = 'ArrowDown';
 
-    var canvas = document.createElement("canvas");
-    var ctx = canvas.getContext("2d");
-    var ctx_obj = canvas.getContext("2d");
+    const canvasBackground = document.createElement("canvas");
+    const contextBackground = canvasBackground.getContext("2d");
+    canvasBackground.id = "#background-layer";
 
-    canvas.style.display = "block"
-    canvas.style.border = "black 1px solid"
-    canvas.style.margin = "0 auto"
+    const canvasObject = document.createElement("canvas");
+    const contextObject = canvasObject.getContext("2d");
+    canvasObject.id = "#object-layer";
+
+    const canvasCharacter = document.createElement("canvas");
+    const contextCharacter = canvasCharacter.getContext("2d");
+    canvasCharacter.id = "#character-layer";
 
     const body = document.querySelector('body')
 
@@ -93,9 +109,18 @@ function init() {
     });
     socket.on("connected", function (SERVER_GAME_SETTINGS) {
         GAME_SETTINGS = SERVER_GAME_SETTINGS;
-        canvas.setAttribute("width", GAME_SETTINGS.WIDTH);
-        canvas.setAttribute("height", GAME_SETTINGS.HEIGHT);
-        document.body.appendChild(canvas);
+
+        canvasBackground.setAttribute("width", GAME_SETTINGS.WIDTH);
+        canvasBackground.setAttribute("height", GAME_SETTINGS.HEIGHT);
+        document.body.appendChild(canvasBackground);
+
+        canvasObject.setAttribute("width", GAME_SETTINGS.WIDTH);
+        canvasObject.setAttribute("height", GAME_SETTINGS.HEIGHT);
+        document.body.appendChild(canvasObject);
+
+        canvasCharacter.setAttribute("width", GAME_SETTINGS.WIDTH);
+        canvasCharacter.setAttribute("height", GAME_SETTINGS.HEIGHT);
+        document.body.appendChild(canvasCharacter);
 
         localStorage.setItem('BLOCKED_AREA', GAME_SETTINGS.BLOCKED_AREA);
         TILE_LENGTH = GAME_SETTINGS.TILE_LENGTH
@@ -104,32 +129,27 @@ function init() {
         CHAR_SIZE = GAME_SETTINGS.CHAR_SIZE
         WIDTH = GAME_SETTINGS.WIDTH
         HEIGHT = GAME_SETTINGS.HEIGHT
+
+        drawBackground(contextBackground, GAME_SETTINGS, tile);
+        drawBlockZone(localStorage.getItem('BLOCKED_AREA').split(','), contextObject);
     });
     // socket.on("update", function (statuses) {
     socket.on("update", function (statuses, idArray) {
         if (GAME_SETTINGS == null) return;
-        drawBackground(ctx, GAME_SETTINGS);
         storelocalStorage(statuses[socket.id].status);
         updateWindowCenter(statuses[socket.id].status);
 
+        contextCharacter.clearRect(0, 0, WIDTH, HEIGHT);
+        contextCharacter.beginPath();
         idArray.forEach(function (id) {
-            // ctx.fillStyle = statuses[id].status.color;
-            // ctx.fillRect(
-            //     statuses[id].status.x,
-            //     statuses[id].status.y,
-            //     statuses[id].status.width,
-            //     statuses[id].status.height
-            // );
             // 캐릭터 삽입 코드
-            ctx_obj.drawImage(icon, 
+            contextCharacter.drawImage(icon, 
                 statuses[id].status.x,
                 statuses[id].status.y,
                 statuses[id].status.width,
                 statuses[id].status.height
                 );
         });
-
-        drawBlockZone(localStorage.getItem('BLOCKED_AREA').split(','), ctx_obj);
     });
 
     // ----------------------------!!RTC!!---------------------------
@@ -364,29 +384,47 @@ function updateWindowCenter(myStatus) {
     window.scrollTo(myStatus.x - window.innerWidth/2  + TILE_LENGTH/2 , myStatus.y - window.innerHeight/2 + TILE_LENGTH/2 )
 }
 
-function drawBackground(ctx, GAME_SETTINGS) {
-    // ctx.fillStyle = GAME_SETTINGS.BACKGROUND_COLOR;
-    // ctx.fillRect(
-    //     0,
-    //     0,
-    //     GAME_SETTINGS.WIDTH,
-    //     GAME_SETTINGS.HEIGHT
-    // );
-
+function drawBackground(contextBackground, GAME_SETTINGS, tile) {
     // 배경 이미지
     // let backgroundImage = new Image();
     // backgroundImage.src = "../image/back.jpg";
     // ctx.drawImage(backgroundImage, 0, 0, GAME_SETTINGS.WIDTH, GAME_SETTINGS.HEIGHT);
 
     // 배경 타일
-    let backgroundTile = new Image();
-    backgroundTile.src = "../image/tile.jpg";
-
+    console.log(tile);
     for(let y = 0; y < GAME_SETTINGS.HEIGHT; y += TILE_LENGTH){
         for(let x = 0; x < GAME_SETTINGS.WIDTH; x += TILE_LENGTH){
-            ctx.drawImage(backgroundTile, x, y, TILE_LENGTH, TILE_LENGTH);
-        }
-    }
+                contextBackground.drawImage(tile, x, y, TILE_LENGTH, TILE_LENGTH);
+        };
+    };
+
+
+    // 배경 타일
+    // let backgroundTile = new Image();
+    // backgroundTile.src = "../image/tile.jpg";
+    // contextBackground.fillStyle = "yellow";
+    // for(let y = 0; y < GAME_SETTINGS.HEIGHT; y += TILE_LENGTH){
+    //     for(let x = 0; x < GAME_SETTINGS.WIDTH; x += TILE_LENGTH){
+    //         contextBackground.fillRect(x, y, TILE_LENGTH, TILE_LENGTH);
+    //     };
+    // };
+
+
+    // let img = new Image();
+    // img.onload = function() {
+    //     let pattern = contextBackground.createPattern(img, 'repeat');
+    //     contextBackground.fillStyle = pattern;
+    //     contextBackground.fillRect(0, 0, GAME_SETTINGS.WIDTH, GAME_SETTINGS.HEIGHT);
+    // };
+    // img.src = '../image/tile.jpg';
+
+
+    // contextBackground.fillStyle = "yellow";
+    // for(let y = 0; y < GAME_SETTINGS.HEIGHT; y += TILE_LENGTH){
+    //     for(let x = 0; x < GAME_SETTINGS.WIDTH; x += TILE_LENGTH){
+    //         contextBackground.fillRect(x, y, TILE_LENGTH, TILE_LENGTH);
+    //     }
+    // }
 }
 
 convertNumToTileRowCol = function(num) {
