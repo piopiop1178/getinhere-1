@@ -73,5 +73,9 @@ module.exports = (io) => {
                 delete roomManager.rooms[roomName].objects[socket.id].keypress[keyCode];
             }
         });
+
+        socket.on('music', () => {
+            io.to(roomName).emit('music');
+        })
     })
 }
