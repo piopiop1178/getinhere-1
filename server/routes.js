@@ -13,6 +13,6 @@ module.exports = (app) => {
         }
     })*/
 
-    app.use(express.static(path.join(__dirname, '..','client')))
+    app.use(express.static(path.join(__dirname, '..','client'))) //  여기서 알아서 index.html 찾아가나? 아무것도 안쓰면 index.html찾아간다
     app.use(express.static(path.join(__dirname, '..','node_modules')))
 }

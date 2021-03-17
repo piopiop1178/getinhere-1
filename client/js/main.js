@@ -99,10 +99,10 @@ function init() {
         let curr_x = parsed_status.x;
         let curr_y = parsed_status.y;
         socket.emit('keydown', e.code);
-        if(e.code == RIGHT) e.preventDefault(); parsed_status.x = parsed_status.x + TILE_LENGTH
-        if(e.code == LEFT)  e.preventDefault(); parsed_status.x = parsed_status.x - TILE_LENGTH
-        if(e.code == DOWN)  e.preventDefault(); parsed_status.y = parsed_status.y + TILE_LENGTH
-        if(e.code == UP)    e.preventDefault(); parsed_status.y = parsed_status.y - TILE_LENGTH
+        if(e.code == RIGHT) e.preventDefault();
+        if(e.code == LEFT)  e.preventDefault();
+        if(e.code == DOWN)  e.preventDefault();
+        if(e.code == UP)    e.preventDefault();
     })
     body.addEventListener("keyup", function (e) {
         socket.emit("keyup", e.code);

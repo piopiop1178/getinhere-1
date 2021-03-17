@@ -1,3 +1,51 @@
+/* html 기본 css 속성 초기화 */
+body {
+    margin: 0px;
+    padding: 0px;
+}
+
+/* 내 영상 + 채팅창 등 토글버튼 */
+.local-video-box {
+    display:flex;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 3;
+    position: fixed;
+    right: 0px;
+    bottom: 0px;
+    margin: 1%
+}
+
+#localVideo {
+    margin: 0px auto;
+    height: 100px;
+    width: 150px;
+    border-radius: 10%;
+}
+
+.setting-container {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    bottom: 0px;
+    margin: 1% 0px;
+}
+
+
+/* Scroll Hide 스크롤 숨기기 */
+/* Hide scrollbar for Chrome, Safari and Opera */
+body::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+body {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+
+/* Canvas*/
 canvas {
     position: absolute;
     display: block;
@@ -16,8 +64,13 @@ canvas #character-layer{
 
 .video-box {
     position: fixed;
+    width: 100%;
+    justify-content: center;
+    top: 1%;            /* 디자인특성을 어떻게 가져가야할지 고민 */
     z-index: 3;
 }
+
+
 
 /* 기존 코드 */
 .containers {
@@ -27,13 +80,16 @@ canvas #character-layer{
     grid-template-rows: repeat(auto-fit, 300px);
 }
 
-.container {
+.video-container {
     display: flex;
+    justify-content: center;
 }
 
 .vid {
     flex: 0 1 auto;
     height: 150px;
+    border-radius: 10%;
+    margin: 0px 1%
 }
 
 .settings {
