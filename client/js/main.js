@@ -74,15 +74,15 @@ function init() {
 
     const canvasBackground = document.createElement("canvas");
     const contextBackground = canvasBackground.getContext("2d");
-    canvasBackground.id = "#background-layer";
+    canvasBackground.id = "background-layer";
 
     const canvasObject = document.createElement("canvas");
     const contextObject = canvasObject.getContext("2d");
-    canvasObject.id = "#object-layer";
+    canvasObject.id = "object-layer";
 
     const canvasCharacter = document.createElement("canvas");
     const contextCharacter = canvasCharacter.getContext("2d");
-    canvasCharacter.id = "#character-layer";
+    canvasCharacter.id = "character-layer";
 
     const body = document.querySelector('body')
 
@@ -91,7 +91,11 @@ function init() {
     among.src = "../image/among.jpg";
 
     let icon = new Image();
-    icon.src = "../image/icon.png";
+    // tmp 3.18(목) 발표를 위한 더미데이터. 랜덤으로 캐릭터 생성 및 blocked_area 그림데이터
+    let charNameList = ['icon.png', 'char_snowman.png', 'char_snowman2.png','char_woman1.png', 'char_woman2.png']
+    // icon.src = "../image/icon.png";
+    icon.src = `../image/${charNameList[Math.floor(Math.random()*charNameList.length)]}`;
+    // tmp
 
     body.addEventListener('keydown' ,(e)=> {/*��????? 3.12*/
         let st = localStorage.getItem('myStatus');
