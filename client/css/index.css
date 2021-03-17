@@ -5,6 +5,34 @@ body {
 }
 
 /* 내 영상 + 채팅창 등 토글버튼 */
+.toggles {
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.chat-toggle , .invite-toggle, .etc-toggle{
+    margin: 10px 10px;
+    background-color: ivory;
+    border-radius: 20%;
+}
+
+.chat-toggle:hover , .invite-toggle:hover, .etc-toggle:hover {
+    cursor: pointer;
+}
+
+.invite-toggle-notice {
+    display: none;
+    position: absolute;
+    top: -30px;
+    background-color: ivory;
+    font-size : 15px;
+    text-align: center;
+    width: 130px;
+    border-radius: 3px;
+}
+
+
 .local-video-box {
     display:flex;
     justify-content: center;
@@ -89,7 +117,7 @@ canvas #character-layer{
     flex: 0 1 auto;
     height: 150px;
     border-radius: 10%;
-    margin: 0px 1%
+    margin: 0px 5px;
 }
 
 .settings {

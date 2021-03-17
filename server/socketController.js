@@ -9,15 +9,18 @@ module.exports = (io) => {
         // Initiate the connection process as soon as the client connects
         
         //���� ���� initialize
-        socket.emit('connected', GAME_SETTINGS);
-
+        // socket.emit('connected', GAME_SETTINGS); // tmp
+        
         lobbyManager.push(socket);
         lobbyManager.dispatch(roomManager);
-
+        
         // console.log(io.sockets.adapter.rooms);
-
+        
         let roomName = roomManager.findRoomName(socket);
         let peers = roomManager.rooms[roomName].peers;
+
+        // ���� ���� initialize
+        socket.emit('connected', GAME_SETTINGS, roomName); // tmp
 
         // Asking all other clients to setup the peer connection receiver
         for(let id in peers) {

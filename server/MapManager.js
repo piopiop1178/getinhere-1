@@ -9,7 +9,7 @@ function MapManager(Map_Number) {
     this.BACKGROUND_COLOR = "#FFFFFF"
     this.BACKGROUND_IMG
     this.BLOCKED_AREA = [9, 11, 20, 25, 31, 50, 100, 150, 170, 350, 380, 388, 500, 512, 513, 514, 550, 600, 650, 670, 677, 680] //! dummy data
-  
+    
     
     this.pixelToTile = function(pixel) {
         let tile = pixel/TILE_LENGTH + 1;

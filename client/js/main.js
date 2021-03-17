@@ -118,7 +118,7 @@ function init() {
     body.addEventListener("keyup", function (e) {
         socket.emit("keyup", e.code);
     });
-    socket.on("connected", function (SERVER_GAME_SETTINGS) {
+    socket.on("connected", function (SERVER_GAME_SETTINGS, roomName) {
         GAME_SETTINGS = SERVER_GAME_SETTINGS;
 
         canvasBackground.setAttribute("width", GAME_SETTINGS.WIDTH);
@@ -134,6 +134,7 @@ function init() {
         document.body.appendChild(canvasCharacter);
 
         localStorage.setItem('BLOCKED_AREA', GAME_SETTINGS.BLOCKED_AREA);
+        localStorage.setItem('Invite_url', 'https://getinhere/?room=' + roomName);
         TILE_LENGTH = GAME_SETTINGS.TILE_LENGTH
         TILE_WIDTH = GAME_SETTINGS.TILE_WIDTH
         TILE_HEIGHT = GAME_SETTINGS.TILE_HEIGHT

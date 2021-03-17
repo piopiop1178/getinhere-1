@@ -6,7 +6,7 @@
         <script defer src="/socket.io/socket.io.js"></script>
         <script defer src="/simple-peer/simplepeer.min.js"></script>
         <script defer src="/js/main.js"></script>    <!-- server폴더 routes.js 에서 app.use로 라우팅해준 덕분인듯-->
-        <!-- Bulma For icon -->
+        <script defer src="/js/designControl.js"></script>
         <link rel="stylesheet" href="/css/index.css">
     </head>
     <body>
@@ -15,6 +15,12 @@
             </div>
         </div>
         <div class="local-video-box">
+            <div class="toggles">
+                <div class="chat-toggle">📢</div>
+                <div class="invite-toggle">👨‍👩‍👦</div>
+                <div class="invite-toggle-notice"> Invite Link Copied! </div>
+                <div class="etc-toggle">🔧</div>
+            </div>
             <video id="localVideo" autoplay muted></video>
             <div class="setting-container">
                     <!-- <button id="switchButton" class="settings" onclick="switchMedia()">Switch Camera</button> -->
