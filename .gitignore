@@ -4,3 +4,6 @@
 # SSL key
 fullchain.pem
 privkey.pem
+
+# MongoDB
+.env

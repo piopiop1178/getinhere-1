@@ -138,7 +138,7 @@ function UserObject(id) {
     this.id = id;
 }
 
-function Room(name, player) {
+function Room(name, player) { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
     this.name = name;
     this.status = "waiting";
     this.players = [player];
