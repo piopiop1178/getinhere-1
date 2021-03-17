@@ -38,6 +38,9 @@ module.exports = (io) => {
             
             console.log('socket disconnected ' + socket.id)
             delete peers[socket.id]
+            if (Object.keys(peers).length === 0) {
+                delete roomManager.rooms[roomName]
+            }
         })
 
         socket.on('initSend', init_socket_id => {
