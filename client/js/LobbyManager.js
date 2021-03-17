@@ -1,7 +1,7 @@
 function LobbyManager(io) {
     let LbMg = this;
     LbMg.lobby = [];
-    LbMg.updating = false;
+    LbMg.dispatching = false;
 
     /* Push socket into lobby */
     LbMg.push = function(socket) {
@@ -43,6 +43,7 @@ function LobbyManager(io) {
                 if (!valid) {
                     //TODO Use app.use() before proceeding here and give error html
                     console.log('wrong room name!');
+                    //TODO after make home, do redirect
                 }
             }
             else

@@ -10,15 +10,16 @@ function RoomManager(io, SETTINGS) {
     HEIGHT = SETTINGS.HEIGHT;
     BLOCKED_AREA = SETTINGS.BLOCKED_AREA
 
-    var RmMg = this;
+    let RmMg = this;
 
     RmMg.rooms = {};
 
     RmMg.create = function(socket) {
         const tokens = uuid.v4().split('-');
         const roomName = tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
-        var room = new Room(roomName, socket);
-        room.peers[socket.id] = socket;
+        let room = new Room(roomName, socket);
+        room.players[socket.id] = socket;
+        // room.peers[socket.id] = socket;
         socket.join(roomName);
         
         RmMg.rooms[roomName] = room;
@@ -27,32 +28,37 @@ function RoomManager(io, SETTINGS) {
     };
 
     RmMg.join = function(socket, room) {
-        socket.leave(socket.id);
+        // socket.leave(socket.id);
         socket.join(room.name);
-        room.players.push(socket);
+        // room.players.push(socket);
+        room.players[socket.id] = socket;
         room.objects[socket.id] = new UserObject(socket.id);
-        room.peers[socket.id] = socket;
+        // room.peers[socket.id] = socket;
         console.log('Joined room :', room.name);
     }
 
     RmMg.disconnect = function(socket) {
-        var roomName = RmMg.findRoomName(socket);
+        let roomName = RmMg.findRoomName(socket);
         if (roomName === null) {
             console.log("error : can't find socket in Room");
             return;
         }
-        var players = RmMg.rooms[roomName].players;
-        const playerindex = players.findIndex(function(player) {
-            return player.id === socket.id
-        });
-        if (playerindex > -1) {
-            players.splice(playerindex, 1);
+        let players = RmMg.rooms[roomName].players;
+        const playername = socket.id;
+        // const playerindex = players.findIndex(function(player) {
+        //     return player.id === socket.id
+        // });
+        if (players[playername]) {
+            delete players[playername];
+            //need destroy?? 
+
+            // players.splice(playerindex, 1);
         } else {
             console.log("error : can't find socket in Room");
             return;
         }
         delete RmMg.rooms[roomName].objects[socket.id];
-        delete RmMg.rooms[roomName].peers[socket.id];
+        // delete RmMg.rooms[roomName].peers[socket.id];
     }
 
     //TODO compare socket.id and key in objects
@@ -60,8 +66,8 @@ function RoomManager(io, SETTINGS) {
         let roomName = null;
         let roomList = Object.values(RmMg.rooms);
         roomList.some(function(room, index) {
-            for (var object in room.objects) {
-                var obj = room.objects[object];
+            for (let object in room.objects) {
+                let obj = room.objects[object];
                 if (obj.id == socket.id) {
                     roomName = room.name;
                     return true;
@@ -76,7 +82,7 @@ function RoomManager(io, SETTINGS) {
     RmMg.update = setInterval(function() {
         let roomList = Object.values(RmMg.rooms);
         roomList.forEach(function(room) {
-            // var statuses = [];
+            // let statuses = [];
             let idArray = []; 
             let statuses = {};
             for (let object in room.objects) {
@@ -123,8 +129,8 @@ function RoomManager(io, SETTINGS) {
 
 function UserObject(id) {
 
-    var color = '#';
-    for (var i = 0; i < 6; i++) {
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
         color += (Math.floor(Math.random()*16)).toString(16);
     }
     this.status = {};
@@ -141,10 +147,11 @@ function UserObject(id) {
 function Room(name, player) { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
     this.name = name;
     this.status = "waiting";
-    this.players = [player];
-    this.peers = {};
+    this.players = {}
+    this.players[player.id] = player
     this.objects = {};
     this.objects[player.id] = new UserObject(player.id);
+    //TODO map information
 }
 
 module.exports = RoomManager;

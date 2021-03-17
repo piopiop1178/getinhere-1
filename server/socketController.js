@@ -6,34 +6,22 @@ module.exports = (io) => {
     
     io.on('connect', (socket) => { //This event is fired upon a new connection. The first argument is a Scocket instance.
         console.log('user connected: ', socket.id);
+        console.log(io.sockets.adapter.rooms);
         // Initiate the connection process as soon as the client connects
         
-        //���� ���� initialize
-        // socket.emit('connected', GAME_SETTINGS); // tmp
-        
-        lobbyManager.push(socket);
+        lobbyManager.push(socket); // 없애도 됨 -> 바꿀 때 kick등도 같이 바꾸기
         lobbyManager.dispatch(roomManager);
-        
+
         // console.log(io.sockets.adapter.rooms);
-        
+
         let roomName = roomManager.findRoomName(socket);
-        let peers = roomManager.rooms[roomName].peers;
+        let peers = roomManager.rooms[roomName].players;
 
-        // ���� ���� initialize
-        socket.emit('connected', GAME_SETTINGS, roomName); // tmp
-
+        socket.emit('connected', GAME_SETTINGS, roomName);
         // Asking all other clients to setup the peer connection receiver
-        for(let id in peers) {
-            if(id === socket.id) continue
-            console.log('sending init receive to ' + socket.id)
-            peers[id].emit('initReceive', socket.id)
-        }
-
-        /**
-         * relay a peerconnection signal to a specific socket
-         */
+        socket.to(roomName).emit('initReceive', socket.id)
+        
         socket.on('signal', data => {
-            // console.log('sending signal from ' + socket.id + ' to ', data)
             if(!peers[data.socket_id])return
             peers[data.socket_id].emit('signal', {
                 socket_id: socket.id,
@@ -41,9 +29,6 @@ module.exports = (io) => {
             })
         })
 
-        /**
-         * remove the disconnected peer connection from all other connected clients
-         */
         socket.on('disconnect', () => {          
             let roomName = roomManager.findRoomName(socket);
             io.to(roomName).emit('removePeer', socket.id)
@@ -55,24 +40,22 @@ module.exports = (io) => {
             delete peers[socket.id]
         })
 
-        /**
-         * Send message to client to initiate a connection
-         * The sender has already setup a peer connection receiver
-         */
         socket.on('initSend', init_socket_id => {
             console.log('INIT SEND by ' + socket.id + ' for ' + init_socket_id)
             peers[init_socket_id].emit('initSend', socket.id)
         })
 
         socket.on('keydown', function(keyCode) {
-            var roomName = roomManager.findRoomName(socket);
+            let roomName = roomManager.findRoomName(socket);
             if (roomName !== null) {
                 roomManager.rooms[roomName].objects[socket.id].keypress[keyCode] = true;
             }
         });
+
         socket.on('keyup', function (keyCode) {
-            var roomName = roomManager.findRoomName(socket);
+            let roomName = roomManager.findRoomName(socket);
             if (roomName !== null) {
+                // roomManager.rooms[roomName].objects[socket.id].keypress[keyCode] = false;
                 delete roomManager.rooms[roomName].objects[socket.id].keypress[keyCode];
             }
         });

@@ -17,15 +17,11 @@ mongoose.connect(process.env.MONGO_URI,
 {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false}
 ).then(() => console.log('MongoDB connected...')).catch(error => console.log(error))
 
-
 require('./routes')(app)
 
 const httpsServer = https.createServer(options, app).listen(443);
 
-
 app2.use(function(req, res, next){
-    console.log('req.headers[`host`]', req.headers['host'])
-    console.log('req.url', req.url)
     res.redirect("https://" + req.headers['host'] + req.url)
 });
 
