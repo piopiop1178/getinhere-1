@@ -151,6 +151,7 @@ function Room(name, player) { // TODO 어떤 map을 사용하고 있는지 정�
     this.players[player.id] = player
     this.objects = {};
     this.objects[player.id] = new UserObject(player.id);
+    this.music = false;
     //TODO map information
 }
 

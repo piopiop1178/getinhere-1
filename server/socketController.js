@@ -64,7 +64,17 @@ module.exports = (io) => {
         });
 
         socket.on('music', () => {
-            io.to(roomName).emit('music');
+            let roomName = roomManager.findRoomName(socket);
+            if (!roomManager.rooms[roomName].music){
+                console.log(`music_on!! ${roomManager.rooms[roomName].music}`);
+                roomManager.rooms[roomName].music = true;
+                io.to(roomName).emit('music_on');
+            }
+            else {
+                console.log(`music_off!! ${roomManager.rooms[roomName].music}`);
+                roomManager.rooms[roomName].music = false;
+                io.to(roomName).emit('music_off');
+            }
         })
     })
 }

@@ -9,7 +9,7 @@ let among = new Image();
 among.src = "../image/among.jpg";
 
 let audio = new Audio('../music/all_falls_down.mp3');
-let audio_on = false;
+// let audio_on = false;
 // audio.src = '../music/Redone.mp3';
 
 let audioctx
@@ -103,8 +103,10 @@ function init() {
         let curr_x = parsed_status.x;
         let curr_y = parsed_status.y;
 
-        if (curr_x <= 60 && 1200 - curr_y <= 120 && e.code === "KeyX")
+        if (curr_x <= 60 && 1200 - curr_y <= 120 && e.code === "KeyX"){
+            console.log('aaaaaa');
             socket.emit('music');
+        }
 
         socket.emit('keydown', e.code);
         if(e.code == RIGHT) e.preventDefault();
@@ -196,15 +198,14 @@ function init() {
         peers[data.socket_id].signal(data.signal)
     })
 
-    socket.on('music', () => {
-        if (audio_on === false) {
-            audio_on = true;
-            audio.play();
-        }
-        else {
-            audio_on = false;
-            audio.pause();
-        }
+    socket.on('music_on', () => {
+        console.log('music_on!');
+        audio.play();
+    })
+
+    socket.on('music_off', () => {
+        console.log('music_off!');
+        audio.pause();
     })
     // --------------------------------------------------------------
 }
