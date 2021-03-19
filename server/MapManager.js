@@ -1,56 +1,19 @@
-function MapManager(Map_Number) {
+/* Map 을 관리할 클래스 */
+const Map = require('./Map');
 
-    this.TILE_LENGTH = 60   // length of tile itself
-    this.TILE_WIDTH = 40    // Number of horizontal tiles
-    this.TILE_HEIGHT = 20;  // Number of vertical tiles
-    this.CHAR_SIZE = 60     // size of character, same with TILE_LENGTH
-    this.WIDTH = this.TILE_LENGTH * this.TILE_WIDTH
-    this.HEIGHT = this.TILE_LENGTH * this.TILE_HEIGHT
-    this.BACKGROUND_COLOR = "#FFFFFF"
-    this.BACKGROUND_IMG
-    this.BLOCKED_AREA = [9, 11, 20, 25, 31, 50, 100, 150, 170, 350, 380, 388, 500, 512, 513, 514, 550, 600, 650, 670, 677, 680] //! dummy data
-    
-    
-    this.pixelToTile = function(pixel) {
-        let tile = pixel/TILE_LENGTH + 1;
-        return tile;
+class MapManager {
+    static mapList = [];
+    /* 매개변수 없이 DB에서 정보를 받아서 시작하자마자 맵 로드 */
+    constructor(){
+        /* TODO DB에서 전체 맵 정보를 미리 업로드
+         * 현재는 고정 값을 가진 Map 하나 추가 */
     }
-    
-    this.tileToPixel = function(tile) { 
-        let pixel = (tile-1)*TILE_LENGTH;
-        return pixel;
+    /* Room 생성 시 필요한 Map 정보를 mapIndex를 통해 반환 */
+    static init(){
+        this.mapList.push(new Map());
     }
-    
-    this.convertLocToNum = function(row, col) {
-        let target = ((row - 1) * (TILE_WIDTH) + (col))
-        return target;
+    static getMapByIndex(mapIndex){
+        return this.mapList[mapIndex];
     }
-    
-    this.convertNumToTileRowCol = function(num) {
-        let arr = []
-        // let row = parseInt(num / TILE_WIDTH) + 1
-        let row = num % TILE_WIDTH ? parseInt(num / TILE_WIDTH) + 1 : parseInt(num / TILE_WIDTH);
-        let col = num % TILE_WIDTH ? num % TILE_WIDTH : TILE_WIDTH;
-        arr[0] = row
-        arr[1] = col
-        return arr;
-    }
-    
-    this.convertNumToPixelXY = function(num) {
-        let arr = this.convertNumToTileRowCol(num);
-        let x = this.tileToPixel(arr[1]); // x = col
-        let y = this.tileToPixel(arr[0]); // y = row
-        return [x, y];
-    }
-  
-    this.checkBlockMap = function(block, row, col) { // ????? ?????? true?? return???
-      let target = this.convertLocToNum(row, col)
-      if (block.includes(target)) {
-          return true;
-      } else {
-          return false;
-      }
-  }
-    
-  }
-  module.exports = MapManager;
+}
+module.exports = MapManager;

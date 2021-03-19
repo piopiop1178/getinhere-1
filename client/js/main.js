@@ -104,7 +104,6 @@ function init() {
         let curr_y = parsed_status.y;
 
         if (curr_x <= 60 && 1200 - curr_y <= 120 && e.code === "KeyX"){
-            console.log('aaaaaa');
             socket.emit('music');
         }
 

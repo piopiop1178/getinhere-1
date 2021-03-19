@@ -1,80 +1,104 @@
+const LobbyManager = require('./LobbyManager');
+const MapManager = require('./MapManager'); //! 나중에 여기에 인자로 원하는 맵 number가 들어가면 된다. 그러면 MAP.js가 DB랑 통신해서 MAP정보를 받아온다
+const { roomByName } = require('./RoomManager');
+const RoomManager = require('./RoomManager');
+
+/* DB에서 Map을 불러와서 미리 서버에 저장 */
+MapManager.init();
+
+/* 서버로 오는 요청을 담당할 io 정의 */
 module.exports = (io) => {
+    /* connect 요청 시 */
+    /* 테스트 용으로 임시 방 생성 */
+    RoomManager.init(io);
+    RoomManager.createRoom(MapManager.getMapByIndex(0));
 
-    let GAME_SETTINGS = new (require('./MapManager.js'))(); //! 나중에 여기에 인자로 원하는 맵 number가 들어가면 된다. 그러면 MAP.js가 DB랑 통신해서 MAP정보를 받아온다
-    const lobbyManager = new (require('../client/js/LobbyManager.js'))(io);
-    const roomManager = new (require('../client/js/RoomManager.js'))(io, GAME_SETTINGS);
+    io.on('connect', (socket) => {
+        /* socket에서 room의 값을 가져온다 */
+        const roomName = socket.handshake.query.room;
+        const room = RoomManager.getRoomByRoomName(roomName);
+        
+        initSocket(socket, room);
+
+        /* Room 추가 후 Room 정보를 전달한다 */
+        socket.emit('connected', room.map, room.name);
+        socket.to(room.name).emit('initReceive', socket.id);
+
+        initWebRTC(socket, room);
+        console.log(room);
+        initKeyEvent(socket, room);
+        initMusic(socket, room);
+
+    });
+
+    function initSocket(socket, room){
+        /* 방 이름이 없으면 */
+        if (room === undefined){
+            /* ERROR */
+            console.log("ERROR : io.on('connect'), roomName === undefined");
+        }
+        /* 방 이름이 있으면 */
+        else{
+            /* Room에 socket 추가 */
+            RoomManager.addSocketToRoom(socket, room);
+        }
+        return room;
+    }
     
-    io.on('connect', (socket) => { //This event is fired upon a new connection. The first argument is a Scocket instance.
-        console.log('user connected: ', socket.id);
-        console.log(io.sockets.adapter.rooms);
-        // Initiate the connection process as soon as the client connects
-        
-        lobbyManager.push(socket); // 없애도 됨 -> 바꿀 때 kick등도 같이 바꾸기
-        lobbyManager.dispatch(roomManager);
-
-        // console.log(io.sockets.adapter.rooms);
-
-        let roomName = roomManager.findRoomName(socket);
-        let peers = roomManager.rooms[roomName].players;
-
-        socket.emit('connected', GAME_SETTINGS, roomName);
-        // Asking all other clients to setup the peer connection receiver
-        socket.to(roomName).emit('initReceive', socket.id)
-        
+    function initWebRTC(socket, room){
+        /* WebRTC에 필요한 signal 교환 */
         socket.on('signal', data => {
-            if(!peers[data.socket_id])return
-            peers[data.socket_id].emit('signal', {
+            if(!room.users[data.socket_id].socket)return
+            room.users[data.socket_id].socket.emit('signal', {
                 socket_id: socket.id,
                 signal: data.signal
-            })
-        })
-
-        socket.on('disconnect', () => {          
-            let roomName = roomManager.findRoomName(socket);
-            io.to(roomName).emit('removePeer', socket.id)
-              
-            roomManager.disconnect(socket);
-            lobbyManager.kick(socket);
-            
-            console.log('socket disconnected ' + socket.id)
-            delete peers[socket.id]
-            if (Object.keys(peers).length === 0) {
-                delete roomManager.rooms[roomName]
-            }
-        })
-
+            });
+        });
+    
+        /* 기존 Peer 들이 신규 Peer 추가했다는 응답을 받고
+         * 신규 Peer에게 기존 Peer를 연결하라고 initSend 송신 */
         socket.on('initSend', init_socket_id => {
-            console.log('INIT SEND by ' + socket.id + ' for ' + init_socket_id)
-            peers[init_socket_id].emit('initSend', socket.id)
+            room.users[init_socket_id].socket.emit('initSend', socket.id);
         })
-
+    
+        /* 소켓 연결 종료 */
+        socket.on('disconnect', () => {          
+            io.to(room.name).emit('removePeer', socket.id);
+            RoomManager.removeSocketFromRoom(socket);
+        })
+    }
+    
+    function initKeyEvent(socket, room){
+        /* 키가 눌리는 이벤트 발생 시 */
         socket.on('keydown', function(keyCode) {
-            let roomName = roomManager.findRoomName(socket);
-            if (roomName !== null) {
-                roomManager.rooms[roomName].objects[socket.id].keypress[keyCode] = true;
+            if (room !== null && room !== undefined) {
+                /* 해당 socket의 Keypress의 keyCode를 true로 설정 */
+                room.users[socket.id].keyPress[keyCode] = true;
             }
         });
-
+    
+        /* 키가 올라가는 이벤트 발생 시 */
         socket.on('keyup', function (keyCode) {
-            let roomName = roomManager.findRoomName(socket);
-            if (roomName !== null) {
-                // roomManager.rooms[roomName].objects[socket.id].keypress[keyCode] = false;
-                delete roomManager.rooms[roomName].objects[socket.id].keypress[keyCode];
+            if (room !== null && room !== undefined) {
+                /* 해당 socket의 Keypress의 keyCode를 false로 설정 */
+                room.users[socket.id].keyPress[keyCode] = false;
             }
         });
-
+    }
+    
+    function initMusic(socket, room){
         socket.on('music', () => {
-            let roomName = roomManager.findRoomName(socket);
-            if (!roomManager.rooms[roomName].music){
-                console.log(`music_on!! ${roomManager.rooms[roomName].music}`);
-                roomManager.rooms[roomName].music = true;
-                io.to(roomName).emit('music_on');
+            if (room.music === false){
+                // console.log(`music_on!! ${roomManager.rooms[roomName].music}`);
+                room.music = true;
+                io.to(room.name).emit('music_on');
             }
             else {
-                console.log(`music_off!! ${roomManager.rooms[roomName].music}`);
-                roomManager.rooms[roomName].music = false;
-                io.to(roomName).emit('music_off');
+                // console.log(`music_off!! ${roomManager.rooms[roomName].music}`);
+                room.music = false;
+                io.to(room.name).emit('music_off');
             }
         })
-    })
+    }
 }
+

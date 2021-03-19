@@ -1,9 +1,9 @@
-require('dotenv').config()
-const mongoose = require('mongoose')
+// require('dotenv').config()
+// const mongoose = require('mongoose')
 
-mongoose.connect(process.env.MONGO_URI, 
-{useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false}
-).then(() => console.log('MongoDB connected...')).catch(error => console.log(error))
+// mongoose.connect(process.env.MONGO_URI, 
+// {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false}
+// ).then(() => console.log('MongoDB connected...')).catch(error => console.log(error))
 
 // //! mongoose 사용할 스키마 (추후 보완 필요)
 // const MapSchema = new mongoose.Schema({
