@@ -25,9 +25,9 @@ module.exports = (io) => {
         socket.to(room.name).emit('initReceive', socket.id);
 
         initWebRTC(socket, room);
-        console.log(room);
         initKeyEvent(socket, room);
         initMusic(socket, room);
+        initChat(socket, room);
 
     });
 
@@ -59,13 +59,13 @@ module.exports = (io) => {
          * 신규 Peer에게 기존 Peer를 연결하라고 initSend 송신 */
         socket.on('initSend', init_socket_id => {
             room.users[init_socket_id].socket.emit('initSend', socket.id);
-        })
+        });
     
         /* 소켓 연결 종료 */
         socket.on('disconnect', () => {          
             io.to(room.name).emit('removePeer', socket.id);
             RoomManager.removeSocketFromRoom(socket);
-        })
+        });
     }
     
     function initKeyEvent(socket, room){
@@ -99,6 +99,13 @@ module.exports = (io) => {
                 io.to(room.name).emit('music_off');
             }
         })
+    }
+
+    function initChat(socket, room) {
+        socket.on('chat', (name, message) => {
+            // console.log(name, message);
+            socket.broadcast.to(room.name).emit('chat', name, message);
+        });
     }
 }
 

@@ -4,6 +4,76 @@ body {
     padding: 0px;
 }
 
+/* 비디오 좌우반전 */
+video
+{
+    transform: rotateY(180deg);
+    -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+    -moz-transform:rotateY(180deg); /* Firefox */
+}
+
+/* 채팅창 */
+
+.chat-box {
+    z-index: 3;
+    position: fixed;
+    right: 0px;
+    top: 0px;
+    margin: 4px;
+    width: 250px;
+    height: 500px;
+    padding: 5px;
+}
+
+.chat-box button{
+    width : 40px;
+    height: 100%;
+}
+
+.message-box {
+    width: 100%;
+    height: 100%;
+    background-color: ivory;
+    border-radius: 10px;
+    overflow: auto;
+}
+
+.message-box::-webkit-scrollbar{
+    display: none;
+}
+
+.message-own {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.message-other {
+    width: 100%;
+    display: block;
+}
+
+.message-name {
+    font-size: 12px;
+}
+
+.message-text {
+    font-size: 15px;
+    height: auto;
+}
+
+.input-bar {
+    width: 100%;
+    height: 17px;
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+#chat-message {
+    height: 100%;
+}
+
 /* 내 영상 + 채팅창 등 토글버튼 */
 .toggles {
     font-size: 20px;

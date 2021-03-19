@@ -39,7 +39,6 @@ class User{
         this.status.height = map.CHAR_SIZE;
         this.status.width = map.CHAR_SIZE;
         this.status.color = color;
-        console.log(this.status);
     }
 
     joinRoom(room){

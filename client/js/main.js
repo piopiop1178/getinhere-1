@@ -50,7 +50,7 @@ let constraints = {
 }
 
 navigator.mediaDevices.getUserMedia(constraints).then(stream => {
-    console.log('Received local stream');
+    // console.log('Received local stream');
 
     localVideo.srcObject = stream;
     localStream = stream;
@@ -140,6 +140,9 @@ function init() {
         WIDTH = GAME_SETTINGS.WIDTH
         HEIGHT = GAME_SETTINGS.HEIGHT
 
+
+        // getTileAndDrawBackground(contextBackground, GAME_SETTINGS);
+        
         drawBackground(contextBackground, GAME_SETTINGS, tile);
         drawBlockZone(localStorage.getItem('BLOCKED_AREA').split(','), contextObject);
     });
@@ -155,7 +158,7 @@ function init() {
             // Audio volume change
             if (id !== socket.id && gains[id] != undefined) {
                 dist = calcDistance(statuses[id].status, statuses[socket.id].status)
-                console.log(dist)
+                // console.log(dist)
                 gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
             }
             // 캐릭터 삽입 코드
@@ -170,24 +173,24 @@ function init() {
 
     // ----------------------------!!RTC!!---------------------------
     socket.on('initReceive', socket_id => {
-        console.log('INIT RECEIVE ' + socket_id)
+        // console.log('INIT RECEIVE ' + socket_id)
         addPeer(socket_id, false)
 
         socket.emit('initSend', socket_id)
     })
 
     socket.on('initSend', socket_id => {
-        console.log('INIT SEND ' + socket_id)
+        // console.log('INIT SEND ' + socket_id)
         addPeer(socket_id, true)
     })
 
     socket.on('removePeer', socket_id => {
-        console.log('removing peer ' + socket_id)
+        // console.log('removing peer ' + socket_id)
         removePeer(socket_id)
     })
 
     socket.on('disconnect', () => {
-        console.log('GOT DISCONNECTED')
+        // console.log('GOT DISCONNECTED')
         for (let socket_id in peers) { 
             removePeer(socket_id)
         }
@@ -198,15 +201,31 @@ function init() {
     })
 
     socket.on('music_on', () => {
-        console.log('music_on!');
+        // console.log('music_on!');
         audio.play();
     })
 
     socket.on('music_off', () => {
-        console.log('music_off!');
+        // console.log('music_off!');
         audio.pause();
     })
     // --------------------------------------------------------------
+
+    socket.on('chat', (name, message) => {
+        // console.log(name, message);
+        document.getElementById("message-box").appendChild(makeMessageOther(name, message));
+        ScrollBottom("message-box");
+    });
+
+    // console.log(document.getElementById("chat-message"));
+    
+    document.getElementById("chat-message").addEventListener("keyup", (e) => {
+        // console.log(e.code);
+        if(e.code == "Enter"){
+            sendChat();
+        }
+    });
+
 }
 
 function removePeer(socket_id) {
@@ -221,7 +240,7 @@ function removePeer(socket_id) {
         })
 
         videoEl.srcObject = null
-        console.log('removePeer test@@@@@');
+        // console.log('removePeer test@@@@@');
         videoEl.parentNode.removeChild(videoEl)
     }
     if (peers[socket_id]) peers[socket_id].destroy() 
@@ -358,13 +377,28 @@ function drawBackground(contextBackground, GAME_SETTINGS, tile) {
     // ctx.drawImage(backgroundImage, 0, 0, GAME_SETTINGS.WIDTH, GAME_SETTINGS.HEIGHT);
 
     // 배경 타일
-    console.log(tile);
+    // console.log(tile);
     for(let y = 0; y < GAME_SETTINGS.HEIGHT; y += TILE_LENGTH){
         for(let x = 0; x < GAME_SETTINGS.WIDTH; x += TILE_LENGTH){
                 contextBackground.drawImage(tile, x, y, TILE_LENGTH, TILE_LENGTH);
         };
     };
 }
+
+// async function getTileAndDrawBackground(contextBackground, GAME_SETTINGS){
+//     try{
+//         let tile = getTile();
+//         await setTimeout(drawBackground(contextBackground, GAME_SETTINGS, tile), 5000);
+//     } catch (error) {
+//         console.error(error);
+//     }
+// }
+
+// function getTile(){
+//     const tile = new Image();
+//     tile.src = "../image/tile2.jpg";
+//     return tile;
+// }
 
 convertNumToTileRowCol = function(num) {
     let arr = []
@@ -396,4 +430,73 @@ function drawBlockZone(area, ctx_obj) {
 
 function calcDistance(status1, status2) {
     return Math.sqrt(Math.pow((status1.x - status2.x)/CHAR_SIZE, 2) + Math.pow((status1.y - status2.y)/CHAR_SIZE, 2))
+}
+
+function sendChat(){
+    const name = socket.id;
+    const chatMessage = document.getElementById("chat-message");
+    const message = chatMessage.value;
+    // console.log(message)
+    if (message.replace(/^\s+|\s+$/g,"") === ""){
+        chatMessage.value = null;
+        return;
+    }
+    document.getElementById("message-box").appendChild(makeMessageOwn(message));
+    ScrollBottom("message-box");
+    chatMessage.value = null;
+    // console.log(name, message);
+    socket.emit('chat', name, message);
+}
+
+function ScrollBottom(id){
+    const element = document.getElementById(id);
+    element.scrollTop = element.scrollHeight - element.clientHeight;
+ }
+
+function makeMessageOwn(message){
+    const messageOwn= document.createElement('div');
+    messageOwn.className = "message-own";
+
+    const messageText = document.createElement('div');
+    messageText.className = "message-text";
+    messageText.appendChild(document.createTextNode(message));
+
+    messageOwn.appendChild(messageText);
+
+    return messageOwn;
+}
+
+function makeMessageOther(name, message){
+    const messageOther= document.createElement('div');
+    messageOther.className = "message-other";
+
+    const messageName = document.createElement('div');
+    messageName.className = "message-name";
+    messageName.appendChild(document.createTextNode(name));
+
+    const messageText = document.createElement('div');
+    messageText.className = "message-text";
+    messageText.appendChild(document.createTextNode(message));
+
+    messageOther.appendChild(messageName);
+    messageOther.appendChild(messageText);
+
+    return messageOther;
+}
+
+function preventReload(){
+    // window.onbeforeunload = function(e) {
+    //     console.log("!!!!!!!!!!");
+    //     return "";
+    // };
+    // if ((event.ctrlKey == true && (event.keyCode == 78 || event.keyCode == 82)) || (event.keyCode == 116)) {
+    //     if(confirm("페이지를 새로고침 하시겠습니까?")){
+
+    //     }
+    //     else{
+    //         event.keyCode = 0;
+    //         event.cancelBubble = true;
+    //         event.returnValue = false;
+    //     }
+    // }
 }
