@@ -1,6 +1,8 @@
+'use strict';
+
 const uuid = require('uuid');
-const Room = require('./Room');
-const User = require('./User');
+const Room = require('./Class/Room');
+const User = require('./Class/User');
 
 class RoomManager{   // Room 함수 실행
     static roomByName = {};
@@ -16,6 +18,8 @@ class RoomManager{   // Room 함수 실행
 
     /* 새로운 Room을 생성 */
     static createRoom(map){
+        console.log("createRoom");
+        console.log(map);
         /* uuid 로 roomName 생성 */
         const tokens = uuid.v4().split('-');
         const roomName = tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
@@ -24,6 +28,7 @@ class RoomManager{   // Room 함수 실행
         /* roomName으로 새로운 Room을 생성하여 rooms에 추가 */
         const room = new Room(roomName, map);
         this.roomByName[roomName] = room;
+        return roomName;
     }
 
     /* 전달받은 socket으로 User를 생성하여 roomName에 해당하는 Room에 User를 추가 */
@@ -36,7 +41,7 @@ class RoomManager{   // Room 함수 실행
         /* user를 roomName에 해당하는 Room 추가 */
         socket.join(room.name);
         if (room.memberCount === 1){
-            room.start(this.io);
+            // room.start(this.io);
         }
     }
 

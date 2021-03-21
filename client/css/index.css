@@ -5,11 +5,23 @@ body {
 }
 
 /* 비디오 좌우반전 */
-video
+#localVideo
 {
     transform: rotateY(180deg);
     -webkit-transform:rotateY(180deg); /* Safari and Chrome */
     -moz-transform:rotateY(180deg); /* Firefox */
+}
+
+/* /room 의 프리셋 화면 */
+.preset
+{
+    
+}
+
+/* /room 의 메인화면 */
+.room
+{
+    display: none;
 }
 
 /* 채팅창 */

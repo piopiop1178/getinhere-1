@@ -60,10 +60,11 @@ navigator.mediaDevices.getUserMedia(constraints).then(stream => {
 function init() {
     
     let query_param = get_query();
+    console.log(query_param);
     //Todo: after make main page, add url
-    socket = io("/", { query: query_param }) 
+    socket = io("/room", { query: query_param }) 
 
-    let GAME_SETTINGS = null;
+    let MAP_SETTINGS2 = null;
     const LEFT = 'ArrowLeft', UP = 'ArrowUp', RIGHT = 'ArrowRight', DOWN = 'ArrowDown';
 
     const canvasBackground = document.createElement("canvas");
@@ -116,39 +117,39 @@ function init() {
     body.addEventListener("keyup", function (e) {
         socket.emit("keyup", e.code);
     });
-    socket.on("connected", function (SERVER_GAME_SETTINGS, roomName) {
-        GAME_SETTINGS = SERVER_GAME_SETTINGS;
+    socket.on("connected", function (MAP_SETTINGS, roomName) {
+        MAP_SETTINGS2 = MAP_SETTINGS;
 
-        canvasBackground.setAttribute("width", GAME_SETTINGS.WIDTH);
-        canvasBackground.setAttribute("height", GAME_SETTINGS.HEIGHT);
+        canvasBackground.setAttribute("width", MAP_SETTINGS._WIDTH);
+        canvasBackground.setAttribute("height", MAP_SETTINGS._HEIGHT);
         document.body.appendChild(canvasBackground);
 
-        canvasObject.setAttribute("width", GAME_SETTINGS.WIDTH);
-        canvasObject.setAttribute("height", GAME_SETTINGS.HEIGHT);
+        canvasObject.setAttribute("width", MAP_SETTINGS._WIDTH);
+        canvasObject.setAttribute("height", MAP_SETTINGS._HEIGHT);
         document.body.appendChild(canvasObject);
 
-        canvasCharacter.setAttribute("width", GAME_SETTINGS.WIDTH);
-        canvasCharacter.setAttribute("height", GAME_SETTINGS.HEIGHT);
+        canvasCharacter.setAttribute("width", MAP_SETTINGS._WIDTH);
+        canvasCharacter.setAttribute("height", MAP_SETTINGS._HEIGHT);
         document.body.appendChild(canvasCharacter);
 
-        localStorage.setItem('BLOCKED_AREA', GAME_SETTINGS.BLOCKED_AREA);
+        localStorage.setItem('BLOCKED_AREA', MAP_SETTINGS._BLOCKED_AREA);
         localStorage.setItem('Invite_url', 'https://getinhere.me/?room=' + roomName);
-        TILE_LENGTH = GAME_SETTINGS.TILE_LENGTH
-        TILE_WIDTH = GAME_SETTINGS.TILE_WIDTH
-        TILE_HEIGHT = GAME_SETTINGS.TILE_HEIGHT
-        CHAR_SIZE = GAME_SETTINGS.CHAR_SIZE
-        WIDTH = GAME_SETTINGS.WIDTH
-        HEIGHT = GAME_SETTINGS.HEIGHT
+        TILE_LENGTH = MAP_SETTINGS._TILE_LENGTH
+        TILE_WIDTH = MAP_SETTINGS._TILE_WIDTH
+        TILE_HEIGHT = MAP_SETTINGS._TILE_HEIGHT
+        CHAR_SIZE = MAP_SETTINGS._TILE_LENGTH
+        WIDTH = MAP_SETTINGS._WIDTH
+        HEIGHT = MAP_SETTINGS._HEIGHT
 
 
-        // getTileAndDrawBackground(contextBackground, GAME_SETTINGS);
+        // getTileAndDrawBackground(contextBackground, MAP_SETTINGS);
         
-        drawBackground(contextBackground, GAME_SETTINGS, tile);
+        drawBackground(contextBackground, MAP_SETTINGS, tile);
         drawBlockZone(localStorage.getItem('BLOCKED_AREA').split(','), contextObject);
     });
     // socket.on("update", function (statuses) {
     socket.on("update", function (statuses, idArray) {
-        if (GAME_SETTINGS == null) return;
+        if (MAP_SETTINGS2 == null) return;
         storelocalStorage(statuses[socket.id].status);
         updateWindowCenter(statuses[socket.id].status);
 
@@ -370,25 +371,25 @@ function updateWindowCenter(myStatus) {
     window.scrollTo(myStatus.x - window.innerWidth/2  + TILE_LENGTH/2 , myStatus.y - window.innerHeight/2 + TILE_LENGTH/2 )
 }
 
-function drawBackground(contextBackground, GAME_SETTINGS, tile) {
+function drawBackground(contextBackground, MAP_SETTINGS, tile) {
     // 배경 이미지
     // let backgroundImage = new Image();
     // backgroundImage.src = "../image/back.jpg";
-    // ctx.drawImage(backgroundImage, 0, 0, GAME_SETTINGS.WIDTH, GAME_SETTINGS.HEIGHT);
+    // ctx.drawImage(backgroundImage, 0, 0, MAP_SETTINGS._WIDTH, MAP_SETTINGS._HEIGHT);
 
     // 배경 타일
     // console.log(tile);
-    for(let y = 0; y < GAME_SETTINGS.HEIGHT; y += TILE_LENGTH){
-        for(let x = 0; x < GAME_SETTINGS.WIDTH; x += TILE_LENGTH){
+    for(let y = 0; y < MAP_SETTINGS._HEIGHT; y += TILE_LENGTH){
+        for(let x = 0; x < MAP_SETTINGS._WIDTH; x += TILE_LENGTH){
                 contextBackground.drawImage(tile, x, y, TILE_LENGTH, TILE_LENGTH);
         };
     };
 }
 
-// async function getTileAndDrawBackground(contextBackground, GAME_SETTINGS){
+// async function getTileAndDrawBackground(contextBackground, MAP_SETTINGS){
 //     try{
 //         let tile = getTile();
-//         await setTimeout(drawBackground(contextBackground, GAME_SETTINGS, tile), 5000);
+//         await setTimeout(drawBackground(contextBackground, MAP_SETTINGS, tile), 5000);
 //     } catch (error) {
 //         console.error(error);
 //     }

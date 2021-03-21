@@ -1,16 +1,41 @@
+'use strict';
+
 /* Map 을 관리할 클래스 */
-const Map = require('./Map');
+const Map = require('./Class/Map');
 
 class MapManager {
     static mapList = [];
-    /* 매개변수 없이 DB에서 정보를 받아서 시작하자마자 맵 로드 */
     constructor(){
-        /* TODO DB에서 전체 맵 정보를 미리 업로드
-         * 현재는 고정 값을 가진 Map 하나 추가 */
     }
-    /* Room 생성 시 필요한 Map 정보를 mapIndex를 통해 반환 */
     static init(){
-        this.mapList.push(new Map());
+
+        const MapInfo = require('./schemas/MapInfo');
+        const BlockInfo = require('./schemas/BlockInfo');
+        const MusicInfo = require('./schemas/MusicInfo');
+
+        /* TODO: populate 사용해서 변경 고려 */
+        MapInfo.find({}, {"_id": false, "__v": false}).exec()
+            .then((mapInfos) => {
+                for(let mapInfo of mapInfos){
+                    this.mapList.push(new Map(mapInfo));
+                }
+            });
+        BlockInfo.find({}, {"_id": false, "__v": false}).exec()
+            .then((blockInfos) => {
+                for(let blockInfo of blockInfos){
+                    this.mapList[blockInfo.NUMBER].BLOCKED_AREA = blockInfo.POSITION_LIST;
+                }
+            });
+
+        MusicInfo.find({}, {"_id": false, "__v": false}).exec()
+            .then((musicInfos) => {
+                for(let musicInfo of musicInfos){
+                    this.mapList[musicInfo.NUMBER].MUSIC_LIST = musicInfo;
+                }
+            })
+            .then(() => {
+                // console.log(this.mapList);
+            });
     }
     static getMapByIndex(mapIndex){
         return this.mapList[mapIndex];

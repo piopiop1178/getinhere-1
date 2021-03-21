@@ -1,23 +1,21 @@
-const LobbyManager = require('./LobbyManager');
-const MapManager = require('./MapManager'); //! 나중에 여기에 인자로 원하는 맵 number가 들어가면 된다. 그러면 MAP.js가 DB랑 통신해서 MAP정보를 받아온다
-const { roomByName } = require('./RoomManager');
-const RoomManager = require('./RoomManager');
+'use strict';
 
-/* DB에서 Map을 불러와서 미리 서버에 저장 */
-MapManager.init();
+/* Class */
+// const LobbyManager = require('./LobbyManager');
+const RoomManager = require('./RoomManager');
+// const MapManager = require('./MapManager');
 
 /* 서버로 오는 요청을 담당할 io 정의 */
 module.exports = (io) => {
     /* connect 요청 시 */
     /* 테스트 용으로 임시 방 생성 */
     RoomManager.init(io);
-    RoomManager.createRoom(MapManager.getMapByIndex(0));
-
     io.on('connect', (socket) => {
         /* socket에서 room의 값을 가져온다 */
         const roomName = socket.handshake.query.room;
+        console.log(roomName);
         const room = RoomManager.getRoomByRoomName(roomName);
-        
+        console.log(room);
         initSocket(socket, room);
 
         /* Room 추가 후 Room 정보를 전달한다 */

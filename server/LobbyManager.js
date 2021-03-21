@@ -1,3 +1,5 @@
+'use strict';
+
 /* 제일 처음 접속한 Users 가 있을 Lobby를 처리할 함수 */
 
 class LobbyManager {

@@ -1,3 +1,5 @@
+'use strict';
+
 /* 각 방에 대한 처리를 위한 Class */
 
 class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
@@ -48,6 +50,7 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
 
     addUser(user) {
         this.users[user.socket.id] = user;
+        console.log(this.map);
         user.createCharacter(this.map);
         this.memberCount += 1;
     }
