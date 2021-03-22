@@ -1,15 +1,15 @@
 import React from 'react'
+import './app.css'
 
 import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link
 } from "react-router-dom";
 
-import LandingPage from './components/views/LandingPage/LandingPage';
-import PresetPage from './components/views/PresetPage/PresetPage';
-import RoomPage from './components/views/RoomPage/RoomPage';
+import LandingPage from './components/views/landingPage/landingPage';
+import PresetPage from './components/views/presetPage/presetPage';
+import RoomPage from './components/views/roomPage/roomPage';
 
 function App() {
   return (

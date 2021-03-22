@@ -1,38 +1,197 @@
-.App {
+/* @import url("https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans&family=Roboto&display=swap"); */
+@import url("https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans&family=Roboto&display=swap");
+
+/* common */
+button {
+  outline: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* Link Tag */
+/* a {
+  text-decoration: none;
+  color: black;
+} */
+
+/* landing.jsx */
+.main-message {
+  font-family: "Bangers";
+  font-size: 800%;
   text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 25vh;
+  margin-bottom: 5vh;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.start-button {
+  font-family: "Bangers", cursive;
+  border-radius: 7%;
+  display: block;
+  align-content: center;
+  outline: none;
+  border: 0;
+  cursor: pointer;
+  margin: auto;
+  margin-top: 5vh;
+  padding-left: 0.8vw;
+  padding-right: 1vw;
+  font-size: 300%;
+  background-color: goldenrod;
+  text-decoration: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.start-link {
+  text-decoration: none;
+  color: black;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.start-button:hover {
+  opacity: 0.7;
+}
+
+.map-setting {
+  font-size: 160%;
+  font-family: "Bangers", cursive;
+  margin: auto;
+  text-align: center;
+  align-content: center;
+}
+
+.map-select-button {
+  background-color: transparent;
+  font-size: 100%;
+  padding-left: 1vw;
+  padding-right: 1vw;
+}
+
+/* create.jsx */
+.container {
+  height: 72vh;
   display: flex;
-  flex-direction: column;
+  flex-flow: row;
+  justify-content: center; /* main align*/
+  align-items: flex-end; /* */
+  text-align: center;
+
+  font-family: "Bangers";
+}
+
+.item1 {
+  width: 30vw;
+  height: 30vw;
+  background-color: goldenrod;
+  display: flex;
+  flex-flow: column;
+  font-size: 3vw;
+}
+
+.item2 {
+  width: 30vw;
+  height: 30vw;
+  background: goldenrod;
+  display: flex;
+  flex-flow: column;
   align-items: center;
+}
+
+.between {
+  width: 1vw;
+}
+
+.name-box {
+  margin-top: 13%;
+  display: flex;
+  flex-flow: row;
+}
+
+.name-input {
+  background: transparent;
+  border: transparent;
+  text-align: center;
+  width: 40%;
+  font-size: 3vw;
+  font-family: "Bangers";
+}
+.name-input2 {
+  width: 50%;
+  color: darkblue;
+}
+
+.character-box {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
+.character-image {
+  display: flex;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  height: 15vw;
+  width: 15vw;
 }
 
-.App-link {
-  color: #61dafb;
+.charcter-changer {
+  background-color: goldenrod;
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  margin-top: 7%;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.character-select-button {
+  background-color: transparent;
+  font-size: 2vw;
+}
+
+.video-preview {
+  width: 25vw;
+  height: 15vw;
+  /* background-color: floralwhite; */
+  margin-top: 2vw;
+}
+
+.device-selector {
+  margin-top: 3vw;
+  font-size: 2vw;
+  display: flex;
+  flex-flow: column;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.device-image {
+  margin-right: 2vw;
+}
+
+select {
+  background-color: floralwhite;
+  /* text align center gogo */
+  font-family: "Bangers";
+  font-size: 2vw;
+  width: 20vw;
+}
+
+.getin-button {
+  font-family: "Bangers", cursive;
+  border-radius: 7%;
+  display: block;
+  align-content: center;
+  outline: none;
+  border: 0;
+  cursor: pointer;
+  margin: auto;
+  margin-top: 3vh;
+  padding-left: 0.8vw;
+  padding-right: 1vw;
+  font-size: 4vw;
+  background-color: black;
+  text-decoration: none;
+  color: floralwhite;
+}
+
+.getin-link {
+  text-decoration: none;
+  color: floralwhite;
 }

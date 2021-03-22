@@ -2,8 +2,9 @@
   "name": "new_client",
   "version": "0.1.0",
   "private": true,
-  "proxy" : "https://localhost",
+  "proxy": "https://localhost",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.3",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.8.3",
