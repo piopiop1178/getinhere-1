@@ -20,7 +20,7 @@ class RoomManager{   // Room 함수 실행
         const tokens = uuid.v4().split('-');
         const roomName = tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
         console.log("********** createRoom ***********");
-        console.log(`localhost?room=${roomName}`);
+        console.log(`https://3.34.42.125?room=${roomName}`);
         /* roomName으로 새로운 Room을 생성하여 rooms에 추가 */
         const room = new Room(roomName, map);
         this.roomByName[roomName] = room;
