@@ -1,4 +1,8 @@
-let socket;
+const socketPromise = require('./socket.io-promise').promise;
+const mediasoup = require('mediasoup-client');
+const config = require('../../config');
+// let socket;
+// let tile;
 let localStream = null;
 let peers = {}
 
@@ -14,6 +18,13 @@ let audio = new Audio('../music/all_falls_down.mp3');
 
 let audioctx
 let gains = {}
+
+let device, 
+    recvTransport, 
+    sendTransport, 
+    videoProducer, 
+    audioProducer, 
+    consumers = []
 
 const configuration = {
     "iceServers": [{
@@ -54,15 +65,34 @@ navigator.mediaDevices.getUserMedia(constraints).then(stream => {
 
     localVideo.srcObject = stream;
     localStream = stream;
-    init()
-}).catch(e => alert(`getusermedia error ${e.name}`))
 
-function init() {
+
+    //-------------------------- DEBUG------------------------------------
+    const data = await socket.request('getRouterRtpCapabilities');
+    // console.log(data.rtpCapabilities); //왜 이거 못쓰는지?? 
+    await loadDevice(data._data.rtpCapabilities);
+    //-------------------------- DEBUG------------------------------------
+
     
-    let query_param = get_query();
-    //Todo: after make main page, add url
-    socket = io("/", { query: query_param }) 
+    // init()
+// }).catch(e => alert(`getusermedia error ${e.name}`))
+}).then(() => init()).catch(e => alert(`getusermedia error ${e.name}`))
 
+
+// socket.on('joined', async () => {
+//     tile = await loadImage("../image/tile2.jpg");
+//     init();
+// })
+// let socket.request;
+
+async function init() {
+    let query_param = get_query();
+    let socket = io("/", { query: query_param }) 
+    //-----------------------mediasoup-----------------------
+    socket.request = socketPromise(socket);
+    //-----------------------mediasoup-----------------------
+    //Todo: after make main page, add url
+    
     let GAME_SETTINGS = null;
     const LEFT = 'ArrowLeft', UP = 'ArrowUp', RIGHT = 'ArrowRight', DOWN = 'ArrowDown';
 
@@ -80,6 +110,8 @@ function init() {
 
     const body = document.querySelector('body')
 
+    // let tile = new Image();
+    // tile.src = "../image/tile2.jpg";
     // 캐릭터 이미지
     let among = new Image();
     among.src = "../image/among.jpg";
@@ -171,7 +203,14 @@ function init() {
         });
     });
 
+    // ----------------------------!!mediasoup!!---------------------------
+    // socket.on('connect', async() => {
+    //     const data = await socket.request('getRouterRtpCapabilities');
+    //     // console.log(data.rtpCapabilities); //왜 이거 못쓰는지?? 
+    //     await loadDevice(data._data.rtpCapabilities);
+    // })
     // ----------------------------!!RTC!!---------------------------
+
     socket.on('initReceive', socket_id => {
         // console.log('INIT RECEIVE ' + socket_id)
         addPeer(socket_id, false)
@@ -226,7 +265,20 @@ function init() {
         }
     });
 
+    sendCameraStreams(socket);
 }
+
+async function loadDevice(routerRtpCapabilities) {
+    try {
+      device = new mediasoup.Device();
+    } catch (error) {
+      if (error.name === 'UnsupportedError') {
+        console.error('browser not supported');
+      }
+    }
+    await device.load({ routerRtpCapabilities });
+    console.log(device.loaded);
+  }
 
 function removePeer(socket_id) {
 
@@ -499,4 +551,86 @@ function preventReload(){
     //         event.returnValue = false;
     //     }
     // }
+}
+
+async function loadImage(imageUrl) {
+    let img;
+    const imageLoadPromise = new Promise(resolve => {
+        img = new Image();
+        img.onload = resolve;
+        img.src = imageUrl;
+    });
+    await imageLoadPromise;
+    console.log("image loaded");
+    return img;
+}
+
+async function sendCameraStreams(socket) {
+    if (!sendTransport) {
+      sendTransport = await createTransport(socket, 'send');
+    }
+  
+    camVideoProducer = await sendTransport.produce({
+      track: localStream.getVideoTracks()[0],
+    //-----------------------------------------------
+    //   encodings: camEncodings(),
+    //-----------------------------------------------
+      appData: { mediaTag: 'cam-video' }
+    });
+  
+    camAudioProducer = await sendTransport.produce({
+      track: localStream.getAudioTracks()[0],
+      appData: { mediaTag: 'cam-audio' }
+    });
+}
+
+async function createTransport(socket, direction) {
+
+    let transport,
+        { transportOptions } = await socket.request('createTransport', {
+            forceTcp: false,
+            rtpCapabilities: device.rtpCapabilities,
+        });
+
+    log ('transport options', transportOptions);
+
+    if (direction === 'recv') {
+        transport = await device.createRecvTransport(transportOptions);
+    } else if (direction === 'send') {
+        transport = await device.createSendTransport(transportOptions);
+        transport.on('connect', async ({ dtlsParameters }, callback, errback) => {
+            socket.request('connectTransport', { 
+                transportId: transportOptions.id, 
+                dtlsParameters })
+              .then(callback)
+              .catch(errback);
+          });
+
+        transport.on('produce', async ({ kind, rtpParameters }, callback, errback) => {
+        try {
+            const { id } = await socket.request('produce', {
+            transportId: transport.id,
+            kind,
+            rtpParameters,
+            });
+            callback({ id });
+        } catch (err) {
+            errback(err);
+        }
+        });
+
+        camVideoProducer = await transport.produce({
+            track: localStream.getVideoTracks()[0],
+            appData: { mediaTag: 'cam-video' }
+        });
+        camAudioProducer = await transport.produce({
+            track: localCam.getAudioTracks()[0],
+            appData: { mediaTag: 'cam-audio' }
+          });
+
+    } else {
+        throw new Error(`bad transport 'direction': ${direction}`);
+    }
+    
+    return transport;
 }

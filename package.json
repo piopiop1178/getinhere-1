@@ -4,7 +4,7 @@
   "description": "making_my_own_weapon",
   "main": "index.js",
   "scripts": {
-    "start": "sudo node server/index.js",
+    "start": "browserify client/js/main.js -o client/js/app-bundle.js; sudo node server/index.js",
     "wstart": "nodemon server/index.js",
     "tt": "node server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,6 +16,8 @@
     "express": "^4.17.1",
     "http": "^0.0.1-security",
     "https": "^1.0.0",
+    "mediasoup": "^3.6.37",
+    "mediasoup-client": "^3.6.29",
     "mongoose": "^5.12.0",
     "nodemon": "^2.0.7",
     "redirect-https": "^1.3.1",
