@@ -2,15 +2,23 @@
 
 const path = require('path')
 const express = require('express')
-const fs = require('fs');
+const cors = require('cors');
+// const fs = require('fs');
 
 module.exports = async (app) => {
     /* express에 저장된 body parser 사용 */
     app.use(express.json());
     app.use(express.urlencoded({extended: true}));
 
+    app.use(cors());
+
     app.use(express.static(path.join(__dirname, '..','client')));
     app.use(express.static(path.join(__dirname, '..','node_modules')));
+
+    app.get('/api/hello', (req, res) => {
+        console.log(req);
+        res.send("안녕하세요 ~ ");
+    });
 
     // app.set('view engine', 'ejs');
     // app.engine('html', require('ejs'.renderFile));
