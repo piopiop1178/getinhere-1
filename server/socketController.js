@@ -110,7 +110,13 @@ module.exports = async (io) => {
 
         socket.on('consume', async (data, callback) => {
             //여기서 consumer 찾기 -> 그러려면 metadata 넘겨줘야됨 
-            callback(await createConsumer(producer, data.rtpCapabilities));
+            const transport = room.roomState.transports[data.transportId];
+            const router = RoomManager.getRouterBySocket(socket);
+            let producer = await room.roomState.producers.find(
+                (p) => p.appData.mediaTag === mediaTag &&
+                       p.appData.peerId === mediaPeerId
+              );
+            callback(await createConsumer(router, transport, producer, data.rtpCapabilities));
           });
     }
     
@@ -185,3 +191,39 @@ async function createWebRtcTransport(router) {
       },
     };
   }
+
+  async function createConsumer(producer, rtpCapabilities) {
+    if (!router.canConsume(
+      {
+        producerId: producer.id,
+        rtpCapabilities,
+      })
+    ) {
+      console.error('can not consume');
+      return;
+    }
+    try {
+      consumer = await transport.consume({
+        producerId: producer.id,
+        rtpCapabilities,
+        paused: producer.kind === 'video',
+      });
+    } catch (error) {
+      console.error('consume failed', error);
+      return;
+    }
+  
+    // if (consumer.type === 'simulcast') {
+    //   await consumer.setPreferredLayers({ spatialLayer: 2, temporalLayer: 2 });
+    // }
+  
+    return {
+      producerId: producer.id,
+      id: consumer.id,
+      kind: consumer.kind,
+      rtpParameters: consumer.rtpParameters,
+      type: consumer.type,
+      producerPaused: consumer.producerPaused
+    };
+  }
+  

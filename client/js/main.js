@@ -635,7 +635,7 @@ async function createTransport(socket, direction) {
     return transport;
 }
 
-async function streamProduce(socket) {
+async function createProducer(socket) {
     if (!sendTransport) {
       sendTransport = await createTransport(socket, 'send');
     }
@@ -649,78 +649,66 @@ async function streamProduce(socket) {
       });
 }
 
-async function subscribeToTrack(socket, peerId, mediaTag) {
-    log('subscribe to track', peerId, mediaTag);
+async function createConsumer(socket, peerId) {
+    log('subscribe to track', peerId);
   
     // create a receive transport if we don't already have one
     if (!recvTransport) {
       recvTransport = await createTransport('recv', socket);
     }
-    
-    const data = await socket.request('consume', { rtpCapabilities });
+    let transportId = recvTransport.id;
+    const stream = new MediaStream();
 
-    // let consumer = findConsumerForTrack(peerId, mediaTag);
-    // if (consumer) {
-    //   err('already have consumer for track', peerId, mediaTag)
-    //   return;
-    // };
+    let mediaTag = 'camVideo';
+    const videoData = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
+    const {
+        producerId,
+        id,
+        kind,
+        rtpParameters,
+      } = videoData;
     
-    // ask the server to create a server-side consumer object and send
-    // us back the info we need to create a client-side consumer
-    let consumerParameters = await sig('recv-track', {
-      mediaTag,
-      mediaPeerId: peerId,
-      rtpCapabilities: device.rtpCapabilities
+    let codecOptions = {};
+    const videoConsumer = await transport.consume({
+        id,
+        producerId,
+        kind,
+        rtpParameters,
+        codecOptions,
+        appData: { peerId, mediaTag }
     });
+    consumers.push(videoConsumer);
+    stream.addTrack(videoConsumer.track);
 
+    let mediaTag = 'camAudio';
+    const audioData = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
+    const {
+        producerId,
+        id,
+        kind,
+        rtpParameters,
+      } = audioData;
     
-    log('consumer parameters', consumerParameters);
-    consumer = await recvTransport.consume({
-      ...consumerParameters,
-      appData: { peerId, mediaTag }
+      const audioConsumer = await transport.consume({
+        id,
+        producerId,
+        kind,
+        rtpParameters,
+        codecOptions,
+        appData: { peerId, mediaTag }
     });
-    log('created new consumer', consumer.id);
-  
-    // the server-side consumer will be started in paused state. wait
-    // until we're connected, then send a resume request to the server
-    // to get our first keyframe and start displaying video
-    while (recvTransport.connectionState !== 'connected') {
-      log('  transport connstate', recvTransport.connectionState );
-      await sleep(100);
-    }
-    // okay, we're ready. let's ask the peer to send us media
-    await resumeConsumer(consumer);
+    consumers.push(audioConsumer);
+    stream.addTrack(audioConsumer.track);
+
+    // while (recvTransport.connectionState !== 'connected') {
+    //   log('  transport connstate', recvTransport.connectionState );
+    //   await sleep(100);
+    // }
+    // // okay, we're ready. let's ask the peer to send us media
+    // await resumeConsumer(consumer);
   
     // keep track of all our consumers
-    consumers.push(consumer);
-  
-    // ui
-    await addVideoAudio(consumer);
-    updatePeersDisplay();
+    // updatePeersDisplay();
 
-    const stream = consume(transport);
-  }
-
-  async function consume(transport) {
-    const rtpCapabilities = device.rtpCapabilities;
-    const data = await socket.request('consume', { rtpCapabilities });
-    const {
-      producerId,
-      id,
-      kind,
-      rtpParameters,
-    } = data;
-  
-    let codecOptions = {};
-    const consumer = await transport.consume({
-      id,
-      producerId,
-      kind,
-      rtpParameters,
-      codecOptions,
-    });
-    const stream = new MediaStream();
-    stream.addTrack(consumer.track);
     return stream;
   }
-  
