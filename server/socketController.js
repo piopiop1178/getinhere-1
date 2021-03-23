@@ -23,9 +23,9 @@ module.exports = async (io) => {
         initSocket(socket, room);
         // socket.emit('joined');
         /* Room 추가 후 Room 정보를 전달한다 */
-        console.log('before connected');
+        // console.log('before connected');
         socket.on('hello', ()=> {
-            console.log('helelehlhel');
+            // console.log('helelehlhel');
             socket.emit('connected', room.map, room.name);
         })
         
@@ -119,7 +119,7 @@ module.exports = async (io) => {
                        p.appData.peerId === data.peerId
               );
             const roomState = room.roomState;
-            console.log(roomState);
+            // console.log(roomState);
             callback(await createConsumer(router, transport, roomState, producer, data.rtpCapabilities));
           });
 
@@ -156,7 +156,7 @@ module.exports = async (io) => {
                 // console.log(`music_on!! ${roomManager.rooms[roomName].music}`);
                 room.music = true;
                 io.to(room.name).emit('music_on');
-                console.log(room.roomState);
+                // console.log(room.roomState);
             }
             else {
                 // console.log(`music_off!! ${roomManager.rooms[roomName].music}`);

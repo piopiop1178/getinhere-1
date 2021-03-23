@@ -195,8 +195,7 @@ async function init(socket) {
 
 
         // getTileAndDrawBackground(contextBackground, GAME_SETTINGS);
-        console.log('before draw');
-        // drawBackground(contextBackground, GAME_SETTINGS, tile);
+        drawBackground(contextBackground, GAME_SETTINGS, tile);
         drawBlockZone(localStorage.getItem('BLOCKED_AREA').split(','), contextObject);
     });
     // socket.on("update", function (statuses) {
@@ -298,7 +297,6 @@ async function loadDevice(routerRtpCapabilities) {
       }
     }
     await device.load({ routerRtpCapabilities });
-    console.log(device.loaded);
   }
 
 function removePeer(socket_id) {
@@ -322,7 +320,6 @@ function removePeer(socket_id) {
 
 async function addPeer(socket, socket_id, am_initiator) {
     let newStream = await createConsumer(socket, socket_id);
-    console.log(newStream.getTracks());
     let newVid = document.createElement('video')
     newVid.srcObject = newStream
     newVid.id = socket_id
@@ -608,7 +605,7 @@ async function createTransport(socket, direction) {
             rtpCapabilities: device.rtpCapabilities,
         });
 
-    console.log ('transport options', transportOptions);
+    // console.log ('transport options', transportOptions);
 
     if (direction === 'recv') {
         transport = await device.createRecvTransport(transportOptions);
@@ -622,7 +619,7 @@ async function createTransport(socket, direction) {
           });
 
     } else if (direction === 'send') {
-        console.log(transportOptions);
+        // console.log(transportOptions);
         transport = await device.createSendTransport(transportOptions);
         transport.on('connect', async ({ dtlsParameters }, callback, errback) => {
             await socket.request('connectTransport', { 
@@ -723,7 +720,7 @@ async function createConsumer(socket, peerId) {
     // stream.addTrack(audioConsumer.track);
 
     while (recvTransport.connectionState !== 'connected') {
-      console.log('  transport connstate', recvTransport.connectionState );
+    //   console.log('  transport connstate', recvTransport.connectionState );
       await sleep(100);
     }
     // okay, we're ready. let's ask the peer to send us media
@@ -754,13 +751,13 @@ async function createRealConsumer(mediaTag, transport, socket, peerId, transport
         appData: { peerId, mediaTag }
     });
     consumers.push(consumer);
-    console.log(consumers);
+    // console.log(consumers);
     return consumer;
 }
 
 async function resumeConsumer(consumer) {
     if (consumer) {
-      console.log('resume consumer', consumer.appData.peerId, consumer.appData.mediaTag);
+    //   console.log('resume consumer', consumer.appData.peerId, consumer.appData.mediaTag);
       try {
         await socket.request('resumeConsumer', { consumerId: consumer.id })
         // await sig('resume-consumer', { consumerId: consumer.id });

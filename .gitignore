@@ -7,3 +7,6 @@ privkey.pem
 
 # MongoDB
 .env
+
+#config
+config.js
