@@ -658,6 +658,7 @@ async function createProducer(socket) {
     }
     videoProducer = await sendTransport.produce({
         track: localStream.getVideoTracks()[0],
+
         appData: { mediaTag: 'cam-video' }
     });
     audioProducer = await sendTransport.produce({
@@ -676,9 +677,9 @@ async function createConsumer(socket, peerId) {
     const stream = new MediaStream();
     
     let videoConsumer = await createRealConsumer('cam-video', recvTransport, socket, peerId, transportId)
-    // let audioConsumer = await createRealConsumer('cam-audio', recvTransport, socket, peerId, transportId)
+    let audioConsumer = await createRealConsumer('cam-audio', recvTransport, socket, peerId, transportId)
     stream.addTrack(videoConsumer.track);
-    // stream.addTrack(audioConsumer.track);
+    stream.addTrack(audioConsumer.track);
 
     // mediaTag = 'camVideo';
     // const videoData = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
@@ -721,12 +722,12 @@ async function createConsumer(socket, peerId) {
     // consumers.push(audioConsumer);
     // stream.addTrack(audioConsumer.track);
 
-    // while (recvTransport.connectionState !== 'connected') {
-    //   log('  transport connstate', recvTransport.connectionState );
-    //   await sleep(100);
-    // }
-    // // okay, we're ready. let's ask the peer to send us media
-    // await resumeConsumer(consumer);
+    while (recvTransport.connectionState !== 'connected') {
+      console.log('  transport connstate', recvTransport.connectionState );
+      await sleep(100);
+    }
+    // okay, we're ready. let's ask the peer to send us media
+    await resumeConsumer(consumer);
   
     // keep track of all our consumers
     // updatePeersDisplay();
@@ -756,6 +757,19 @@ async function createRealConsumer(mediaTag, transport, socket, peerId, transport
     console.log(consumers);
     return consumer;
 }
+
+async function resumeConsumer(consumer) {
+    if (consumer) {
+      console.log('resume consumer', consumer.appData.peerId, consumer.appData.mediaTag);
+      try {
+        await socket.request('resumeConsumer', { consumerId: consumer.id })
+        // await sig('resume-consumer', { consumerId: consumer.id });
+        await consumer.resume();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }
 },{"../../config":3,"./socket.io-promise":2,"mediasoup-client":38}],2:[function(require,module,exports){
 // Adds support for Promise to socket.io-client
 exports.promise = function(socket) {
@@ -810,6 +824,28 @@ module.exports = {
                 {
                   'x-google-start-bitrate': 1000
                 }
+            },
+            {
+              kind: "video",
+              mimeType: "video/h264",
+              clockRate: 90000,
+              parameters: {
+                "packetization-mode": 1,
+                "profile-level-id": "4d0032",
+                "level-asymmetry-allowed": 1,
+                //						  'x-google-start-bitrate'  : 1000
+              },
+            },
+            {
+              kind: "video",
+              mimeType: "video/h264",
+              clockRate: 90000,
+              parameters: {
+                "packetization-mode": 1,
+                "profile-level-id": "42e01f",
+                "level-asymmetry-allowed": 1,
+                //						  'x-google-start-bitrate'  : 1000
+              },
             },
           ]
       },

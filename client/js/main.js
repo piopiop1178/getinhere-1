@@ -657,6 +657,7 @@ async function createProducer(socket) {
     }
     videoProducer = await sendTransport.produce({
         track: localStream.getVideoTracks()[0],
+
         appData: { mediaTag: 'cam-video' }
     });
     audioProducer = await sendTransport.produce({
@@ -720,12 +721,12 @@ async function createConsumer(socket, peerId) {
     // consumers.push(audioConsumer);
     // stream.addTrack(audioConsumer.track);
 
-    // while (recvTransport.connectionState !== 'connected') {
-    //   log('  transport connstate', recvTransport.connectionState );
-    //   await sleep(100);
-    // }
-    // // okay, we're ready. let's ask the peer to send us media
-    // await resumeConsumer(consumer);
+    while (recvTransport.connectionState !== 'connected') {
+      console.log('  transport connstate', recvTransport.connectionState );
+      await sleep(100);
+    }
+    // okay, we're ready. let's ask the peer to send us media
+    await resumeConsumer(consumer);
   
     // keep track of all our consumers
     // updatePeersDisplay();
@@ -755,3 +756,16 @@ async function createRealConsumer(mediaTag, transport, socket, peerId, transport
     console.log(consumers);
     return consumer;
 }
+
+async function resumeConsumer(consumer) {
+    if (consumer) {
+      console.log('resume consumer', consumer.appData.peerId, consumer.appData.mediaTag);
+      try {
+        await socket.request('resumeConsumer', { consumerId: consumer.id })
+        // await sig('resume-consumer', { consumerId: consumer.id });
+        await consumer.resume();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }

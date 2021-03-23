@@ -40,6 +40,3 @@ const io = require('socket.io')(httpsServer)
 
 /* https 서버로 오는 요청에 대해 소켓이 처리할 내용을 설정 */
 require('./socketController')(io)
-
-let worker
-let mediasoupRouter

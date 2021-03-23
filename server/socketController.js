@@ -120,8 +120,16 @@ module.exports = async (io) => {
               );
             callback(await createConsumer(router, transport, producer, data.rtpCapabilities));
           });
+
+        socket.on('resumeConsumer', async (data, callback) => {
+            let { peerId, consumerId } = data,
+                consumer = roomState.consumers.find((c) => c.id === consumerId);
+
+            await consumer.resume();
+            callback();
+        });
     }
-    
+
     function initKeyEvent(socket, room){
         /* 키가 눌리는 이벤트 발생 시 */
         socket.on('keydown', function(keyCode) {
@@ -210,6 +218,7 @@ async function createWebRtcTransport(router) {
         rtpCapabilities,
         paused: producer.kind === 'video',
       });
+      roomState.consumers.push(consumer);
     } catch (error) {
       console.error('consume failed', error);
       return;
