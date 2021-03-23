@@ -24,12 +24,10 @@ module.exports = async (io) => {
         // socket.emit('joined');
         /* Room 추가 후 Room 정보를 전달한다 */
         // console.log('before connected');
-        socket.on('hello', ()=> {
-            // console.log('helelehlhel');
+        socket.on('initDone', ()=> {
             socket.emit('connected', room.map, room.name);
         })
         
-
         initWebRTC(socket, room);
         initKeyEvent(socket, room);
         initMusic(socket, room);
@@ -52,15 +50,6 @@ module.exports = async (io) => {
     }
     
     function initWebRTC(socket, room){
-        /* WebRTC에 필요한 signal 교환 */
-        socket.on('signal', data => {
-            if(!room.users[data.socket_id].socket)return
-            room.users[data.socket_id].socket.emit('signal', {
-                socket_id: socket.id,
-                signal: data.signal
-            });
-        });
-    
         /* 기존 Peer 들이 신규 Peer 추가했다는 응답을 받고
          * 신규 Peer에게 기존 Peer를 연결하라고 initSend 송신 */
         socket.on('initSend', init_socket_id => {
@@ -129,6 +118,24 @@ module.exports = async (io) => {
 
             await consumer.resume();
             callback();
+        });
+
+        socket.on('closeConsumer', async (data, callback) => {
+          let roomState = room.roomState;
+          try {
+            let { consumerId } = data,
+                consumer = roomState.consumers.find((c) => c.id === consumerId);
+          
+              if (!consumer) {
+                err(`close-consumer: server-side consumer ${consumerId} not found`);
+                return;
+              }
+          
+              await closeConsumer(roomState, consumer);
+              callback()
+            } catch (e) {
+              console.error('error in /signaling/close-consumer', e);
+            }
         });
     }
 
@@ -240,3 +247,19 @@ async function createWebRtcTransport(router) {
     };
   }
   
+
+
+async function closeConsumer(roomState, consumer) {
+  // console.log('closing consumer', consumer.id, consumer.appData);
+  await consumer.close();
+
+  // remove this consumer from our roomState.consumers list
+  roomState.consumers = roomState.consumers.filter((c) => c.id !== consumer.id);
+
+  // remove layer info from from our roomState...consumerLayers bookkeeping
+  // if (roomState.peers[consumer.appData.peerId]) {
+  //   delete roomState.peers[consumer.appData.peerId].consumerLayers[consumer.id];
+  // }
+}
+
+

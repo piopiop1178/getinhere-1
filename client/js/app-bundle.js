@@ -72,8 +72,7 @@ socket.on('connect', async() =>{
     }).catch(e => alert(`getusermedia error ${e.name}`))
     
     await init(socket);
-    socket.emit('hello');
-    console.log('init');
+    socket.emit('initDone');
 });
 
 async function clientLoadDevice(socket){
@@ -230,6 +229,7 @@ async function init(socket) {
     //     await loadDevice(data._data.rtpCapabilities);
     // })
     // ----------------------------!!RTC!!---------------------------
+    await createProducer(socket);
 
     socket.on('initReceive', socket_id => {
         // console.log('INIT RECEIVE ' + socket_id)
@@ -249,14 +249,9 @@ async function init(socket) {
     })
 
     socket.on('disconnect', () => {
-        // console.log('GOT DISCONNECTED')
         for (let socket_id in peers) { 
             removePeer(socket_id)
         }
-    })
-
-    socket.on('signal', data => {
-        peers[data.socket_id].signal(data.signal)
     })
 
     socket.on('music_on', () => {
@@ -285,7 +280,7 @@ async function init(socket) {
         }
     });
 
-    createProducer(socket);
+    
 }
 
 async function loadDevice(routerRtpCapabilities) {
@@ -299,7 +294,7 @@ async function loadDevice(routerRtpCapabilities) {
     await device.load({ routerRtpCapabilities });
   }
 
-function removePeer(socket_id) {
+async function removePeer(socket_id) {
 
     let videoEl = document.getElementById(socket_id)
     if (videoEl) {
@@ -311,11 +306,14 @@ function removePeer(socket_id) {
         })
 
         videoEl.srcObject = null
-        // console.log('removePeer test@@@@@');
         videoEl.parentNode.removeChild(videoEl)
     }
-    if (peers[socket_id]) peers[socket_id].destroy() 
-    delete peers[socket_id]
+
+    await unsubscribeFromTrack(socket_id, 'cam-video'); 
+    await unsubscribeFromTrack(socket_id, 'cam-audio'); 
+    // console.log(consumers);
+    // if (peers[socket_id]) peers[socket_id].destroy() 
+    // delete peers[socket_id]
 }
 
 async function addPeer(socket, socket_id, am_initiator) {
@@ -390,23 +388,6 @@ async function addPeer(socket, socket_id, am_initiator) {
 //     updateButtons()
 // }
 //-------------------------- TODO-----------------------------
-
-//------------------------------------------------
-// function removeLocalStream() {
-//     if (localStream) {
-//         const tracks = localStream.getTracks();
-
-//         tracks.forEach(function (track) {
-//             track.stop()
-//         })
-
-//         localVideo.srcObject = null
-//     }
-
-//     for (let socket_id in peers) {
-//         removePeer(socket_id)
-//     }
-// }
 
 function toggleMute() {
     for (let index in localStream.getAudioTracks()) {
@@ -675,6 +656,8 @@ async function createConsumer(socket, peerId) {
     
     let videoConsumer = await createRealConsumer('cam-video', recvTransport, socket, peerId, transportId)
     let audioConsumer = await createRealConsumer('cam-audio', recvTransport, socket, peerId, transportId)
+    // consumers.push(videoConsumer);
+    // consumers.push(audioConsumer);
     stream.addTrack(videoConsumer.track);
     stream.addTrack(audioConsumer.track);
 
@@ -750,6 +733,7 @@ async function createRealConsumer(mediaTag, transport, socket, peerId, transport
         codecOptions,
         appData: { peerId, mediaTag }
     });
+
     consumers.push(consumer);
     // console.log(consumers);
     return consumer;
@@ -767,6 +751,45 @@ async function resumeConsumer(consumer) {
       }
     }
   }
+
+async function unsubscribeFromTrack(peerId, mediaTag) {
+    let consumer = await findConsumerForTrack(peerId, mediaTag);
+    
+    if (!consumer) {
+      return;
+    }
+  
+    try {
+      await closeConsumer(consumer);
+    } catch (e) {
+      console.error(e);
+    }
+}
+
+async function closeConsumer(consumer) {
+if (!consumer) {
+    return;
+}
+// console.log('closing consumer', consumer.appData.peerId, consumer.appData.mediaTag);
+try {
+    // tell the server we're closing this consumer. (the server-side
+    // consumer may have been closed already, but that's okay.)
+    await socket.request('closeConsumer', { consumerId: consumer.id });
+    // await sig('close-consumer', { consumerId: consumer.id });
+    await consumer.close();
+    consumers = consumers.filter((c) => c !== consumer);
+    // removeVideoAudio(consumer);
+} catch (e) {
+    console.error(e);
+}
+}
+
+async function findConsumerForTrack(peerId, mediaTag) {
+    return consumers.find((c) => (c.appData.peerId === peerId &&
+                                    c.appData.mediaTag === mediaTag));
+}
+
+
 },{"../../config":3,"./socket.io-promise":2,"mediasoup-client":38}],2:[function(require,module,exports){
 // Adds support for Promise to socket.io-client
 exports.promise = function(socket) {
