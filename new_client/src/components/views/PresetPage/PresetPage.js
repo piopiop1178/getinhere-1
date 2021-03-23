@@ -8,25 +8,43 @@ import image6 from '../../../images/6.png'
 import image7 from '../../../images/7.png'
 import DeviceSelector from './deviceSelector';
 import VideoPreview from './videoPreview';
+import axios from 'axios';
 import {Link} from 'react-router-dom';
 
 class PresetPage extends Component {
     state = {
-        index : 0,
-        images: [image1, image2, image3, image4, image5, image6, image7]
+        characterNum : 0,
+        images: [image1, image2, image3, image4, image5, image6, image7],
+        userName: "이름을 입력해주세요"
     }
     
     imageChangeLeft = () => {
-        this.setState({index: this.state.index -1});
-        if (this.state.index === 0) {
-            this.setState({index: this.state.index + this.state.images.length - 1});
+        this.setState(state => ({characterNum: state.characterNum -1}))
+        if (this.state.characterNum === 0) {
+            this.setState(state=> ({characterNum: state.characterNum + state.images.length}));
         }
     }
     imageChangeRight = () => {
-        this.setState({index: this.state.index +1});
-        if (this.state.index+1 === this.state.images.length) {
-            this.setState({index: this.state.index - this.state.index});
+        this.setState(state => ({characterNum: state.characterNum +1}))
+        if (this.state.characterNum+1 === this.state.images.length) {
+            this.setState(state => ({characterNum: state.characterNum - state.characterNum}));
         }
+    }
+
+    presetSend = () => {
+        axios.get('api/preset/', {
+            params: { 
+                userName : this.state.userName,
+                characterNum : this.state.characterNum
+                }
+            })
+        .then( response => console.log(response.data));
+    }
+
+    inputChange = e =>{
+        const target = e.target;
+        this.setState({userName : target.value})
+        // console.log(this.state.userName);
     }
 
     render() {
@@ -36,7 +54,7 @@ class PresetPage extends Component {
                 <div className="item1">
                     <div className="name-box">
                         <span className="name-input"> NAME : </span>
-                        <input placeholder="_____________" className="name-input name-input2"></input>
+                        <input onChange={this.inputChange} placeholder="_____________" className="name-input name-input2"></input>
                     </div>
                     <div className="charcter-changer">
                         <button className="character-select-button" onClick={this.imageChangeLeft}>
@@ -47,7 +65,7 @@ class PresetPage extends Component {
                     <div className="character-box"> 
                         CHARACTER
                         <div className="character-image">
-                            <img alt="character" src={this.state.images[this.state.index]}></img>                      
+                            <img alt="character" src={this.state.images[this.state.characterNum]}></img>                      
                         </div>
                     </div>
                 </div>
@@ -58,7 +76,7 @@ class PresetPage extends Component {
                     <DeviceSelector/>
                 </div>
             </div>
-            <button className="getin-button">
+            <button className="getin-button" onClick={this.presetSend}>
                 <Link className="getin-link" to ="/room">
                     GET IN !
                     {/* 이 버튼 누르면, ① 사용자 Name, ② Character 정보, ③ Devices 정보 넘겨주면서 생성해둔 방에 들어가야 된다.  */}

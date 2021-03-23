@@ -23,8 +23,7 @@ function App() {
         */}
         <Switch>
           <Route exact path="/" component={LandingPage} />
-          <Route exact path="/preset" component={PresetPage} />
-          <Route exact path="/room" component={RoomPage} />
+          <Route exact path="/room/:roomName" component={PresetPage} />
         </Switch>
     </Router>
   );

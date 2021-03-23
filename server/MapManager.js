@@ -40,5 +40,8 @@ class MapManager {
     static getMapByIndex(mapIndex){
         return this.mapList[mapIndex];
     }
+    static getMapList(){
+        return this.mapList.map((map) => map.BACKGROUND_IMG_PATH);
+    }
 }
 module.exports = MapManager;

@@ -45,7 +45,17 @@ app2.use(function(req, res, next){
 const httpServer = http.createServer(app2).listen(80);
 
 /* https 서버로 오는 요청을 처리할 socket 생성 */
-const io = require('socket.io')(httpsServer)
+const io = require('socket.io')(httpsServer , {
+    cors: {
+        origin: "*",
+        method: ["GET", "POST"]
+    },
+    // extraHeaders: {
+    //     "Access-Control-Allow-Origin": "*",
+    //     "Access-Control-Allow-Headers": "X-Requested-With",
+    //     "Accept": "application/json"
+    // }
+});
 
 /* https 서버로 오는 요청에 대해 소켓이 처리할 내용을 설정 */
-require('./socketController')(io.of('/room'))
+require('./socketController')(io)

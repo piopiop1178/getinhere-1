@@ -15,10 +15,40 @@ module.exports = async (app) => {
     app.use(express.static(path.join(__dirname, '..','client')));
     app.use(express.static(path.join(__dirname, '..','node_modules')));
 
-    app.get('/api/hello', (req, res) => {
-        console.log(req);
-        res.send("안녕하세요 ~ ");
+
+    /* 방 생성 API 설정 */
+    const RoomManager = require('./RoomManager');
+    const MapManager = require('./MapManager');
+    const CharacterManager = require('./CharacterManager');
+
+    app.get('/api/mapList', (req, res) => {
+        const mapList = MapManager.getMapList();
+        return res.status(200).json({
+            "mapList": mapList,
+            "success": true,
+        }); 
     });
+
+    app.get('/api/mapIndex', (req, res) => {
+        console.log(`/api/mapIndex ${req.query}`);
+        const mapIndex = req.query.mapIndex;
+        const map = MapManager.getMapByIndex(mapIndex);
+        const roomName = RoomManager.createRoom(map);
+        return res.status(200).json({
+            "roomName": roomName,
+            "map": map,
+            "success": true,
+        }); 
+    });
+
+    app.get('/api/preset', (req, res) => {
+        // console.log(req);
+        // console.log(req.query.mapIndex);
+        res.send(req.query);
+    });
+
+
+
 
     // app.set('view engine', 'ejs');
     // app.engine('html', require('ejs'.renderFile));
@@ -29,11 +59,6 @@ module.exports = async (app) => {
     //     return res.end(data);
     // });
     
-    /* 방 생성 API 설정 */
-    const RoomManager = require('./RoomManager');
-    const MapManager = require('./MapManager');
-    const CharacterManager = require('./CharacterManager');
-
     app.post('/room', (req, res) => {
         const mapNumber = req.body.map_number;
         const roomName = RoomManager.createRoom(MapManager.getMapByIndex(mapNumber));

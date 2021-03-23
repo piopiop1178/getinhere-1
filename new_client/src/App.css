@@ -51,6 +51,19 @@ button {
   opacity: 0.7;
 }
 
+.map-image {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  height: 70vh;
+  width: 55vw;
+  position: absolute;
+  margin: auto;
+  opacity: 0.7;
+}
+
 .map-setting {
   font-size: 160%;
   font-family: "Bangers", cursive;
