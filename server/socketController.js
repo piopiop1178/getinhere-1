@@ -118,12 +118,14 @@ module.exports = async (io) => {
                 (p) => p.appData.mediaTag === data.mediaTag &&
                        p.appData.peerId === data.peerId
               );
-            callback(await createConsumer(router, transport, producer, data.rtpCapabilities));
+            const roomState = room.roomState;
+            console.log(roomState);
+            callback(await createConsumer(router, transport, roomState, producer, data.rtpCapabilities));
           });
 
         socket.on('resumeConsumer', async (data, callback) => {
             let { peerId, consumerId } = data,
-                consumer = roomState.consumers.find((c) => c.id === consumerId);
+                consumer = room.roomState.consumers.find((c) => c.id === consumerId);
 
             await consumer.resume();
             callback();
@@ -202,7 +204,7 @@ async function createWebRtcTransport(router) {
     };
   }
 
-  async function createConsumer(router, transport, producer, rtpCapabilities) {
+  async function createConsumer(router, transport, roomState, producer, rtpCapabilities) {
     if (!router.canConsume(
       {
         producerId: producer.id,

@@ -727,7 +727,7 @@ async function createConsumer(socket, peerId) {
       await sleep(100);
     }
     // okay, we're ready. let's ask the peer to send us media
-    await resumeConsumer(consumer);
+    await resumeConsumer(videoConsumer);
   
     // keep track of all our consumers
     // updatePeersDisplay();
