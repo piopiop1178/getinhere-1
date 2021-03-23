@@ -9,4 +9,4 @@ privkey.pem
 .env
 
 #config
-config.js
+# config.js
