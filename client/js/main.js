@@ -195,7 +195,7 @@ async function init(socket) {
 
         // getTileAndDrawBackground(contextBackground, GAME_SETTINGS);
         console.log('before draw');
-        drawBackground(contextBackground, GAME_SETTINGS, tile);
+        // drawBackground(contextBackground, GAME_SETTINGS, tile);
         drawBlockZone(localStorage.getItem('BLOCKED_AREA').split(','), contextObject);
     });
     // socket.on("update", function (statuses) {
@@ -233,14 +233,14 @@ async function init(socket) {
 
     socket.on('initReceive', socket_id => {
         // console.log('INIT RECEIVE ' + socket_id)
-        addPeer(socket_id, false)
+        addPeer(socket, socket_id, false)
 
         socket.emit('initSend', socket_id)
     })
 
     socket.on('initSend', socket_id => {
         // console.log('INIT SEND ' + socket_id)
-        addPeer(socket_id, true)
+        addPeer(socket, socket_id, true)
     })
 
     socket.on('removePeer', socket_id => {
@@ -285,7 +285,7 @@ async function init(socket) {
         }
     });
 
-    streamProduce(socket);
+    createProducer(socket);
 }
 
 async function loadDevice(routerRtpCapabilities) {
@@ -319,41 +319,55 @@ function removePeer(socket_id) {
     delete peers[socket_id]
 }
 
-function addPeer(socket_id, am_initiator) {
-    let newStream = new MediaStream(localStream)
-    let newAudioTrack = localStream.getAudioTracks()[0]
-    let src = audioctx.createMediaStreamSource(new MediaStream([newAudioTrack]))
-    let dst = audioctx.createMediaStreamDestination()
-    let gainNode = audioctx.createGain()
-    gainNode.gain.value = 0
-    gains[socket_id] = gainNode
-    ;[src, gainNode, dst].reduce((a, b) => a && a.connect(b))
-    newStream.removeTrack(newAudioTrack)
-    newStream.addTrack(dst.stream.getAudioTracks()[0])
+async function addPeer(socket, socket_id, am_initiator) {
+    let newStream = await createConsumer(socket, socket_id);
+    console.log(newStream.getTracks());
+    let newVid = document.createElement('video')
+    newVid.srcObject = newStream
+    newVid.id = socket_id
+    // newVid.playsinline = false
+    newVid.autoplay = true
+    newVid.className = "vid"
+    videos.appendChild(newVid)
+    
+    peers[socket_id] = null;
 
-    peers[socket_id] = new SimplePeer({
-        initiator: am_initiator,
-        // stream: localStream,
-        stream: newStream,
-        config: configuration
-    })
 
-    peers[socket_id].on('signal', data => {
-        socket.emit('signal', {
-            signal: data,
-            socket_id: socket_id
-        })
-    })
+    // let newStream = new MediaStream(localStream)
+    // let newAudioTrack = localStream.getAudioTracks()[0]
+    // let src = audioctx.createMediaStreamSource(new MediaStream([newAudioTrack]))
+    // let dst = audioctx.createMediaStreamDestination()
+    // let gainNode = audioctx.createGain()
 
-    peers[socket_id].on('stream', stream => {
-        let newVid = document.createElement('video')
-        newVid.srcObject = stream
-        newVid.id = socket_id
-        // newVid.playsinline = false
-        newVid.autoplay = true
-        newVid.className = "vid"
-        videos.appendChild(newVid)
-    })
+    // gainNode.gain.value = 0
+    // gains[socket_id] = gainNode
+    // ;[src, gainNode, dst].reduce((a, b) => a && a.connect(b))
+    // newStream.removeTrack(newAudioTrack)
+    // newStream.addTrack(dst.stream.getAudioTracks()[0])
+
+    // peers[socket_id] = new SimplePeer({
+    //     initiator: am_initiator,
+    //     // stream: localStream,
+    //     stream: newStream,
+    //     config: configuration
+    // })
+
+    // peers[socket_id].on('signal', data => {
+    //     socket.emit('signal', {
+    //         signal: data,
+    //         socket_id: socket_id
+    //     })
+    // })
+
+    // peers[socket_id].on('stream', stream => {
+    //     let newVid = document.createElement('video')
+    //     newVid.srcObject = stream
+    //     newVid.id = socket_id
+    //     // newVid.playsinline = false
+    //     newVid.autoplay = true
+    //     newVid.className = "vid"
+    //     videos.appendChild(newVid)
+    // })
 }
 
 //-------------------------- TODO-----------------------------
@@ -598,8 +612,8 @@ async function createTransport(socket, direction) {
     if (direction === 'recv') {
         transport = await device.createRecvTransport(transportOptions);
         transport.on('connect', async ({ dtlsParameters }, callback, errback) => { //중복된 코드 
-            socket.request('connectTransport', {
-              transportId: transport.id,
+            await socket.request('connectTransport', {
+              transportId: transportOptions.id,
               dtlsParameters
             })
               .then(callback)
@@ -607,21 +621,23 @@ async function createTransport(socket, direction) {
           });
 
     } else if (direction === 'send') {
+        console.log(transportOptions);
         transport = await device.createSendTransport(transportOptions);
         transport.on('connect', async ({ dtlsParameters }, callback, errback) => {
-            socket.request('connectTransport', { 
+            await socket.request('connectTransport', { 
                 transportId: transportOptions.id, 
                 dtlsParameters })
               .then(callback)
               .catch(errback);
           });
     
-          transport.on('produce', async ({ kind, rtpParameters }, callback, errback) => {
+          transport.on('produce', async ({ kind, rtpParameters, appData }, callback, errback) => {
         try {
             const { id } = await socket.request('produce', {
             transportId: transport.id,
             kind,
             rtpParameters,
+            appData
             });
             callback({ id });
         } catch (err) {
@@ -650,55 +666,59 @@ async function createProducer(socket) {
 }
 
 async function createConsumer(socket, peerId) {
-    log('subscribe to track', peerId);
-  
+    let mediaTag;
     // create a receive transport if we don't already have one
     if (!recvTransport) {
-      recvTransport = await createTransport('recv', socket);
+      recvTransport = await createTransport(socket, 'recv');
     }
     let transportId = recvTransport.id;
     const stream = new MediaStream();
-
-    let mediaTag = 'camVideo';
-    const videoData = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
-    const {
-        producerId,
-        id,
-        kind,
-        rtpParameters,
-      } = videoData;
     
-    let codecOptions = {};
-    const videoConsumer = await transport.consume({
-        id,
-        producerId,
-        kind,
-        rtpParameters,
-        codecOptions,
-        appData: { peerId, mediaTag }
-    });
-    consumers.push(videoConsumer);
+    let videoConsumer = await createRealConsumer('cam-video', recvTransport, socket, peerId, transportId)
+    let audioConsumer = await createRealConsumer('cam-audio', recvTransport, socket, peerId, transportId)
     stream.addTrack(videoConsumer.track);
-
-    let mediaTag = 'camAudio';
-    const audioData = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
-    const {
-        producerId,
-        id,
-        kind,
-        rtpParameters,
-      } = audioData;
-    
-      const audioConsumer = await transport.consume({
-        id,
-        producerId,
-        kind,
-        rtpParameters,
-        codecOptions,
-        appData: { peerId, mediaTag }
-    });
-    consumers.push(audioConsumer);
     stream.addTrack(audioConsumer.track);
+
+    // mediaTag = 'camVideo';
+    // const videoData = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
+    // let {
+    //     producerId,
+    //     id,
+    //     kind,
+    //     rtpParameters,
+    //   } = videoData;
+    
+    // let codecOptions = {};
+    // const videoConsumer = await transport.consume({
+    //     id,
+    //     producerId,
+    //     kind,
+    //     rtpParameters,
+    //     codecOptions,
+    //     appData: { peerId, mediaTag }
+    // });
+    // consumers.push(videoConsumer);
+    // stream.addTrack(videoConsumer.track);
+
+    // mediaTag = 'camAudio';
+    // const audioData = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
+    // let {
+    //     producerId,
+    //     id,
+    //     kind,
+    //     rtpParameters,
+    // } = audioData;
+    
+    //   const audioConsumer = await transport.consume({
+    //     id,
+    //     producerId,
+    //     kind,
+    //     rtpParameters,
+    //     codecOptions,
+    //     appData: { peerId, mediaTag }
+    // });
+    // consumers.push(audioConsumer);
+    // stream.addTrack(audioConsumer.track);
 
     // while (recvTransport.connectionState !== 'connected') {
     //   log('  transport connstate', recvTransport.connectionState );
@@ -712,3 +732,26 @@ async function createConsumer(socket, peerId) {
 
     return stream;
   }
+
+async function createRealConsumer(mediaTag, transport, socket, peerId, transportId){
+    const Data = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
+    let {
+        producerId,
+        id,
+        kind,
+        rtpParameters,
+    } = Data;
+
+    let codecOptions = {};
+    const consumer = await transport.consume({
+        id,
+        producerId,
+        kind,
+        rtpParameters,
+        codecOptions,
+        appData: { peerId, mediaTag }
+    });
+    consumers.push(consumer);
+    console.log(consumers);
+    return consumer;
+}

@@ -28,7 +28,7 @@ module.exports = async (io) => {
             console.log('helelehlhel');
             socket.emit('connected', room.map, room.name);
         })
-        socket.to(room.name).emit('initReceive', socket.id);
+        
 
         initWebRTC(socket, room);
         initKeyEvent(socket, room);
@@ -98,13 +98,15 @@ module.exports = async (io) => {
         });
 
         socket.on('produce', async (data, callback) => {
-            const {kind, rtpParameters} = data;
+            const {kind, rtpParameters, appData } = data;
             const transport = room.roomState.transports[data.transportId];
             const peerId = socket.id;
             const transportId = data.transportId;
-            let producer = await transport.produce({ kind, rtpParameters, appData: { peerId, transportId } });
-            console.log('produce!!');
+            const { mediaTag } = appData;
+            let producer = await transport.produce({ kind, rtpParameters, appData: { peerId, transportId, mediaTag} });
             room.roomState.producers.push(producer);
+            if (mediaTag === 'cam-audio')
+                socket.to(room.name).emit('initReceive', socket.id);
             callback({ id: producer.id });
         });
 
@@ -113,8 +115,8 @@ module.exports = async (io) => {
             const transport = room.roomState.transports[data.transportId];
             const router = RoomManager.getRouterBySocket(socket);
             let producer = await room.roomState.producers.find(
-                (p) => p.appData.mediaTag === mediaTag &&
-                       p.appData.peerId === mediaPeerId
+                (p) => p.appData.mediaTag === data.mediaTag &&
+                       p.appData.peerId === data.peerId
               );
             callback(await createConsumer(router, transport, producer, data.rtpCapabilities));
           });
@@ -192,7 +194,7 @@ async function createWebRtcTransport(router) {
     };
   }
 
-  async function createConsumer(producer, rtpCapabilities) {
+  async function createConsumer(router, transport, producer, rtpCapabilities) {
     if (!router.canConsume(
       {
         producerId: producer.id,
