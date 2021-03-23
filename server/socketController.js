@@ -3,7 +3,7 @@ const MapManager = require('./MapManager'); //! 나중에 여기에 인자로 �
 const { roomByName } = require('./RoomManager');
 const RoomManager = require('./RoomManager');
 const mediasoup = require('mediasoup');
-
+const config = require('../config');
 
 /* DB에서 Map을 불러와서 미리 서버에 저장 */
 MapManager.init();
@@ -23,7 +23,11 @@ module.exports = async (io) => {
         initSocket(socket, room);
         // socket.emit('joined');
         /* Room 추가 후 Room 정보를 전달한다 */
-        socket.emit('connected', room.map, room.name);
+        console.log('before connected');
+        socket.on('hello', ()=> {
+            console.log('helelehlhel');
+            socket.emit('connected', room.map, room.name);
+        })
         socket.to(room.name).emit('initReceive', socket.id);
 
         initWebRTC(socket, room);
@@ -76,9 +80,10 @@ module.exports = async (io) => {
         });
         
         socket.on('createTransport', async (data, callback) => {
+            let router = RoomManager.getRouterBySocket(socket);
             try {
-              const { transport, params } = await createWebRtcTransport();
-              room.roomState.transports[data.transport.id] = transport;
+              const { transport, params } = await createWebRtcTransport(router);
+              room.roomState.transports[transport.id] = transport;
               callback(params);
             } catch (err) {
               console.error(err);
@@ -96,9 +101,17 @@ module.exports = async (io) => {
             const {kind, rtpParameters} = data;
             const transport = room.roomState.transports[data.transportId];
             const peerId = socket.id;
-            producer = await transport.produce({ kind, rtpParameters, appData: { peerId, transportId } });
+            const transportId = data.transportId;
+            let producer = await transport.produce({ kind, rtpParameters, appData: { peerId, transportId } });
+            console.log('produce!!');
+            room.roomState.producers.push(producer);
             callback({ id: producer.id });
         });
+
+        socket.on('consume', async (data, callback) => {
+            //여기서 consumer 찾기 -> 그러려면 metadata 넘겨줘야됨 
+            callback(await createConsumer(producer, data.rtpCapabilities));
+          });
     }
     
     function initKeyEvent(socket, room){
@@ -125,6 +138,7 @@ module.exports = async (io) => {
                 // console.log(`music_on!! ${roomManager.rooms[roomName].music}`);
                 room.music = true;
                 io.to(room.name).emit('music_on');
+                console.log(room.roomState);
             }
             else {
                 // console.log(`music_off!! ${roomManager.rooms[roomName].music}`);
@@ -142,3 +156,32 @@ module.exports = async (io) => {
     }
 }
 
+async function createWebRtcTransport(router) {
+    const {
+      maxIncomingBitrate,
+      initialAvailableOutgoingBitrate
+    } = config.mediasoup.webRtcTransport;
+  
+    const transport = await router.createWebRtcTransport({
+      listenIps: config.mediasoup.webRtcTransport.listenIps,
+      enableUdp: true,
+      enableTcp: true,
+      preferUdp: true,
+      initialAvailableOutgoingBitrate,
+    });
+    if (maxIncomingBitrate) {
+      try {
+        await transport.setMaxIncomingBitrate(maxIncomingBitrate);
+      } catch (error) {
+      }
+    }
+    return {
+      transport,
+      params: {
+        id: transport.id,
+        iceParameters: transport.iceParameters,
+        iceCandidates: transport.iceCandidates,
+        dtlsParameters: transport.dtlsParameters
+      },
+    };
+  }
