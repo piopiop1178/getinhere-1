@@ -65,7 +65,6 @@ let socket = io("/", { query: query_param })
 socket.request = socketPromise(socket);
 
 socket.on('connect', async() =>{
-    console.log('connect');
     await navigator.mediaDevices.getUserMedia(constraints).then(stream => {
         localVideo.srcObject = stream;
         localStream = stream;
@@ -168,7 +167,6 @@ async function init(socket) {
         socket.emit("keyup", e.code);
     });
     socket.on("connected", function (SERVER_GAME_SETTINGS, roomName) {
-        console.log('after connected');
         GAME_SETTINGS = SERVER_GAME_SETTINGS;
 
         canvasBackground.setAttribute("width", GAME_SETTINGS.WIDTH);
@@ -234,7 +232,7 @@ async function init(socket) {
     socket.on('initReceive', socket_id => {
         // console.log('INIT RECEIVE ' + socket_id)
         addPeer(socket, socket_id, false)
-
+        console.log(socket_id);
         socket.emit('initSend', socket_id)
     })
 
@@ -626,7 +624,23 @@ async function createTransport(socket, direction) {
     } else {
         throw new Error(`bad transport 'direction': ${direction}`);
     }
+    transport.on('connectionstatechange', (state) => {
+        switch (state) {
+          case 'connecting':
+            console.log(`${transport.id} connecting`)
+          break;
     
+          case 'connected':
+            console.log(`${transport.id} connected`)
+          break;
+    
+          case 'failed':
+            console.log(`${transport.id} failed`)
+          break;
+    
+          default: break;
+        }
+      });
     return transport;
 }
 
@@ -652,55 +666,11 @@ async function createConsumer(socket, peerId) {
       recvTransport = await createTransport(socket, 'recv');
     }
     let transportId = recvTransport.id;
-    const stream = new MediaStream();
     
     let videoConsumer = await createRealConsumer('cam-video', recvTransport, socket, peerId, transportId)
     let audioConsumer = await createRealConsumer('cam-audio', recvTransport, socket, peerId, transportId)
-    // consumers.push(videoConsumer);
-    // consumers.push(audioConsumer);
-    stream.addTrack(videoConsumer.track);
-    stream.addTrack(audioConsumer.track);
 
-    // mediaTag = 'camVideo';
-    // const videoData = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
-    // let {
-    //     producerId,
-    //     id,
-    //     kind,
-    //     rtpParameters,
-    //   } = videoData;
-    
-    // let codecOptions = {};
-    // const videoConsumer = await transport.consume({
-    //     id,
-    //     producerId,
-    //     kind,
-    //     rtpParameters,
-    //     codecOptions,
-    //     appData: { peerId, mediaTag }
-    // });
-    // consumers.push(videoConsumer);
-    // stream.addTrack(videoConsumer.track);
-
-    // mediaTag = 'camAudio';
-    // const audioData = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
-    // let {
-    //     producerId,
-    //     id,
-    //     kind,
-    //     rtpParameters,
-    // } = audioData;
-    
-    //   const audioConsumer = await transport.consume({
-    //     id,
-    //     producerId,
-    //     kind,
-    //     rtpParameters,
-    //     codecOptions,
-    //     appData: { peerId, mediaTag }
-    // });
-    // consumers.push(audioConsumer);
-    // stream.addTrack(audioConsumer.track);
+    let stream = await addVideoAudio(videoConsumer, audioConsumer);
 
     while (recvTransport.connectionState !== 'connected') {
     //   console.log('  transport connstate', recvTransport.connectionState );
@@ -789,7 +759,16 @@ async function findConsumerForTrack(peerId, mediaTag) {
                                     c.appData.mediaTag === mediaTag));
 }
 
+async function addVideoAudio(videoConsumer, audioConsumer){
+    const stream = new MediaStream();
+    await stream.addTrack(videoConsumer.track);
+    await stream.addTrack(audioConsumer.track);
+    return stream
+}
 
+async function sleep(ms) {
+    return new Promise((r) => setTimeout(() => r(), ms));
+  }
 },{"../../config":3,"./socket.io-promise":2,"mediasoup-client":38}],2:[function(require,module,exports){
 // Adds support for Promise to socket.io-client
 exports.promise = function(socket) {

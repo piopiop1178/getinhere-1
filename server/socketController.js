@@ -32,7 +32,6 @@ module.exports = async (io) => {
         initKeyEvent(socket, room);
         initMusic(socket, room);
         initChat(socket, room);
-
     });
 
     async function initSocket(socket, room){
@@ -64,7 +63,6 @@ module.exports = async (io) => {
 
         socket.on('getRouterRtpCapabilities', (data, callback) => {
             let router = RoomManager.getRouterBySocket(socket);
-            // callback(router.rtpCapabilites);
             callback(router);
         });
         
@@ -113,7 +111,7 @@ module.exports = async (io) => {
           });
 
         socket.on('resumeConsumer', async (data, callback) => {
-            let { peerId, consumerId } = data,
+            let { consumerId } = data,
                 consumer = room.roomState.consumers.find((c) => c.id === consumerId);
 
             await consumer.resume();
@@ -125,9 +123,9 @@ module.exports = async (io) => {
           try {
             let { consumerId } = data,
                 consumer = roomState.consumers.find((c) => c.id === consumerId);
-          
+
               if (!consumer) {
-                err(`close-consumer: server-side consumer ${consumerId} not found`);
+                console.err(`close-consumer: server-side consumer ${consumerId} not found`);
                 return;
               }
           
@@ -233,9 +231,10 @@ async function createWebRtcTransport(router) {
       return;
     }
   
-    // if (consumer.type === 'simulcast') {
-    //   await consumer.setPreferredLayers({ spatialLayer: 2, temporalLayer: 2 });
-    // }
+    if (consumer.type === 'simulcast') {
+      console.log('simulcast!!')
+      // await consumer.setPreferredLayers({ spatialLayer: 2, temporalLayer: 2 });
+    }
   
     return {
       producerId: producer.id,
