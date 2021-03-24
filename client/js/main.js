@@ -244,10 +244,24 @@ async function init(socket) {
         removePeer(socket_id)
     })
 
-    socket.on('disconnect', () => {
+    socket.on('disconnect', async () => {
         for (let socket_id in peers) { 
             removePeer(socket_id)
         }
+
+        if (recvTransport) {
+            await socket.request('closeTransport', { transportId: recvTransport.id })
+            await recvTransport.close()
+            recvTransport = null
+        }
+        if (sendTransport) {
+            await socket.request('closeTransport', { transportId: sendTransport.id })
+            await sendTransport.close()
+            sendTransport = null
+        }
+        videoProducer = null
+        audioProducer = null
+        consumers = []
     })
 
     socket.on('music_on', () => {
@@ -309,6 +323,7 @@ async function removePeer(socket_id) {
 
     await unsubscribeFromTrack(socket_id, 'cam-video'); 
     await unsubscribeFromTrack(socket_id, 'cam-audio'); 
+
     // console.log(consumers);
     // if (peers[socket_id]) peers[socket_id].destroy() 
     // delete peers[socket_id]
@@ -626,21 +641,32 @@ async function createTransport(socket, direction) {
     }
     transport.on('connectionstatechange', (state) => {
         switch (state) {
-          case 'connecting':
-            console.log(`Transport Connecting ${transport.id}`)
-          break;
-    
-          case 'connected':
-            console.log(`Transport Connected ${transport.id}`)
-          break;
-    
-          case 'failed':
-            console.log(`Transport Failed ${transport.id}`)
-          break;
-    
-          default: 
-            console.log(`Transpot ${state} ${transport.id}`)
-          break;
+            case 'connecting':
+                console.log(`Transport Connecting ${transport.id}`)
+            break;
+
+            case 'connected':
+                console.log(`Transport Connected ${transport.id}`)
+            break;
+
+            case 'failed':
+                console.log(`Transport Failed ${transport.id}`)
+                leaveRoom(socket)
+            break;
+
+            case 'closed':
+                console.log(`Transport closed ${transport.id}`)
+                leaveRoom(socket)
+            break;
+
+            case 'disconnected':
+                console.log(`Transport disconnected ${transport.id}`)
+                leaveRoom(socket)
+            break;
+
+            default: 
+                console.log(`Transpot ${state} ${transport.id}`)
+            break;
         }
     });
     return transport;
@@ -752,22 +778,22 @@ async function unsubscribeFromTrack(peerId, mediaTag) {
 }
 
 async function closeConsumer(consumer) {
-if (!consumer) {
-    console.log('ERROR: consumer undefined in closeConsumer')
-    return;
-}
-// console.log('closing consumer', consumer.appData.peerId, consumer.appData.mediaTag);
-try {
-    // tell the server we're closing this consumer. (the server-side
-    // consumer may have been closed already, but that's okay.)
-    await socket.request('closeConsumer', { consumerId: consumer.id });
-    // await sig('close-consumer', { consumerId: consumer.id });
-    await consumer.close();
-    consumers = consumers.filter((c) => c !== consumer);
-    // removeVideoAudio(consumer);
-} catch (e) {
-    console.error(e);
-}
+    if (!consumer) {
+        console.log('ERROR: consumer undefined in closeConsumer')
+        return;
+    }
+    // console.log('closing consumer', consumer.appData.peerId, consumer.appData.mediaTag);
+    try {
+        // tell the server we're closing this consumer. (the server-side
+        // consumer may have been closed already, but that's okay.)
+        await socket.request('closeConsumer', { consumerId: consumer.id });
+        // await sig('close-consumer', { consumerId: consumer.id });
+        await consumer.close();
+        consumers = consumers.filter((c) => c !== consumer);
+        // removeVideoAudio(consumer);
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 async function findConsumerForTrack(peerId, mediaTag) {
@@ -788,4 +814,27 @@ async function addVideoAudio(videoConsumer, audioConsumer){
 
 async function sleep(ms) {
     return new Promise((r) => setTimeout(() => r(), ms));
-  }
+}
+
+async function leaveRoom(socket) {
+    // closing the transports closes all producers and consumers. we
+    // don't need to do anything beyond closing the transports, except
+    // to set all our local variables to their initial states
+    try {
+        if (recvTransport) {
+            await socket.request('closeTransport', { transportId: recvTransport.id })
+            await recvTransport.close()
+            recvTransport = null
+        }
+        if (sendTransport) {
+            await socket.request('closeTransport', { transportId: sendTransport.id })
+            await sendTransport.close()
+            sendTransport = null
+        }
+    } catch (e) {
+        console.error(e);
+    }
+    videoProducer = null;
+    audioProducer = null;
+    consumers = [];
+}

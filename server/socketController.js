@@ -209,44 +209,61 @@ async function createWebRtcTransport(router) {
     };
   }
 
-  async function createConsumer(router, transport, roomState, producer, rtpCapabilities) {
+async function createConsumer(router, transport, roomState, producer, rtpCapabilities) {
     if (!router.canConsume(
-      {
-        producerId: producer.id,
-        rtpCapabilities,
-      })
+        {
+            producerId: producer.id,
+            rtpCapabilities,
+        })
     ) {
-      console.error('can not consume');
-      return;
+        console.error('can not consume');
+        return;
     }
     try {
-      consumer = await transport.consume({
-        producerId: producer.id,
-        rtpCapabilities,
-        paused: producer.kind === 'video',
-      });
-      roomState.consumers.push(consumer);
+        consumer = await transport.consume({
+            producerId: producer.id,
+            rtpCapabilities,
+            paused: producer.kind === 'video',
+        });
+        roomState.consumers.push(consumer);
     } catch (error) {
-      console.error('consume failed', error);
-      return;
+        console.error('consume failed', error);
+        return;
     }
   
     if (consumer.type === 'simulcast') {
-      console.log('simulcast!!')
-      // await consumer.setPreferredLayers({ spatialLayer: 2, temporalLayer: 2 });
+        console.log('simulcast!!')
+        // await consumer.setPreferredLayers({ spatialLayer: 2, temporalLayer: 2 });
     }
   
     return {
-      producerId: producer.id,
-      id: consumer.id,
-      kind: consumer.kind,
-      rtpParameters: consumer.rtpParameters,
-      type: consumer.type,
-      producerPaused: consumer.producerPaused
+        producerId: producer.id,
+        id: consumer.id,
+        kind: consumer.kind,
+        rtpParameters: consumer.rtpParameters,
+        type: consumer.type,
+        producerPaused: consumer.producerPaused
     };
-  }
+}
   
-
+async function closeProducer(roomState, producer) {
+    // console.log('closing producer', producer.id, producer.appData);
+    try {
+        await producer.close();
+  
+        // remove this producer from our roomState.producers list
+        roomState.producers = roomState.producers
+            .filter((p) => p.id !== producer.id);
+  
+        // remove this track's info from our roomState...mediaTag bookkeeping
+        // if (roomState.peers[producer.appData.peerId]) {
+        //     delete (roomState.peers[producer.appData.peerId]
+        //         .media[producer.appData.mediaTag]);
+        // }
+    } catch (e) {
+        err(e);
+    }
+}
 
 async function closeConsumer(roomState, consumer) {
   // console.log('closing consumer', consumer.id, consumer.appData);
@@ -260,5 +277,3 @@ async function closeConsumer(roomState, consumer) {
   //   delete roomState.peers[consumer.appData.peerId].consumerLayers[consumer.id];
   // }
 }
-
-
