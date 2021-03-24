@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 
 class DeviceSelector extends Component {
     componentDidMount(){
-        const media = navigator.mediaDevices.enumerateDevices();
-        console.log(media);
+        // const media = navigator.mediaDevices.enumerateDevices();
         
         const videoElement = document.querySelector('video');
         const audioInputSelect = document.querySelector('select#audioSource');

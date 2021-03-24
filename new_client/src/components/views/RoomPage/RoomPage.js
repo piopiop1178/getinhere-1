@@ -21,7 +21,7 @@ class RoomPage extends Component {
 
     render(){
         return (
-            <div>hello~
+            <div className="kkk">hello~
             </div>
         )
     }

@@ -8,8 +8,9 @@ import {
 } from "react-router-dom";
 
 import LandingPage from './components/views/landingPage/landingPage';
-import PresetPage from './components/views/presetPage/presetPage';
-import RoomPage from './components/views/roomPage/roomPage';
+// import PresetPage from './components/views/presetPage/presetPage';
+import Main from './components/views/presetPage/main';
+// import RoomPage from './components/views/roomPage/roomPage';
 
 function App() {
   return (
@@ -23,7 +24,7 @@ function App() {
         */}
         <Switch>
           <Route exact path="/" component={LandingPage} />
-          <Route exact path="/room/:roomName" component={PresetPage} />
+          <Route exact path="/room/:roomName" component={Main} />
         </Switch>
     </Router>
   );

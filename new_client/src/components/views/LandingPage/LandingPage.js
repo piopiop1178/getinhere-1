@@ -1,15 +1,8 @@
 import React, {Component} from 'react'
 import axios from 'axios';
-import {Link} from 'react-router-dom';
+// import {Link} from 'react-router-dom';
 
 class LandingPage extends Component {
-
-    componentDidMount = () =>{
-        axios.get('/api/mapList')
-        .then(response => {
-            this.setState({maps : response.data.mapList})
-        });
-    }
 
     state= {
         map_index : 0,
@@ -18,25 +11,27 @@ class LandingPage extends Component {
         data : {roomName : null, map : null, success: null }
     }
 
-    // mapIndexSend = async () => {
-    //     axios.get('/api/mapIndex', {
-    //         params: { 
-    //             mapIndex : this.state.map_index}
-    //         })
-    //     .then( response => {
-    //         this.setState({data : response.data})
-    //         console.log(this.state.data.roomName);
-    //     });
-    // }
+    componentDidMount = () =>{
+        axios.get('/api/mapList')
+        .then(response => {
+            this.setState({maps : response.data.mapList})
+        });
+    }
 
-    shouldComponentUpdate = () => {
-        const response = axios.get('/api/mapIndex', {
+    mapIndexSend = () => {
+        axios.get('/api/mapIndex', {
             params: { 
                 mapIndex : this.state.map_index}
             })
-        this.setState({data : response.data});
-        console.log(this.state.data.roomName);
-    }
+        .then( response => {
+            const { history } = this.props;
+            this.setState({data : response.data})
+            history.push({
+                pathname: `/room/${this.state.data.roomName}`,
+                state: {data: response.data}
+            });
+        });
+    };
 
     MapLeft = () =>{
         // db에서?서버에서? map정보를 불러온다.
@@ -70,13 +65,8 @@ class LandingPage extends Component {
                 </button>
             </div>
             <button className="start-button" onClick={this.mapIndexSend}>
-                <Link className="start-link" to={`/room/${this.state.data.roomName}`}>start !</Link>
-                    {/* // pathname : `/room/${this.state.data.roomName}`,
-                    // state : { 
-                    //     data : this.state.data
-                    // }
-                    // }}>Start ! </Link>
-                이 버튼을 누르면, ①Map 정보를 넘겨주고, ② room을 생성해놓고 room 정보까지 넘겨줘야 한다. */}
+               Start ! 
+                {/* 이 버튼을 누르면, ①Map 정보를 넘겨주고, ② room을 생성해놓고 room 정보까지 넘겨줘야 한다. */}
             </button>
             </>
         )

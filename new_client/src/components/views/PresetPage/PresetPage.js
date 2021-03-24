@@ -9,7 +9,6 @@ import image7 from '../../../images/7.png'
 import DeviceSelector from './deviceSelector';
 import VideoPreview from './videoPreview';
 import axios from 'axios';
-import {Link} from 'react-router-dom';
 
 class PresetPage extends Component {
     state = {
@@ -18,6 +17,10 @@ class PresetPage extends Component {
         userName: "이름을 입력해주세요"
     }
     
+    componentDidMount = () => {
+        console.log(this.props.pagePreset);
+    }
+
     imageChangeLeft = () => {
         this.setState(state => ({characterNum: state.characterNum -1}))
         if (this.state.characterNum === 0) {
@@ -39,6 +42,8 @@ class PresetPage extends Component {
                 }
             })
         .then( response => console.log(response.data));
+
+        this.props.pagePreset();    
     }
 
     inputChange = e =>{
@@ -46,6 +51,7 @@ class PresetPage extends Component {
         this.setState({userName : target.value})
         // console.log(this.state.userName);
     }
+
 
     render() {
         return (
@@ -77,10 +83,10 @@ class PresetPage extends Component {
                 </div>
             </div>
             <button className="getin-button" onClick={this.presetSend}>
-                <Link className="getin-link" to ="/room">
+                {/* <Link className="getin-link" to ={`/room/${this.props.location.state.data.roomName}`}> */}
                     GET IN !
                     {/* 이 버튼 누르면, ① 사용자 Name, ② Character 정보, ③ Devices 정보 넘겨주면서 생성해둔 방에 들어가야 된다.  */}
-                </Link>
+                {/* </Link> */}
             </button>
             
             </>
