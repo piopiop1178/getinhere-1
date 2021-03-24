@@ -838,7 +838,7 @@ async function leaveRoom(socket) {
     videoProducer = null;
     audioProducer = null;
     consumers = [];
-  }
+}
 
 },{"../../config":3,"./socket.io-promise":2,"mediasoup-client":38}],2:[function(require,module,exports){
 // Adds support for Promise to socket.io-client

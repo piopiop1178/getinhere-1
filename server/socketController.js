@@ -76,7 +76,7 @@ module.exports = async (io) => {
               console.error(err);
               callback({ error: err.message });
             }
-          });
+        });
         
         socket.on('connectTransport', async (data, callback) => {
             const transport = room.roomState.transports[data.transportId];
@@ -91,7 +91,15 @@ module.exports = async (io) => {
             const transportId = data.transportId;
             const { mediaTag } = appData;
             let producer = await transport.produce({ kind, rtpParameters, appData: { peerId, transportId, mediaTag} });
+
+            producer.on('transportclose', () => {
+                console.log('producer\'s transport closed', producer.id);
+                console.log('room state is', room.roomState)
+                closeProducer(room.roomState, producer);
+            });
+            
             room.roomState.producers.push(producer);
+
             if (mediaTag === 'cam-audio')
                 socket.to(room.name).emit('initReceive', socket.id);
             callback({ id: producer.id });
@@ -117,6 +125,24 @@ module.exports = async (io) => {
             await consumer.resume();
             callback();
         });
+
+        socket.on('closeTransport', async (data, callback) => {
+            let roomState = room.roomState
+            try {
+                let { transportId } = data,
+                    transport = roomState.transports[transportId];
+            
+                if (!transport) {
+                    console.err(`close-transport: server-side transport ${transportId} not found`);
+                    return;
+                }
+            
+                await closeTransport(roomState, transport);
+                callback()
+            } catch (e) {
+                console.error('error in /signaling/close-transport', e);
+            }
+        })
 
         socket.on('closeConsumer', async (data, callback) => {
           let roomState = room.roomState;
@@ -225,6 +251,19 @@ async function createConsumer(router, transport, roomState, producer, rtpCapabil
             rtpCapabilities,
             paused: producer.kind === 'video',
         });
+
+        // need both 'transportclose' and 'producerclose' event handlers,
+        // to make sure we close and clean up consumers in all
+        // circumstances
+        consumer.on('transportclose', () => {
+            console.log(`consumer's transport closed`, consumer.id);
+            closeConsumer(roomState, consumer);
+        });
+        consumer.on('producerclose', () => {
+            console.log(`consumer's producer closed`, consumer.id);
+            closeConsumer(roomState, consumer);
+        });
+
         roomState.consumers.push(consumer);
     } catch (error) {
         console.error('consume failed', error);
@@ -245,7 +284,25 @@ async function createConsumer(router, transport, roomState, producer, rtpCapabil
         producerPaused: consumer.producerPaused
     };
 }
-  
+
+async function closeTransport(roomState, transport) {
+    try {
+        // console.log('closing transport', transport.id, transport.appData);
+
+        // our producer and consumer event handlers will take care of
+        // calling closeProducer() and closeConsumer() on all the producers
+        // and consumers associated with this transport
+        console.log(transport)
+        await transport.close();
+
+        // so all we need to do, after we call transport.close(), is update
+        // our roomState data structure
+        delete roomState.transports[transport.id];
+    } catch (e) {
+        err(e);
+    }
+}
+
 async function closeProducer(roomState, producer) {
     // console.log('closing producer', producer.id, producer.appData);
     try {
