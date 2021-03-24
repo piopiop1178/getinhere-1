@@ -229,19 +229,18 @@ async function init(socket) {
     await createProducer(socket);
 
     socket.on('initReceive', socket_id => {
-        // console.log('INIT RECEIVE ' + socket_id)
+        console.log('INIT RECEIVE ' + socket_id)
         addPeer(socket, socket_id, false)
-        console.log(socket_id);
         socket.emit('initSend', socket_id)
     })
 
     socket.on('initSend', socket_id => {
-        // console.log('INIT SEND ' + socket_id)
+        console.log('INIT SEND ' + socket_id)
         addPeer(socket, socket_id, true)
     })
 
     socket.on('removePeer', socket_id => {
-        // console.log('removing peer ' + socket_id)
+        console.log('removing peer ' + socket_id)
         removePeer(socket_id)
     })
 
@@ -297,6 +296,8 @@ async function removePeer(socket_id) {
     if (videoEl) {
 
         const tracks = videoEl.srcObject.getTracks();
+        console.log('Removing tracks')
+        console.log(tracks)
 
         tracks.forEach(function (track) { 
             track.stop()
@@ -626,27 +627,38 @@ async function createTransport(socket, direction) {
     transport.on('connectionstatechange', (state) => {
         switch (state) {
           case 'connecting':
-            console.log(`${transport.id} connecting`)
+            console.log(`Transport Connecting ${transport.id}`)
           break;
     
           case 'connected':
-            console.log(`${transport.id} connected`)
+            console.log(`Transport Connected ${transport.id}`)
           break;
     
           case 'failed':
-            console.log(`${transport.id} failed`)
+            console.log(`Transport Failed ${transport.id}`)
           break;
     
-          default: break;
+          default: 
+            console.log(`Transpot ${state} ${transport.id}`)
+          break;
         }
-      });
+    });
     return transport;
 }
 
 async function createProducer(socket) {
     if (!sendTransport) {
-      sendTransport = await createTransport(socket, 'send');
+        console.log('Creating sendTransport')
+        sendTransport = await createTransport(socket, 'send');
     }
+
+    //! For temporary use
+    if (!recvTransport) {
+        console.log('Creating recvTransport')
+        recvTransport = await createTransport(socket, 'recv');
+    }
+    //! For temporary use
+
     videoProducer = await sendTransport.produce({
         track: localStream.getVideoTracks()[0],
 
@@ -655,15 +667,18 @@ async function createProducer(socket) {
     audioProducer = await sendTransport.produce({
         track: localStream.getAudioTracks()[0],
         appData: { mediaTag: 'cam-audio' }
-      });
+    });
 }
 
 async function createConsumer(socket, peerId) {
-    let mediaTag;
     // create a receive transport if we don't already have one
+    //! On error fixing
     if (!recvTransport) {
-      recvTransport = await createTransport(socket, 'recv');
+        console.log('Creating recvTransport')
+        recvTransport = await createTransport(socket, 'recv');
     }
+    //! On error fixing
+
     let transportId = recvTransport.id;
     
     let videoConsumer = await createRealConsumer('cam-video', recvTransport, socket, peerId, transportId)
@@ -673,7 +688,7 @@ async function createConsumer(socket, peerId) {
 
     while (recvTransport.connectionState !== 'connected') {
     //   console.log('  transport connstate', recvTransport.connectionState );
-      await sleep(100);
+        await sleep(100);
     }
     // okay, we're ready. let's ask the peer to send us media
     await resumeConsumer(videoConsumer);
@@ -682,7 +697,7 @@ async function createConsumer(socket, peerId) {
     // updatePeersDisplay();
 
     return stream;
-  }
+}
 
 async function createRealConsumer(mediaTag, transport, socket, peerId, transportId){
     const Data = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
@@ -725,7 +740,8 @@ async function unsubscribeFromTrack(peerId, mediaTag) {
     let consumer = await findConsumerForTrack(peerId, mediaTag);
     
     if (!consumer) {
-      return;
+        console.log('ERROR: cannot find consumer')
+        return;
     }
   
     try {
@@ -737,6 +753,7 @@ async function unsubscribeFromTrack(peerId, mediaTag) {
 
 async function closeConsumer(consumer) {
 if (!consumer) {
+    console.log('ERROR: consumer undefined in closeConsumer')
     return;
 }
 // console.log('closing consumer', consumer.appData.peerId, consumer.appData.mediaTag);
@@ -754,6 +771,10 @@ try {
 }
 
 async function findConsumerForTrack(peerId, mediaTag) {
+    console.log('Finding Track for consumers')
+    console.log(consumers)
+    console.log(`peerId is ${peerId}`)
+    console.log(`mediaTag is ${mediaTag}`)
     return consumers.find((c) => (c.appData.peerId === peerId &&
                                     c.appData.mediaTag === mediaTag));
 }
