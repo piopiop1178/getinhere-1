@@ -56,7 +56,19 @@ module.exports = async (io) => {
         });
     
         /* 소켓 연결 종료 */
-        socket.on('disconnect', () => {          
+        socket.on('disconnect', async() => {
+            let target_transport = Object.values(room.roomState.transports).find(
+                (p) => p.appData.socket_id === socket.id);
+            await closeTransport(room.roomState, target_transport)
+            target_transport = Object.values(room.roomState.transports).find(
+                (p) => p.appData.socket_id === socket.id);
+            await closeTransport(room.roomState, target_transport)    
+            
+            // let producer = await room.roomState.producers.find(
+            //     (p) => p.appData.mediaTag === data.mediaTag &&
+            //            p.appData.peerId === data.peerId
+            //   );
+
             io.to(room.name).emit('removePeer', socket.id);
             RoomManager.removeSocketFromRoom(socket);
         });
@@ -69,7 +81,7 @@ module.exports = async (io) => {
         socket.on('createTransport', async (data, callback) => {
             let router = RoomManager.getRouterBySocket(socket);
             try {
-              const { transport, params } = await createWebRtcTransport(router);
+              const { transport, params } = await createWebRtcTransport(router, socket);
               room.roomState.transports[transport.id] = transport;
               callback(params);
             } catch (err) {
@@ -94,7 +106,7 @@ module.exports = async (io) => {
 
             producer.on('transportclose', () => {
                 console.log('producer\'s transport closed', producer.id);
-                console.log('room state is', room.roomState)
+                // console.log('room state is', room.roomState)
                 closeProducer(room.roomState, producer);
             });
             
@@ -131,7 +143,7 @@ module.exports = async (io) => {
             try {
                 let { transportId } = data,
                     transport = roomState.transports[transportId];
-            
+                console.log('closeTransport!!!')
                 if (!transport) {
                     console.err(`close-transport: server-side transport ${transportId} not found`);
                     return;
@@ -205,17 +217,17 @@ module.exports = async (io) => {
     }
 }
 
-async function createWebRtcTransport(router) {
+async function createWebRtcTransport(router, socket) {
     const {
       maxIncomingBitrate,
       initialAvailableOutgoingBitrate
     } = config.mediasoup.webRtcTransport;
-  
     const transport = await router.createWebRtcTransport({
       listenIps: config.mediasoup.webRtcTransport.listenIps,
       enableUdp: true,
       enableTcp: true,
       preferUdp: true,
+      appData: {socket_id: socket.id},
       initialAvailableOutgoingBitrate,
     });
     if (maxIncomingBitrate) {
@@ -249,7 +261,8 @@ async function createConsumer(router, transport, roomState, producer, rtpCapabil
         consumer = await transport.consume({
             producerId: producer.id,
             rtpCapabilities,
-            paused: producer.kind === 'video',
+            paused: true,
+            // paused: producer.kind === 'video',
         });
 
         // need both 'transportclose' and 'producerclose' event handlers,
@@ -287,19 +300,17 @@ async function createConsumer(router, transport, roomState, producer, rtpCapabil
 
 async function closeTransport(roomState, transport) {
     try {
-        // console.log('closing transport', transport.id, transport.appData);
 
         // our producer and consumer event handlers will take care of
         // calling closeProducer() and closeConsumer() on all the producers
         // and consumers associated with this transport
-        console.log(transport)
         await transport.close();
 
         // so all we need to do, after we call transport.close(), is update
         // our roomState data structure
         delete roomState.transports[transport.id];
     } catch (e) {
-        err(e);
+        console.err(e);
     }
 }
 
@@ -318,7 +329,7 @@ async function closeProducer(roomState, producer) {
         //         .media[producer.appData.mediaTag]);
         // }
     } catch (e) {
-        err(e);
+        console.err(e);
     }
 }
 
