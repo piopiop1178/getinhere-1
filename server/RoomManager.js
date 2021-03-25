@@ -3,21 +3,27 @@
 const uuid = require('uuid');
 const Room = require('./Class/Room');
 const User = require('./Class/User');
+const config = require('../config');
+const mediasoup = require('mediasoup');
 
 class RoomManager{   // Room 함수 실행
     static roomByName = {};
     static roomByUser = {};
     static io = undefined;
+    static workers = [];
 
     constructor() {
     }
 
-    static init(io){
+    static async init(io){
         this.io = io
+        let worker = await createMediasoupWorker();
+        this.workers.push(worker);
+        return;
     }
 
     /* 새로운 Room을 생성 */
-    static createRoom(map){
+    static async createRoom(map){
         console.log("createRoom");
         // console.log(map);
         /* uuid 로 roomName 생성 */
@@ -28,11 +34,20 @@ class RoomManager{   // Room 함수 실행
         /* roomName으로 새로운 Room을 생성하여 rooms에 추가 */
         const room = new Room(roomName, map);
         this.roomByName[roomName] = room;
+
+        const mediaCodecs = config.mediasoup.router.mediaCodecs;
+
+        let worker = this.workers[0];
+        let mediasoupRouter = await worker.createRouter({ mediaCodecs });
+        room.router = mediasoupRouter;
+        console.log(roomName);
+	    // return room;
+
         return roomName;
     }
 
     /* 전달받은 socket으로 User를 생성하여 roomName에 해당하는 Room에 User를 추가 */
-    static addSocketToRoom(socket, room){
+    static async addSocketToRoom(socket, room){
         const user = new User(socket);
         /* Room에 User 추가 */
         room.addUser(user);
@@ -44,6 +59,7 @@ class RoomManager{   // Room 함수 실행
             console.log("------------addSocketToRoom-- 룸 스타트 ----------------------------------------------")
             room.start(this.io);
         }
+        return;
     }
 
     /* Room에서 User를 제거 */
@@ -81,6 +97,29 @@ class RoomManager{   // Room 함수 실행
     static getRoomNameBySocket(socket){
         return this.roomByUser[socket.id].name;
     }
+
+    static getRouterBySocket(socket){
+        return this.roomByUser[socket.id].router;
+    }
 }
 
+async function createMediasoupWorker() {
+    let worker = await mediasoup.createWorker({
+      logLevel: config.mediasoup.worker.logLevel,
+      logTags: config.mediasoup.worker.logTags,
+      rtcMinPort: config.mediasoup.worker.rtcMinPort,
+      rtcMaxPort: config.mediasoup.worker.rtcMaxPort,
+    });
+  
+    worker.on('died', () => {
+      console.error('mediasoup worker died, exiting in 2 seconds... [pid:%d]', worker.pid);
+      setTimeout(() => process.exit(1), 2000);
+    });
+    
+    return worker;
+    // const mediaCodecs = config.mediasoup.router.mediaCodecs;
+    // mediasoupRouter = await worker.createRouter({ mediaCodecs }); //media server create? 
+  }
+
+  
 module.exports = RoomManager;

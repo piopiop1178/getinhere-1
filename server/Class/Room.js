@@ -8,7 +8,14 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
         this.map = map;
         this.memberCount = 0;
         this.users = {};
+        this.router;
         this.music = false;
+        this.roomState = {
+            peers: {},
+            transports: {},
+            producers: [],
+            consumers: []
+        }
     }
 
     get name(){

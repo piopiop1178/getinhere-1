@@ -1,6 +1,19 @@
 import React, {Component} from 'react';
 import {io} from 'socket.io-client';
 import './roomPage.css'
+//------------------DEBUG-------------------
+import socketPromise from './socket.io-promise';
+import config from './config';
+// import mediasoup from 'mediasoup-client';
+import * as mediasoup from "mediasoup-client";
+import {
+    types,
+    version,
+    detectDevice,
+    Device,
+    parseScalabilityMode
+} from "mediasoup-client"
+//------------------DEBUG-------------------
 // import tile2 from '../../../images/tile2.jpg'
 import icon2 from '../../../images/among.jpg' //TODO 임시방편
 const icon = new Image();
@@ -13,13 +26,44 @@ icon.src = icon2
 
 // const socket = io.connect("https://localhost", {transport : ['websocket']});
         /* 소켓 실행시키기 */
-const socket = io("https://localhost", {transport: ['websocket']}) //! 얘는 뭔가요
+const socket = io("https://13.209.75.25", {transport: ['websocket']}) //! 얘는 뭔가요
+
+socket.request = socketPromise.promise(socket);
+
+// let localStream = null;
+// let peers = {}
+// let audioctx
+// let gains = {}
 
 
-let localStream = null;
-let peers = {}
-let audioctx
-let gains = {}
+// let device, 
+//     recvTransport, 
+//     sendTransport, 
+//     videoProducer, 
+//     audioProducer, 
+//     consumers = []
+
+// async function clientLoadDevice(socket){
+//     const data = await socket.request('getRouterRtpCapabilities');
+//     console.log(`data._data: ${data._data}`); //왜 이거 못쓰는지?? 
+//     console.log('data', data);
+//     await loadDevice(data._data.rtpCapabilities);
+// }
+
+// async function loadDevice(routerRtpCapabilities) {
+//     try {
+//         device = new mediasoup.Device();
+//         console.log('loadDevice function',device);
+//         await device.load({ routerRtpCapabilities });
+
+//         // console.log(device);
+//     } catch (error) {
+//         if (error.name === 'UnsupportedError') {
+//         console.error('browser not supported');
+//         }
+//     }
+// }
+
 const configuration = {
     "iceServers": [{
             "urls": "stun:stun.l.google.com:19302"
@@ -133,8 +177,73 @@ class RoomPage extends Component {
 
 
 
-    componentDidMount() {
+    async componentDidMount() {
+        //tmp 승민
+        let localStream = null;
+        let peers = {}
+        let audioctx
+        let gains = {}
+
+
+        let device, 
+            recvTransport, 
+            sendTransport, 
+            videoProducer, 
+            audioProducer, 
+            consumers = []
+
+
+        async function clientLoadDevice(){
+            console.log(`Device! request: ${socket.request}`);
+            const data = await socket.request('getRouterRtpCapabilities');
+            console.log(`data._data: ${data._data}`); //왜 이거 못쓰는지?? 
+            console.log('data', data);
+            await loadDevice(data._data.rtpCapabilities);
+            return;
+        }
+
+        async function loadDevice(routerRtpCapabilities) {
+            console.log('load device 입니다다아아ㅏ');
+            try {
+                console.log('load device try 입니다아아ㅏ');
+                device = new mediasoup.Device();
+                console.log('loadDevice function',device);
+                await device.load({ routerRtpCapabilities });
+                console.log('loadDevice function after',device);
+                // console.log(device);
+            } catch (error) {
+                if (error.name === 'UnsupportedError') {
+                console.error('browser not supported');
+                }
+            }
+            return;
+        }
+        //tmp 승민
+
+
+
         socket.emit('start', document.location.pathname.slice(6))
+
+        //-------------------------DEBUG---------------- 밖으로????? 
+        let localVideo = document.querySelector('#localVideo');
+
+        await navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+            localVideo.srcObject = stream;
+            localStream = stream;
+        }).catch(e => alert(`getusermedia error ${e.name}`))
+        
+        // await init(socket);
+        // socket.emit('initDone');
+        // socket.on('connect', async() =>{
+        //     await navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+        //         localVideo.srcObject = stream;
+        //         localStream = stream;
+        //     }).catch(e => alert(`getusermedia error ${e.name}`))
+            
+        //     await init(socket);
+        //     socket.emit('initDone');
+        // });
+        //-------------------------DEBUG----------------
 
         /* 맵 세팅정보 부모한태서 받아와야 한다 */
         // TODO 제대로 받아왔는지 확인하기
@@ -152,12 +261,12 @@ class RoomPage extends Component {
         // let CHAR_SIZE = TILE_LENGTH
 
         /* 로컬 스트림 받아오기 */
-        let localVideo = document.querySelector('#localVideo');
-        navigator.mediaDevices.getUserMedia(constraints).then(stream => {
-            localVideo.srcObject = stream;
-            localStream = stream;
-            init()
-        }).catch(e => alert(`getusermedia error ${e.name}`))
+        // let localVideo = document.querySelector('#localVideo');
+        // navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+        //     localVideo.srcObject = stream;
+        //     localStream = stream;
+        //     init()
+        // }).catch(e => alert(`getusermedia error ${e.name}`))
 
         //! 추후 수정 및 리팩토링 필요
         /* 캐릭터 캔버스 설정 */
@@ -172,144 +281,188 @@ class RoomPage extends Component {
         document.body.appendChild(canvasCharacter);
 
 
-            function init() {
-                let query_param = get_query();
-                console.log('roomPage.js function init()',query_param);
-                //Todo: after make main page, add url
-                // socket = io("/room", { query: query_param }) //! 얘는 뭔가요
+        async function init() {
+            // let query_param = get_query();
+            // console.log('roomPage.js function init()',query_param);
+            //Todo: after make main page, add url
+            // socket = io("/room", { query: query_param }) //! 얘는 뭔가요
             
-                let MAP_SETTINGS2 = null;
-                const LEFT = 'ArrowLeft', UP = 'ArrowUp', RIGHT = 'ArrowRight', DOWN = 'ArrowDown';
-            
-                audioctx = new AudioContext()
-            
-                // Initialize distance
-                let dist;
-            
-                window.addEventListener('keydown' ,(e)=> {
-                    let st = localStorage.getItem('myStatus');
-                    let parsed_status = JSON.parse(st);
-                    let curr_x = parsed_status.x;
-                    let curr_y = parsed_status.y;
-            
-                    if (curr_x <= 60 && 1200 - curr_y <= 120 && e.code === "KeyX"){
-                        socket.emit('music');
-                    }
-            
-                    socket.emit('keydown', e.code);
-                    if(e.code == RIGHT) e.preventDefault();
-                    if(e.code == LEFT)  e.preventDefault();
-                    if(e.code == DOWN)  e.preventDefault();
-                    if(e.code == UP)    e.preventDefault();
-                })
-                window.addEventListener("keyup", function (e) {
-                    socket.emit("keyup", e.code);
-                });
-       
-                // socket.on("update", function (statuses) {
-                socket.on("update", function (statuses, idArray) {
-                    // if (MAP_SETTINGS2 == null) return;
+            await clientLoadDevice();
 
-                    storelocalStorage(statuses[socket.id].status);
-                    updateWindowCenter(statuses[socket.id].status);
-            
-                    contextCharacter.clearRect(0, 0, WIDTH, HEIGHT);
-                    contextCharacter.beginPath();
-                    idArray.forEach(function (id) {
-                        // Audio volume change
-                        if (id !== socket.id && gains[id] != undefined) {
-                            dist = calcDistance(statuses[id].status, statuses[socket.id].status)
-                            // console.log(dist)
-                            gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
-                        }
-                        // 캐릭터 삽입 코드
-                        contextCharacter.drawImage(icon, 
-                            statuses[id].status.x,
-                            statuses[id].status.y,
-                            statuses[id].status.width,
-                            statuses[id].status.height
-                            );
-                    });
+            let MAP_SETTINGS2 = null;
+            const LEFT = 'ArrowLeft', UP = 'ArrowUp', RIGHT = 'ArrowRight', DOWN = 'ArrowDown';
+        
+            audioctx = new AudioContext()
+        
+            // Initialize distance
+            let dist;
+        
+            window.addEventListener('keydown' ,(e)=> {
+                let st = localStorage.getItem('myStatus');
+                let parsed_status = JSON.parse(st);
+                let curr_x = parsed_status.x;
+                let curr_y = parsed_status.y;
+        
+                if (curr_x <= 60 && 1200 - curr_y <= 120 && e.code === "KeyX"){
+                    socket.emit('music');
+                }
+        
+                socket.emit('keydown', e.code);
+                if(e.code == RIGHT) e.preventDefault();
+                if(e.code == LEFT)  e.preventDefault();
+                if(e.code == DOWN)  e.preventDefault();
+                if(e.code == UP)    e.preventDefault();
+            })
+            window.addEventListener("keyup", function (e) {
+                socket.emit("keyup", e.code);
+            });
+    
+            // socket.on("update", function (statuses) {
+            socket.on("update", function (statuses, idArray) {
+                // if (MAP_SETTINGS2 == null) return;
+
+                storelocalStorage(statuses[socket.id].status);
+                updateWindowCenter(statuses[socket.id].status);
+        
+                contextCharacter.clearRect(0, 0, WIDTH, HEIGHT);
+                contextCharacter.beginPath();
+                idArray.forEach(function (id) {
+                    // Audio volume change
+                    if (id !== socket.id && gains[id] != undefined) {
+                        dist = calcDistance(statuses[id].status, statuses[socket.id].status)
+                        // console.log(dist)
+                        gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
+                    }
+                    // 캐릭터 삽입 코드
+                    contextCharacter.drawImage(icon, 
+                        statuses[id].status.x,
+                        statuses[id].status.y,
+                        statuses[id].status.width,
+                        statuses[id].status.height
+                        );
                 });
-            
-                // ----------------------------!!RTC!!---------------------------
-                socket.on('initReceive', socket_id => {
-                    console.log('INIT RECEIVE ' + socket_id)
-                    // addPeer(socket_id, false)
-            
-                    socket.emit('initSend', socket_id)
-                })
-            
-                socket.on('initSend', socket_id => {
-                    console.log('INIT SEND ' + socket_id)
-                    // addPeer(socket_id, true)
-                })
-            
-                socket.on('removePeer', socket_id => {
-                    console.log('removing peer ' + socket_id)
+            });
+        
+            // ----------------------------!!RTC!!---------------------------
+            await createProducer();
+
+            socket.on('initReceive', socket_id => {
+                console.log('INIT RECEIVE ' + socket_id)
+                addPeer(socket_id, false)
+        
+                socket.emit('initSend', socket_id)
+            })
+        
+            socket.on('initSend', socket_id => {
+                console.log('INIT SEND ' + socket_id)
+                addPeer(socket_id, true)
+            })
+        
+            socket.on('removePeer', socket_id => {
+                console.log('removing peer ' + socket_id)
+                removePeer(socket_id)
+            })
+        
+            socket.on('disconnect', () => {
+                console.log('GOT DISCONNECTED')
+                for (let socket_id in peers) { 
                     removePeer(socket_id)
-                })
+                }
+            })
+        
+            socket.on('signal', data => {
+                peers[data.socket_id].signal(data.signal)
+            })
+        
+            //! 일단 주석해
+            //TODO audio가 뜻하는게 뭘까. 강산이가 만든 코드
+            // socket.on('music_on', () => {
+            //     // console.log('music_on!');
+            //     audio.play();
+            // })
+        
+            // socket.on('music_off', () => {
+            //     // console.log('music_off!');
+            //     audio.pause();
+            // })
+            // --------------------------------------------------------------
+        
+            socket.on('chat', (name, message) => {
+                // console.log(name, message);
+                document.getElementById("message-box").appendChild(this.makeMessageOther(name, message));
+                this.ScrollBottom("message-box");
+            });
+        
+            // console.log(document.getElementById("chat-message"));
             
-                socket.on('disconnect', () => {
-                    console.log('GOT DISCONNECTED')
-                    for (let socket_id in peers) { 
-                        removePeer(socket_id)
-                    }
-                })
+            document.getElementById("chat-message").addEventListener("keyup", (e) => {
+                // console.log(e.code);
+                if(e.code == "Enter"){
+                    this.sendChat();
+                }
+            });
+        
+        }
+
+        await init();
+        socket.emit('initDone');
             
-                socket.on('signal', data => {
-                    peers[data.socket_id].signal(data.signal)
-                })
-            
-                //! 일단 주석해
-                //TODO audio가 뜻하는게 뭘까. 강산이가 만든 코드
-                // socket.on('music_on', () => {
-                //     // console.log('music_on!');
-                //     audio.play();
-                // })
-            
-                // socket.on('music_off', () => {
-                //     // console.log('music_off!');
-                //     audio.pause();
-                // })
-                // --------------------------------------------------------------
-            
-                socket.on('chat', (name, message) => {
-                    // console.log(name, message);
-                    document.getElementById("message-box").appendChild(this.makeMessageOther(name, message));
-                    this.ScrollBottom("message-box");
-                });
-            
-                // console.log(document.getElementById("chat-message"));
-                
-                document.getElementById("chat-message").addEventListener("keyup", (e) => {
-                    // console.log(e.code);
-                    if(e.code == "Enter"){
-                        this.sendChat();
-                    }
-                });
-            
-            }
-            
-            function removePeer(socket_id) {
-            
+            async function removePeer(socket_id) {
+                console.log('removePeer!!')
                 let videoEl = document.getElementById(socket_id)
                 if (videoEl) {
             
                     const tracks = videoEl.srcObject.getTracks();
+                    console.log('Removing tracks')
+                    console.log(tracks)
             
                     tracks.forEach(function (track) { 
                         track.stop()
                     })
             
                     videoEl.srcObject = null
-                    // console.log('removePeer test@@@@@');
                     videoEl.parentNode.removeChild(videoEl)
                 }
-                if (peers[socket_id]) peers[socket_id].destroy() 
-                delete peers[socket_id]
-            }
             
+                await unsubscribeFromTrack(socket_id, 'cam-video'); 
+                await unsubscribeFromTrack(socket_id, 'cam-audio'); 
+                // console.log(consumers);
+                // if (peers[socket_id]) peers[socket_id].destroy() 
+                // delete peers[socket_id]
+            }
+
+            // function removePeer(socket_id) {
+            
+            //     let videoEl = document.getElementById(socket_id)
+            //     if (videoEl) {
+            
+            //         const tracks = videoEl.srcObject.getTracks();
+            
+            //         tracks.forEach(function (track) { 
+            //             track.stop()
+            //         })
+            
+            //         videoEl.srcObject = null
+            //         // console.log('removePeer test@@@@@');
+            //         videoEl.parentNode.removeChild(videoEl)
+            //     }
+            //     if (peers[socket_id]) peers[socket_id].destroy() 
+            //     delete peers[socket_id]
+            // }
+            
+            async function addPeer(socket_id, am_initiator) {
+                let newStream = await createConsumer(socket_id);
+                let newVid = document.createElement('video')
+                let videos = document.getElementById('videos')
+                newVid.srcObject = newStream
+                newVid.id = socket_id
+                // newVid.playsinline = false
+                newVid.autoplay = true
+                newVid.className = "vid"
+                videos.appendChild(newVid)
+                
+                peers[socket_id] = null;
+            }    
             // function addPeer(socket_id, am_initiator) {
             //     let newStream = new MediaStream(localStream)
             //     let newAudioTrack = localStream.getAudioTracks()[0]
@@ -377,6 +530,255 @@ class RoomPage extends Component {
                 return Math.sqrt(Math.pow((status1.x - status2.x)/CHAR_SIZE, 2) + Math.pow((status1.y - status2.y)/CHAR_SIZE, 2))
             }
             
+            async function createTransport(direction) {
+                console.log('createTransport device', device);
+                let transport,
+                    transportOptions = await socket.request('createTransport', {
+                        forceTcp: false,
+                        rtpCapabilities: device.rtpCapabilities,
+                    });
+            
+                // console.log ('transport options', transportOptions);
+            
+                if (direction === 'recv') {
+                    transport = await device.createRecvTransport(transportOptions);
+                    transport.on('connect', async ({ dtlsParameters }, callback, errback) => { //중복된 코드 
+                        await socket.request('connectTransport', {
+                          transportId: transportOptions.id,
+                          dtlsParameters
+                        })
+                          .then(callback)
+                          .catch(errback);
+                      });
+            
+                } else if (direction === 'send') {
+                    // console.log(transportOptions);
+                    transport = await device.createSendTransport(transportOptions);
+                    transport.on('connect', async ({ dtlsParameters }, callback, errback) => {
+                        await socket.request('connectTransport', { 
+                            transportId: transportOptions.id, 
+                            dtlsParameters })
+                          .then(callback)
+                          .catch(errback);
+                      });
+                
+                      transport.on('produce', async ({ kind, rtpParameters, appData }, callback, errback) => {
+                    try {
+                        const { id } = await socket.request('produce', {
+                        transportId: transport.id,
+                        kind,
+                        rtpParameters,
+                        appData
+                        });
+                        callback({ id });
+                    } catch (err) {
+                        errback(err);
+                    }
+                    });
+                } else {
+                    throw new Error(`bad transport 'direction': ${direction}`);
+                }
+                transport.on('connectionstatechange', (state) => {
+                    switch (state) {
+                        case 'connecting':
+                            console.log(`Transport Connecting ${transport.id}`)
+                        break;
+            
+                        case 'connected':
+                            console.log(`Transport Connected ${transport.id}`)
+                        break;
+            
+                        case 'failed':
+                            console.log(`Transport Failed ${transport.id}`)
+                            leaveRoom(socket)
+                        break;
+            
+                        case 'closed':
+                            console.log(`Transport closed ${transport.id}`)
+                            leaveRoom(socket)
+                        break;
+            
+                        case 'disconnected':
+                            console.log(`Transport disconnected ${transport.id}`)
+                            leaveRoom(socket)
+                        break;
+            
+                        default: 
+                            console.log(`Transpot ${state} ${transport.id}`)
+                        break;
+                    }
+                });
+                return transport;
+            }
+            
+            async function createProducer() {
+                if (!sendTransport) {
+                    console.log('Creating sendTransport')
+                    sendTransport = await createTransport('send');
+                }
+            
+                //! For temporary use
+                if (!recvTransport) {
+                    console.log('Creating recvTransport')
+                    recvTransport = await createTransport('recv');
+                }
+                //! For temporary use
+            
+                videoProducer = await sendTransport.produce({
+                    track: localStream.getVideoTracks()[0],
+            
+                    appData: { mediaTag: 'cam-video' }
+                });
+                audioProducer = await sendTransport.produce({
+                    track: localStream.getAudioTracks()[0],
+                    appData: { mediaTag: 'cam-audio' }
+                });
+            }
+            
+            async function createConsumer(peerId) {
+                // create a receive transport if we don't already have one
+                //! On error fixing
+                if (!recvTransport) {
+                    console.log('Creating recvTransport')
+                    recvTransport = await createTransport('recv');
+                }
+                //! On error fixing
+            
+                let transportId = recvTransport.id;
+                
+                let videoConsumer = await createRealConsumer('cam-video', recvTransport, peerId, transportId)
+                let audioConsumer = await createRealConsumer('cam-audio', recvTransport, peerId, transportId)
+            
+                let stream = await addVideoAudio(videoConsumer, audioConsumer);
+            
+                while (recvTransport.connectionState !== 'connected') {
+                //   console.log('  transport connstate', recvTransport.connectionState );
+                    await sleep(100);
+                }
+                // okay, we're ready. let's ask the peer to send us media
+                await resumeConsumer(videoConsumer);
+                await resumeConsumer(audioConsumer);
+                // keep track of all our consumers
+                // updatePeersDisplay();
+            
+                return stream;
+            }
+            
+            async function createRealConsumer(mediaTag, transport, peerId, transportId){
+                
+                const Data = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
+                console.log(Data);
+                let {
+                    producerId,
+                    id,
+                    kind,
+                    rtpParameters,
+                } = Data;
+            
+                let codecOptions = {};
+                const consumer = await transport.consume({
+                    id,
+                    producerId,
+                    kind,
+                    rtpParameters,
+                    codecOptions,
+                    appData: { peerId, mediaTag }
+                });
+            
+                consumers.push(consumer);
+                // console.log(consumers);
+                return consumer;
+            }
+            
+            async function resumeConsumer(consumer) {
+                if (consumer) {
+                //   console.log('resume consumer', consumer.appData.peerId, consumer.appData.mediaTag);
+                  try {
+                    await socket.request('resumeConsumer', { consumerId: consumer.id })
+                    // await sig('resume-consumer', { consumerId: consumer.id });
+                    await consumer.resume();
+                  } catch (e) {
+                    console.error(e);
+                  }
+                }
+              }
+            
+            async function unsubscribeFromTrack(peerId, mediaTag) {
+                let consumer = await findConsumerForTrack(peerId, mediaTag);
+                
+                if (!consumer) {
+                    console.log('ERROR: cannot find consumer')
+                    return;
+                }
+              
+                try {
+                  await closeConsumer(consumer);
+                } catch (e) {
+                  console.error(e);
+                }
+            }
+            
+            async function closeConsumer(consumer) {
+            if (!consumer) {
+                console.log('ERROR: consumer undefined in closeConsumer')
+                return;
+            }
+            console.log('close consumer!')
+            console.log(consumers)
+            // console.log('closing consumer', consumer.appData.peerId, consumer.appData.mediaTag);
+            try {
+                // tell the server we're closing this consumer. (the server-side
+                // consumer may have been closed already, but that's okay.)
+                await socket.request('closeConsumer', { consumerId: consumer.id });
+                // await sig('close-consumer', { consumerId: consumer.id });
+                await consumer.close();
+                consumers = consumers.filter((c) => c !== consumer);
+                // removeVideoAudio(consumer);
+            } catch (e) {
+                console.error(e);
+            }
+            console.log(consumers)
+            }
+            
+            async function findConsumerForTrack(peerId, mediaTag) {
+                return consumers.find((c) => (c.appData.peerId === peerId &&
+                                                c.appData.mediaTag === mediaTag));
+            }
+            
+            async function addVideoAudio(videoConsumer, audioConsumer){
+                const stream = new MediaStream();
+                await stream.addTrack(videoConsumer.track);
+                await stream.addTrack(audioConsumer.track);
+                return stream
+            }
+            
+            async function sleep(ms) {
+                return new Promise((r) => setTimeout(() => r(), ms));
+            }
+
+            async function leaveRoom(socket) {
+                // closing the transports closes all producers and consumers. we
+                // don't need to do anything beyond closing the transports, except
+                // to set all our local variables to their initial states
+                try {
+                    if (recvTransport) {
+                        await socket.request('closeTransport', { transportId: recvTransport.id })
+                        await recvTransport.close()
+                        recvTransport = null
+                    }
+                    if (sendTransport) {
+                        await socket.request('closeTransport', { transportId: sendTransport.id })
+                        await sendTransport.close()
+                        sendTransport = null
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+                videoProducer = null;
+                audioProducer = null;
+                consumers = [];
+            }
+
             // function sendChat(){
             //     const name = socket.id;
             //     const chatMessage = document.getElementById("chat-message");

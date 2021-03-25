@@ -2,7 +2,7 @@
   "name": "new_client",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://localhost",
+  "proxy": "https://13.209.75.25",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",
     "@testing-library/jest-dom": "^5.11.9",
@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^12.8.3",
     "axios": "^0.21.1",
     "http-proxy-middleware": "^1.0.6",
+    "mediasoup-client": "^3.6.29",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",

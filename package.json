@@ -4,7 +4,7 @@
   "description": "making_my_own_weapon",
   "main": "index.js",
   "scripts": {
-    "start": "sudo node server/index.js",
+    "start": "sudo $(which node) server/index.js",
     "wstart": "nodemon server/index.js",
     "tt": "node server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -18,6 +18,7 @@
     "express": "^4.17.1",
     "http": "^0.0.1-security",
     "https": "^1.0.0",
+    "mediasoup": "^3.6.37",
     "mongoose": "^5.12.0",
     "nodemon": "^2.0.7",
     "react-router-dom": "^5.2.0",

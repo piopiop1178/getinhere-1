@@ -20,12 +20,13 @@ module.exports = async (app) => {
             "success": true,
         }); 
     });
-    app.get('/api/mapIndex', (req, res) => {
+    app.get('/api/mapIndex', async (req, res) => {
         // console.log(`/api/mapIndex ${req.query}`);
         const mapIndex = req.query.mapIndex;
         const map = MapManager.getMapByIndex(mapIndex);
-        const roomName = RoomManager.createRoom(map);
-        return res.status(200).json({
+        const roomName = await RoomManager.createRoom(map);
+        console.log(roomName);
+	return res.status(200).json({
             "roomName": roomName,
             "success": true,
         }); 
