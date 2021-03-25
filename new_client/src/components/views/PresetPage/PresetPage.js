@@ -16,11 +16,17 @@ class PresetPage extends Component {
         images: [image1, image2, image3, image4, image5, image6, image7],
         userName: "이름을 입력해주세요"
     }
+
+    
     
     componentDidMount = () => {
-        console.log(this.props.pagePreset);
+        axios.get('/api/characterList')
+        .then(response => {
+            this.setState({images: response.data.characterList});
+            console.log(this.state.characterList);
+        });
     }
-
+ 
     imageChangeLeft = () => {
         this.setState(state => ({characterNum: state.characterNum -1}))
         if (this.state.characterNum === 0) {
@@ -52,11 +58,11 @@ class PresetPage extends Component {
         // console.log(this.state.userName);
     }
 
-
+    // 
     render() {
         return (
             <>
-            <div className="container">
+            <div className="container"> 
                 <div className="item1">
                     <div className="name-box">
                         <span className="name-input"> NAME : </span>

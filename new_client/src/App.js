@@ -9,7 +9,7 @@ import {
 
 import LandingPage from './components/views/landingPage/landingPage';
 // import PresetPage from './components/views/presetPage/presetPage';
-import Main from './components/views/presetPage/main';
+import Main from './components/views/presetPage/mainPage';
 // import RoomPage from './components/views/roomPage/roomPage';
 
 function App() {
@@ -24,7 +24,9 @@ function App() {
         */}
         <Switch>
           <Route exact path="/" component={LandingPage} />
+          {/* <Route exact path = "/"> <LandingPage /> </Route> */}
           <Route exact path="/room/:roomName" component={Main} />
+          {/* <Route exact path="/room/:roomName"><Main /></Route> */}
         </Switch>
     </Router>
   );

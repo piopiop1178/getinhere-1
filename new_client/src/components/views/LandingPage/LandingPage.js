@@ -49,6 +49,8 @@ class LandingPage extends Component {
     };
 
     render(){
+
+        
         return (
             <>
             <img className="map-image" alt="maps" src={this.state.maps[this.state.map_index]}></img>

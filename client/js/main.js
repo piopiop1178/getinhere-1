@@ -2,15 +2,15 @@ let socket;
 let localStream = null;
 let peers = {}
 
-let tile = new Image();
-tile.src = "../image/tile2.jpg";
+// // let tile = new Image();
+// // tile.src = "../image/tile2.jpg";
+ 
+// // let among = new Image();
+// // among.src = "../image/among.jpg";
 
-let among = new Image();
-among.src = "../image/among.jpg";
-
-let audio = new Audio('../music/all_falls_down.mp3');
-// let audio_on = false;
-// audio.src = '../music/Redone.mp3';
+// // let audio = new Audio('../music/all_falls_down.mp3');
+// // // let audio_on = false;
+// // audio.src = '../music/Redone.mp3';
 
 let audioctx
 let gains = {}
@@ -67,30 +67,32 @@ function init() {
     let MAP_SETTINGS2 = null;
     const LEFT = 'ArrowLeft', UP = 'ArrowUp', RIGHT = 'ArrowRight', DOWN = 'ArrowDown';
 
-    const canvasBackground = document.createElement("canvas");
-    const contextBackground = canvasBackground.getContext("2d");
-    canvasBackground.id = "background-layer";
+    // //! mainPage.js로 갈 내용. Canvas
+    // const canvasBackground = document.createElement("canvas");
+    // const contextBackground = canvasBackground.getContext("2d");
+    // canvasBackground.id = "background-layer";
 
-    const canvasObject = document.createElement("canvas");
-    const contextObject = canvasObject.getContext("2d");
-    canvasObject.id = "object-layer";
+    // const canvasObject = document.createElement("canvas");
+    // const contextObject = canvasObject.getContext("2d");
+    // canvasObject.id = "object-layer";
 
-    const canvasCharacter = document.createElement("canvas");
-    const contextCharacter = canvasCharacter.getContext("2d");
-    canvasCharacter.id = "character-layer";
+    // const canvasCharacter = document.createElement("canvas");
+    // const contextCharacter = canvasCharacter.getContext("2d");
+    // canvasCharacter.id = "character-layer";
 
-    const body = document.querySelector('body')
+    // const body = document.querySelector('body')
 
-    // 캐릭터 이미지
-    let among = new Image();
-    among.src = "../image/among.jpg";
+    // // 캐릭터 이미지
+    // let among = new Image();
+    // among.src = "../image/among.jpg";
 
-    let icon = new Image();
-    // tmp 3.18(목) 발표를 위한 더미데이터. 랜덤으로 캐릭터 생성 및 blocked_area 그림데이터
-    let charNameList = ['icon.png', 'char_snowman.png', 'char_snowman2.png','char_woman1.png', 'char_woman2.png']
-    // icon.src = "../image/icon.png";
-    icon.src = `../image/${charNameList[Math.floor(Math.random()*charNameList.length)]}`;
+    // let icon = new Image();
+    // // tmp 3.18(목) 발표를 위한 더미데이터. 랜덤으로 캐릭터 생성 및 blocked_area 그림데이터
+    // let charNameList = ['icon.png', 'char_snowman.png', 'char_snowman2.png','char_woman1.png', 'char_woman2.png']
+    // // icon.src = "../image/icon.png";
+    // icon.src = `../image/${charNameList[Math.floor(Math.random()*charNameList.length)]}`;
     // tmp
+    // END
 
     // Initialize AudioContext
     audioctx = new AudioContext()
@@ -117,36 +119,38 @@ function init() {
     body.addEventListener("keyup", function (e) {
         socket.emit("keyup", e.code);
     });
-    socket.on("connected", function (MAP_SETTINGS, roomName) {
-        MAP_SETTINGS2 = MAP_SETTINGS;
+    //! mainPage.js로 갈 내용
+   // // socket.on("connected", function (MAP_SETTINGS, roomName) {
+   // //     MAP_SETTINGS2 = MAP_SETTINGS;
 
-        canvasBackground.setAttribute("width", MAP_SETTINGS._WIDTH);
-        canvasBackground.setAttribute("height", MAP_SETTINGS._HEIGHT);
-        document.body.appendChild(canvasBackground);
+   // //     canvasBackground.setAttribute("width", MAP_SETTINGS._WIDTH);
+   // //     canvasBackground.setAttribute("height", MAP_SETTINGS._HEIGHT);
+   // //     document.body.appendChild(canvasBackground);
 
-        canvasObject.setAttribute("width", MAP_SETTINGS._WIDTH);
-        canvasObject.setAttribute("height", MAP_SETTINGS._HEIGHT);
-        document.body.appendChild(canvasObject);
+   // //     canvasObject.setAttribute("width", MAP_SETTINGS._WIDTH);
+   // //     canvasObject.setAttribute("height", MAP_SETTINGS._HEIGHT);
+   // //     document.body.appendChild(canvasObject);
 
-        canvasCharacter.setAttribute("width", MAP_SETTINGS._WIDTH);
-        canvasCharacter.setAttribute("height", MAP_SETTINGS._HEIGHT);
-        document.body.appendChild(canvasCharacter);
+   // //     canvasCharacter.setAttribute("width", MAP_SETTINGS._WIDTH);
+   // //     canvasCharacter.setAttribute("height", MAP_SETTINGS._HEIGHT);
+   // //     document.body.appendChild(canvasCharacter);
 
-        localStorage.setItem('BLOCKED_AREA', MAP_SETTINGS._BLOCKED_AREA);
-        localStorage.setItem('Invite_url', 'https://getinhere.me/?room=' + roomName);
-        TILE_LENGTH = MAP_SETTINGS._TILE_LENGTH
-        TILE_WIDTH = MAP_SETTINGS._TILE_WIDTH
-        TILE_HEIGHT = MAP_SETTINGS._TILE_HEIGHT
-        CHAR_SIZE = MAP_SETTINGS._TILE_LENGTH
-        WIDTH = MAP_SETTINGS._WIDTH
-        HEIGHT = MAP_SETTINGS._HEIGHT
+   // //     localStorage.setItem('BLOCKED_AREA', MAP_SETTINGS._BLOCKED_AREA);
+   // //     localStorage.setItem('Invite_url', 'https://getinhere.me/?room=' + roomName);
+   // //     TILE_LENGTH = MAP_SETTINGS._TILE_LENGTH
+   // //     TILE_WIDTH = MAP_SETTINGS._TILE_WIDTH
+   // //     TILE_HEIGHT = MAP_SETTINGS._TILE_HEIGHT
+   // //     CHAR_SIZE = MAP_SETTINGS._TILE_LENGTH
+   // //     WIDTH = MAP_SETTINGS._WIDTH
+   // //     HEIGHT = MAP_SETTINGS._HEIGHT
 
+   
+   // //     // getTileAndDrawBackground(contextBackground, MAP_SETTINGS);
+   // //     drawBackground(contextBackground, MAP_SETTINGS, tile);
+   // //     drawBlockZone(localStorage.getItem('BLOCKED_AREA').split(','), contextObject);
+   // // });
+   // //END
 
-        // getTileAndDrawBackground(contextBackground, MAP_SETTINGS);
-        
-        drawBackground(contextBackground, MAP_SETTINGS, tile);
-        drawBlockZone(localStorage.getItem('BLOCKED_AREA').split(','), contextObject);
-    });
     // socket.on("update", function (statuses) {
     socket.on("update", function (statuses, idArray) {
         if (MAP_SETTINGS2 == null) return;
