@@ -685,10 +685,22 @@ async function createProducer(socket) {
         recvTransport = await createTransport(socket, 'recv');
     }
     //! For temporary use
-
+    // let encodings = [
+    //     { maxBitrate: 100000 },
+    //     { maxBitrate: 300000 },
+    //     { maxBitrate: 900000 },
+    // ];
+    
     videoProducer = await sendTransport.produce({
         track: localStream.getVideoTracks()[0],
-
+        encodings : [
+            { maxBitrate: 100000 },
+            { maxBitrate: 300000 },
+            { maxBitrate: 900000 },
+        ],
+        codecOptions : {
+            videoGoogleStartBitrate : 1000
+        },
         appData: { mediaTag: 'cam-video' }
     });
     audioProducer = await sendTransport.produce({
