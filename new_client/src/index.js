@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './app';
+import App from './App.js';
 import '@fortawesome/fontawesome-free/js/all.js';
 
 // 실행 커맨드 ($env:HTTPS = \"true\") -and (npm run start)

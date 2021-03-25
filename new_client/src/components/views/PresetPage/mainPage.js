@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import PresetPage from './presetPage'
-import RoomPage from '../roomPage/roomPage'
+import PresetPage from './PresetPage'
+import RoomPage from '../RoomPage/RoomPage'
 import axios from 'axios';
 
 /* 경로로 이미지 가져오기 */
