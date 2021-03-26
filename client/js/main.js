@@ -75,24 +75,9 @@ socket.on('connect', async() =>{
 
 async function clientLoadDevice(socket){
     const data = await socket.request('getRouterRtpCapabilities');
-    // console.log(data.rtpCapabilities); //왜 이거 못쓰는지?? 
     await loadDevice(data._data.rtpCapabilities);
 }
 
-// navigator.mediaDevices.getUserMedia(constraints).then(stream => {
-//     // console.log('Received local stream');
-
-//     localVideo.srcObject = stream;
-//     localStream = stream;
-
-//     //-------------------------- DEBUG------------------------------------
-    
-//     //-------------------------- DEBUG------------------------------------
-
-    
-//     // init()
-// // }).catch(e => alert(`getusermedia error ${e.name}`))
-// }).then(() => init(socket)).catch(e => alert(`getusermedia error ${e.name}`))
 
 
 // socket.on('joined', async () => {
@@ -206,7 +191,6 @@ async function init(socket) {
             // Audio volume change
             if (id !== socket.id && gains[id] != undefined) {
                 dist = calcDistance(statuses[id].status, statuses[socket.id].status)
-                // console.log(dist)
                 gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
             }
             // 캐릭터 삽입 코드
@@ -219,13 +203,6 @@ async function init(socket) {
         });
     });
 
-    // ----------------------------!!mediasoup!!---------------------------
-    // socket.on('connect', async() => {
-    //     const data = await socket.request('getRouterRtpCapabilities');
-    //     // console.log(data.rtpCapabilities); //왜 이거 못쓰는지?? 
-    //     await loadDevice(data._data.rtpCapabilities);
-    // })
-    // ----------------------------!!RTC!!---------------------------
     await createProducer(socket);
 
     socket.on('initReceive', socket_id => {
@@ -265,26 +242,21 @@ async function init(socket) {
     })
 
     socket.on('music_on', () => {
-        // console.log('music_on!');
         audio.play();
     })
 
     socket.on('music_off', () => {
-        // console.log('music_off!');
         audio.pause();
     })
     // --------------------------------------------------------------
 
     socket.on('chat', (name, message) => {
-        // console.log(name, message);
         document.getElementById("message-box").appendChild(makeMessageOther(name, message));
         ScrollBottom("message-box");
     });
 
-    // console.log(document.getElementById("chat-message"));
     
     document.getElementById("chat-message").addEventListener("keyup", (e) => {
-        // console.log(e.code);
         if(e.code == "Enter"){
             sendChat();
         }
@@ -310,7 +282,7 @@ async function removePeer(socket_id) {
     if (videoEl) {
 
         const tracks = videoEl.srcObject.getTracks();
-        console.log('Removing tracks')
+        console.log(`Removing tracks ${socket_id}`)
 
         tracks.forEach(function (track) { 
             track.stop()
@@ -428,7 +400,6 @@ function drawBackground(contextBackground, GAME_SETTINGS, tile) {
     // ctx.drawImage(backgroundImage, 0, 0, GAME_SETTINGS.WIDTH, GAME_SETTINGS.HEIGHT);
 
     // 배경 타일
-    // console.log(tile);
     for(let y = 0; y < GAME_SETTINGS.HEIGHT; y += TILE_LENGTH){
         for(let x = 0; x < GAME_SETTINGS.WIDTH; x += TILE_LENGTH){
                 contextBackground.drawImage(tile, x, y, TILE_LENGTH, TILE_LENGTH);
@@ -487,7 +458,6 @@ function sendChat(){
     const name = socket.id;
     const chatMessage = document.getElementById("chat-message");
     const message = chatMessage.value;
-    // console.log(message)
     if (message.replace(/^\s+|\s+$/g,"") === ""){
         chatMessage.value = null;
         return;
@@ -495,7 +465,6 @@ function sendChat(){
     document.getElementById("message-box").appendChild(makeMessageOwn(message));
     ScrollBottom("message-box");
     chatMessage.value = null;
-    // console.log(name, message);
     socket.emit('chat', name, message);
 }
 
@@ -535,23 +504,6 @@ function makeMessageOther(name, message){
     return messageOther;
 }
 
-function preventReload(){
-    // window.onbeforeunload = function(e) {
-    //     console.log("!!!!!!!!!!");
-    //     return "";
-    // };
-    // if ((event.ctrlKey == true && (event.keyCode == 78 || event.keyCode == 82)) || (event.keyCode == 116)) {
-    //     if(confirm("페이지를 새로고침 하시겠습니까?")){
-
-    //     }
-    //     else{
-    //         event.keyCode = 0;
-    //         event.cancelBubble = true;
-    //         event.returnValue = false;
-    //     }
-    // }
-}
-
 async function loadImage(imageUrl) {
     let img;
     const imageLoadPromise = new Promise(resolve => {
@@ -560,7 +512,6 @@ async function loadImage(imageUrl) {
         img.src = imageUrl;
     });
     await imageLoadPromise;
-    console.log("image loaded");
     return img;
 }
 
@@ -572,7 +523,6 @@ async function createTransport(socket, direction) {
             rtpCapabilities: device.rtpCapabilities,
         });
 
-    // console.log ('transport options', transportOptions);
 
     if (direction === 'recv') {
         transport = await device.createRecvTransport(transportOptions);
@@ -586,7 +536,6 @@ async function createTransport(socket, direction) {
           });
 
     } else if (direction === 'send') {
-        // console.log(transportOptions);
         transport = await device.createSendTransport(transportOptions);
         transport.on('connect', async ({ dtlsParameters }, callback, errback) => {
             await socket.request('connectTransport', { 
@@ -670,13 +619,10 @@ async function createProducer(socket) {
 }
 
 async function createConsumer(socket, peerId) {
-
-    
-
     // create a receive transport if we don't already have one
     //! On error fixing
     if (!recvTransport) {
-        console.log('Creating recvTransport')
+        console.log('Creating recvTransport in createconsumer')
         recvTransport = await createTransport(socket, 'recv');
     }
     //! On error fixing
@@ -699,7 +645,6 @@ async function createConsumer(socket, peerId) {
     let stream = await addVideoAudio(videoConsumer, audioConsumer);
 
     while (recvTransport.connectionState !== 'connected') {
-    //   console.log('  transport connstate', recvTransport.connectionState );
         await sleep(100);
     }
     // okay, we're ready. let's ask the peer to send us media
@@ -731,16 +676,13 @@ async function createRealConsumer(mediaTag, transport, socket, peerId, transport
     });
 
     consumers.push(consumer);
-    // console.log(consumers);
     return consumer;
 }
 
 async function resumeConsumer(consumer) {
     if (consumer) {
-    //   console.log('resume consumer', consumer.appData.peerId, consumer.appData.mediaTag);
       try {
         await socket.request('resumeConsumer', { consumerId: consumer.id })
-        // await sig('resume-consumer', { consumerId: consumer.id });
         await consumer.resume();
       } catch (e) {
         console.error(e);
@@ -768,7 +710,6 @@ async function closeConsumer(consumer) {
         console.log('ERROR: consumer undefined in closeConsumer')
         return;
     }
-    // console.log('closing consumer', consumer.appData.peerId, consumer.appData.mediaTag);
     try {
         // tell the server we're closing this consumer. (the server-side
         // consumer may have been closed already, but that's okay.)

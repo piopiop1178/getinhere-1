@@ -23,7 +23,6 @@ module.exports = async (io) => {
         initSocket(socket, room);
         // socket.emit('joined');
         /* Room 추가 후 Room 정보를 전달한다 */
-        // console.log('before connected');
         socket.on('initDone', ()=> {
             socket.emit('connected', room.map, room.name);
         })
@@ -57,6 +56,7 @@ module.exports = async (io) => {
     
         /* 소켓 연결 종료 */
         socket.on('disconnect', async() => {
+            console.log(`socket disconnected!: ${socket.id}`);
             let target_transport = Object.values(room.roomState.transports).find(
                 (p) => p.appData.socket_id === socket.id);
             await closeTransport(room.roomState, target_transport)
@@ -105,8 +105,7 @@ module.exports = async (io) => {
             let producer = await transport.produce({ kind, rtpParameters, appData: { peerId, transportId, mediaTag} });
 
             producer.on('transportclose', () => {
-                console.log('producer\'s transport closed', producer.id);
-                // console.log('room state is', room.roomState)
+                // console.log('producer\'s transport closed', producer.id);
                 closeProducer(room.roomState, producer);
             });
             
@@ -126,7 +125,6 @@ module.exports = async (io) => {
                        p.appData.peerId === data.peerId
               );
             const roomState = room.roomState;
-            // console.log(roomState);
             callback(await createConsumer(router, transport, roomState, producer, data.rtpCapabilities));
           });
 
@@ -196,13 +194,10 @@ module.exports = async (io) => {
     function initMusic(socket, room){
         socket.on('music', () => {
             if (room.music === false){
-                // console.log(`music_on!! ${roomManager.rooms[roomName].music}`);
                 room.music = true;
                 io.to(room.name).emit('music_on');
-                // console.log(room.roomState);
             }
             else {
-                // console.log(`music_off!! ${roomManager.rooms[roomName].music}`);
                 room.music = false;
                 io.to(room.name).emit('music_off');
             }
@@ -211,7 +206,6 @@ module.exports = async (io) => {
 
     function initChat(socket, room) {
         socket.on('chat', (name, message) => {
-            // console.log(name, message);
             socket.broadcast.to(room.name).emit('chat', name, message);
         });
     }
@@ -248,6 +242,7 @@ async function createWebRtcTransport(router, socket) {
   }
 
 async function createConsumer(router, transport, roomState, producer, rtpCapabilities) {
+    let consumer;
     if (!router.canConsume(
         {
             producerId: producer.id,
@@ -315,7 +310,6 @@ async function closeTransport(roomState, transport) {
 }
 
 async function closeProducer(roomState, producer) {
-    // console.log('closing producer', producer.id, producer.appData);
     try {
         await producer.close();
   
@@ -334,7 +328,6 @@ async function closeProducer(roomState, producer) {
 }
 
 async function closeConsumer(roomState, consumer) {
-  // console.log('closing consumer', consumer.id, consumer.appData);
   await consumer.close();
 
   // remove this consumer from our roomState.consumers list
