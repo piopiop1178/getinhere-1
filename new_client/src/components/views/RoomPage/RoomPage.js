@@ -26,7 +26,7 @@ icon.src = icon2
 
 // const socket = io.connect("https://localhost", {transport : ['websocket']});
         /* 소켓 실행시키기 */
-const socket = io("https://52.79.71.148", {transport: ['websocket']}) //! 얘는 뭔가요
+const socket = io("https://13.209.75.25", {transport: ['websocket']}) //! 얘는 뭔가요
 
 socket.request = socketPromise.promise(socket);
 
@@ -646,7 +646,7 @@ class RoomPage extends Component {
             
                 videoProducer = await sendTransport.produce({
                     track: localStream.getVideoTracks()[0],
-            
+                    encodings: [{maxBitrate:200000},],
                     appData: { mediaTag: 'cam-video' }
                 });
                 audioProducer = await sendTransport.produce({

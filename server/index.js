@@ -50,6 +50,8 @@ const io = require('socket.io')(httpsServer , {
         origin: "*",
         method: ["GET", "POST"]
     },
+    pingTimeout: 10000,
+    pingInterval: 50000,
     // extraHeaders: {
     //     "Access-Control-Allow-Origin": "*",
     //     "Access-Control-Allow-Headers": "X-Requested-With",

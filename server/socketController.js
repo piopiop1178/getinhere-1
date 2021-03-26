@@ -61,7 +61,9 @@ module.exports = (io) => {
             room.users[init_socket_id].socket.emit('initSend', socket.id);
         });
         
-        socket.on('disconnect', async() => {
+        socket.on('disconnect', async(reason) => {
+	    
+            console.log(reason);
             let target_transport = Object.values(room.roomState.transports).find(
                 (p) => p.appData.socket_id === socket.id);
             await closeTransport(room.roomState, target_transport)
@@ -205,7 +207,7 @@ module.exports = (io) => {
 
 async function createWebRtcTransport(router, socket) {
     const {
-      maxIncomingBitrate,
+      //maxIncomingBitrate,
       initialAvailableOutgoingBitrate
     } = config.mediasoup.webRtcTransport;
   
@@ -217,12 +219,12 @@ async function createWebRtcTransport(router, socket) {
       appData: {socket_id: socket.id},
       initialAvailableOutgoingBitrate,
     });
-    if (maxIncomingBitrate) {
-      try {
-        await transport.setMaxIncomingBitrate(maxIncomingBitrate);
-      } catch (error) {
-      }
-    }
+    //if (maxIncomingBitrate) {
+      //try {
+        //await transport.setMaxIncomingBitrate(maxIncomingBitrate);
+      //} catch (error) {
+      //}
+    //}
     return {
       transport,
       params: {
