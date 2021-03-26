@@ -143,7 +143,6 @@ class Room extends Component {
         // const body = document.querySelector('body');
 
         window.addEventListener('keydown' ,(e)=> {
-            console.log('keydown');
             let st = localStorage.getItem('myStatus');
             let parsed_status = JSON.parse(st);
             let curr_x = parsed_status.x;
@@ -160,7 +159,6 @@ class Room extends Component {
             if(e.code == UP)    e.preventDefault();
         })
         window.addEventListener("keyup", function (e) {
-            console.log('keyup');
             socket.emit("keyup", e.code);
         });
 
@@ -192,6 +190,11 @@ class Room extends Component {
                     statuses[id].status.width,
                     statuses[id].status.height
                     );
+                contextCharacter.font = '20px bold';
+                contextCharacter.fillText(statuses[id].userName,
+                    statuses[id].status.x,
+                    statuses[id].status.y,
+                );
             });
         });
     }

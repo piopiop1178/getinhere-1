@@ -1,11 +1,13 @@
 'use strict';
 
 /* 서버 실행에 필요한 node module require */
+// const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const app = express();
+// const app2 = express();
 
 require('dotenv').config();
 const mongoose = require('mongoose');
@@ -31,8 +33,16 @@ const options = {
 /* https 서버 생성에 사용할 app에 route.js 파일을 통해 경로 설정 */
 require('./routes')(app)
 
-/* 4433 포트로 listen 하는 https 서버 생성 */
-const httpsServer = https.createServer(options, app).listen(4433);
+/* https 서버 생성 */
+const httpsServer = https.createServer(options, app).listen(process.env.NODE_PORT);
+
+/* http 서버 생성에 사용할 app2에 미들웨어 함수를 설정하여 https로 리다이렉트 */
+// app2.use(function(req, res, next){
+//     res.redirect("https://" + req.headers['host'] + req.url)
+// });
+
+/* 80 포트로 listen 하는 http 서버 생성 */
+// const httpServer = http.createServer(app2).listen(80);
 
 /* https 서버로 오는 요청을 처리할 socket 생성 */
 const io = require('socket.io')(httpsServer , {

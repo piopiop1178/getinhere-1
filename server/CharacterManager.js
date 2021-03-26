@@ -5,8 +5,10 @@ const Character = require('./Class/Character');
 
 class CharacterManager {
     static characterList = [];
+
     constructor(){
     }
+    
     static init(mongoose){
 
         const CharacterInfo = require('./schemas/CharacterInfo');
@@ -22,6 +24,7 @@ class CharacterManager {
                 // console.log(this.characterList);
             });
     }
+    
     static getCharacterByIndex(characterIndex){
         return this.characterList[characterIndex];
     }

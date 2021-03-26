@@ -3,11 +3,14 @@
 const uuid = require('uuid');
 const Room = require('./Class/Room');
 const User = require('./Class/User');
+const config = require('../config');
+const mediasoup = require('mediasoup');
 
 class RoomManager {   // Room 함수 실행
     static roomByName = {};
     static roomByUser = {};
     static io = undefined;
+    static workers = [];
 
     constructor() {
     }

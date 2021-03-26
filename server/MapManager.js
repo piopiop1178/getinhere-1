@@ -4,9 +4,12 @@
 const Map = require('./Class/Map');
 
 class MapManager {
+
     static mapList = [];
+
     constructor(){
     }
+
     static init(){
 
         const MapInfo = require('./schemas/MapInfo');
@@ -20,6 +23,7 @@ class MapManager {
                     this.mapList.push(new Map(mapInfo));
                 }
             });
+
         BlockInfo.find({}, {"_id": false, "__v": false}).exec()
             .then((blockInfos) => {
                 for(let blockInfo of blockInfos){

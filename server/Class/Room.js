@@ -8,7 +8,28 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
         this.map = map;
         this.memberCount = 0;
         this.users = {};
+        this.router;
         this.music = false;
+        this.roomState = {
+            peers: {},
+            transports: {},
+            producers: [],
+            consumers: []
+        }
+    }
+
+    get router(){
+        return this._router;
+    }
+    set router(value){
+        this._router = value;
+    }
+    
+    get roomState(){
+        return this._roomState;
+    }
+    set roomState(value){
+        this._roomState = value;
     }
 
     get name(){
@@ -50,14 +71,12 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
 
     addUser(user) {
         this.users[user.socket.id] = user;
-        // console.log(this.map);
         user.createCharacter(this.map);
         this.memberCount += 1;
     }
 
     removeUser(socket){
         if (socket.id in this.users){
-            // socket.destroy();
             delete this.users[socket.id];
         }
         this.memberCount -= 1;
@@ -127,7 +146,7 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
                 let status_pair = {
                     status: user.status,
                     id: user.socket.id,
-                    username: user.userName,
+                    userName: user.userName,
                     characterNum: user.characterNum,
                 };
                 idArray.push(user.socket.id);
