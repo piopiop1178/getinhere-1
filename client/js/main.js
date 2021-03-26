@@ -670,6 +670,9 @@ async function createProducer(socket) {
 }
 
 async function createConsumer(socket, peerId) {
+
+    
+
     // create a receive transport if we don't already have one
     //! On error fixing
     if (!recvTransport) {
@@ -680,6 +683,16 @@ async function createConsumer(socket, peerId) {
 
     let transportId = recvTransport.id;
     
+    //-----------if we already have consumer do not create consumer-----------//
+    //-------------need to develop -- if only we have video one or audio one? -------- //
+    let consumer = findConsumerForTrack(peerId, 'cam-video');
+    let consumer2 = findConsumerForTrack(peerId, 'cam-audio');
+    if (consumer && consumer2) {
+        console.error('already have consumer for track', peerId, mediaTag)
+        return;
+    };
+    //-----------if we already have consumer do not create consumer-----------//
+
     let videoConsumer = await createRealConsumer('cam-video', recvTransport, socket, peerId, transportId)
     let audioConsumer = await createRealConsumer('cam-audio', recvTransport, socket, peerId, transportId)
 
@@ -770,10 +783,6 @@ async function closeConsumer(consumer) {
 }
 
 async function findConsumerForTrack(peerId, mediaTag) {
-    console.log('Finding Track for consumers')
-    console.log(consumers)
-    console.log(`peerId is ${peerId}`)
-    console.log(`mediaTag is ${mediaTag}`)
     return consumers.find((c) => (c.appData.peerId === peerId &&
                                     c.appData.mediaTag === mediaTag));
 }

@@ -145,7 +145,7 @@ module.exports = async (io) => {
                     transport = roomState.transports[transportId];
                 console.log('closeTransport!!!')
                 if (!transport) {
-                    console.err(`close-transport: server-side transport ${transportId} not found`);
+                    console.error(`close-transport: server-side transport ${transportId} not found`);
                     return;
                 }
             
@@ -163,7 +163,7 @@ module.exports = async (io) => {
                 consumer = roomState.consumers.find((c) => c.id === consumerId);
 
               if (!consumer) {
-                console.err(`close-consumer: server-side consumer ${consumerId} not found`);
+                console.error(`close-consumer: server-side consumer ${consumerId} not found`);
                 return;
               }
           
@@ -310,7 +310,7 @@ async function closeTransport(roomState, transport) {
         // our roomState data structure
         delete roomState.transports[transport.id];
     } catch (e) {
-        console.err(e);
+        console.error(e);
     }
 }
 
@@ -329,7 +329,7 @@ async function closeProducer(roomState, producer) {
         //         .media[producer.appData.mediaTag]);
         // }
     } catch (e) {
-        console.err(e);
+        console.error(e);
     }
 }
 
