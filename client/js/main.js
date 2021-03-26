@@ -311,7 +311,6 @@ async function removePeer(socket_id) {
 
         const tracks = videoEl.srcObject.getTracks();
         console.log('Removing tracks')
-        console.log(tracks)
 
         tracks.forEach(function (track) { 
             track.stop()
@@ -324,9 +323,6 @@ async function removePeer(socket_id) {
     await unsubscribeFromTrack(socket_id, 'cam-video'); 
     await unsubscribeFromTrack(socket_id, 'cam-audio'); 
 
-    // console.log(consumers);
-    // if (peers[socket_id]) peers[socket_id].destroy() 
-    // delete peers[socket_id]
 }
 
 async function addPeer(socket, socket_id, am_initiator) {
@@ -354,29 +350,6 @@ async function addPeer(socket, socket_id, am_initiator) {
     // newStream.removeTrack(newAudioTrack)
     // newStream.addTrack(dst.stream.getAudioTracks()[0])
 
-    // peers[socket_id] = new SimplePeer({
-    //     initiator: am_initiator,
-    //     // stream: localStream,
-    //     stream: newStream,
-    //     config: configuration
-    // })
-
-    // peers[socket_id].on('signal', data => {
-    //     socket.emit('signal', {
-    //         signal: data,
-    //         socket_id: socket_id
-    //     })
-    // })
-
-    // peers[socket_id].on('stream', stream => {
-    //     let newVid = document.createElement('video')
-    //     newVid.srcObject = stream
-    //     newVid.id = socket_id
-    //     // newVid.playsinline = false
-    //     newVid.autoplay = true
-    //     newVid.className = "vid"
-    //     videos.appendChild(newVid)
-    // })
 }
 
 //-------------------------- TODO-----------------------------
@@ -656,12 +629,12 @@ async function createTransport(socket, direction) {
 
             case 'closed':
                 console.log(`Transport closed ${transport.id}`)
-                leaveRoom(socket)
+                // leaveRoom(socket)
             break;
 
             case 'disconnected':
                 console.log(`Transport disconnected ${transport.id}`)
-                leaveRoom(socket)
+                // leaveRoom(socket)
             break;
 
             default: 
