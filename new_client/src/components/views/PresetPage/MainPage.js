@@ -57,14 +57,14 @@ class Main extends Component {
             const canvasBackground = document.createElement("canvas");
             const contextBackground = canvasBackground.getContext("2d");
             canvasBackground.id = "background-layer";
-            canvasBackground.style.position = "fixed";
+            canvasBackground.style.position = "absolute";
             canvasBackground.style.zIndex = "-3";
             canvasBackground.style.top = "0px";
     
             const canvasObject = document.createElement("canvas");
             const contextObject = canvasObject.getContext("2d");
             canvasObject.id = "object-layer";
-            canvasObject.style.position = "fixed";
+            canvasObject.style.position = "absolute";
             canvasObject.style.zIndex = "-2";
             canvasObject.style.top = "0px";
     

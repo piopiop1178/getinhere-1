@@ -6,6 +6,40 @@
     -moz-transform:rotateY(180deg); /* Firefox */
 }
 
+
+/* 캔버스 */
+/* Canvas*/
+/* Scroll Hide 스크롤 숨기기 */
+/* Hide scrollbar for Chrome, Safari and Opera */
+body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+body {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+canvas {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  display: block;
+  border: black 1px solid;
+  margin: 0 auto;
+}
+canvas #background-layer{
+  z-index: 3;
+}
+canvas #object-layer{
+  z-index: 2;
+}
+canvas #character-layer{
+  z-index: 2;
+}
+/* --------------------- */
+
+
 /* 채팅창 */
 
 .chat-box {

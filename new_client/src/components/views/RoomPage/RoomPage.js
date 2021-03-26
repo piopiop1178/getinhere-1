@@ -109,11 +109,10 @@ let constraints = {
     }
 }
 
-function updateWindowCenter(myStatus, TILE_LENGTH) {
-  console.log('window 위치이동')
-  document.getElementById('root').scrollTo(myStatus.x - window.innerWidth/2  + TILE_LENGTH/2 , myStatus.y - window.innerHeight/2 + TILE_LENGTH/2 )
-  window.scrollTo(myStatus.x - window.innerWidth/2  + TILE_LENGTH/2 , myStatus.y - window.innerHeight/2 + TILE_LENGTH/2 )
-}
+// function updateWindowCenter(myStatus, TILE_LENGTH) {
+//   document.getElementById('root').scrollTo(myStatus.x - window.innerWidth/2  + TILE_LENGTH/2 , myStatus.y - window.innerHeight/2 + TILE_LENGTH/2 )
+//   window.scrollTo(myStatus.x - window.innerWidth/2  + TILE_LENGTH/2 , myStatus.y - window.innerHeight/2 + TILE_LENGTH/2 )
+// }
 
 class RoomPage extends Component {
 
@@ -220,21 +219,14 @@ class RoomPage extends Component {
         async function clientLoadDevice(){
             console.log(`Device! request: ${socket.request}`);
             const data = await socket.request('getRouterRtpCapabilities');
-            console.log(`data._data: ${data._data}`); //왜 이거 못쓰는지?? 
-            console.log('data', data);
             await loadDevice(data._data.rtpCapabilities);
             return;
         }
 
         async function loadDevice(routerRtpCapabilities) {
-            console.log('load device 입니다다아아ㅏ');
             try {
-                console.log('load device try 입니다아아ㅏ');
                 device = new mediasoup.Device();
-                console.log('loadDevice function',device);
                 await device.load({ routerRtpCapabilities });
-                console.log('loadDevice function after',device);
-                // console.log(device);
             } catch (error) {
                 if (error.name === 'UnsupportedError') {
                 console.error('browser not supported');
@@ -242,9 +234,6 @@ class RoomPage extends Component {
             }
             return;
         }
-        //tmp 승민
-
-
 
 
         socket.emit('start', document.location.pathname.slice(6))
@@ -299,7 +288,7 @@ class RoomPage extends Component {
         const canvasCharacter = document.createElement("canvas");
         const contextCharacter = canvasCharacter.getContext("2d");
         canvasCharacter.id = "character-layer";
-        canvasCharacter.style.position = "fixed";
+        canvasCharacter.style.position = "absolute";
         canvasCharacter.style.zIndex = "-1";
         canvasCharacter.style.top = "0px";
         canvasCharacter.setAttribute("width", MAP_SETTINGS._WIDTH);
@@ -310,7 +299,7 @@ class RoomPage extends Component {
         // const canvasAlchol = document.createElement("canvas");
         // const contextAlchol = canvasAlchol.getContext("2d");
         // canvasAlchol.id = "alchol-layer";
-        // canvasAlchol.style.position = "fixed";
+        // canvasAlchol.style.position = "absolute";
         // canvasAlchol.style.zIndex = "-1";
         // canvasAlchol.style.top = "0px";
         // canvasAlchol.setAttribute("width", MAP_SETTINGS._WIDTH);
@@ -334,6 +323,7 @@ class RoomPage extends Component {
             // Initialize distance
             let dist;
         
+            let alcholSound
             window.addEventListener('keydown' ,(e)=> {
                 let st = localStorage.getItem('myStatus');
                 let parsed_status = JSON.parse(st);
@@ -346,13 +336,15 @@ class RoomPage extends Component {
 
                 /* 캐릭터 술 캔버스 설정 */
                 if (e.code === "KeyB") {
-                    console.log('beer')
+                    alcholSound = true
                     socket.emit('alchol-icon', 'beer');
                 }
                 if (e.code === "KeyC") {
+                    alcholSound = true
                     socket.emit('alchol-icon', 'cocktail');
                 }
                 if (e.code === "KeyW") {
+                    alcholSound = true
                     socket.emit('alchol-icon', 'wine');
                 }
         
@@ -372,10 +364,12 @@ class RoomPage extends Component {
             socket.on("update", function (statuses, idArray) {
                 // if (MAP_SETTINGS2 == null) return;
 
-                storelocalStorage(statuses[socket.id].status);
-                updateWindowCenter(statuses[socket.id].status, TILE_LENGTH);
-        
-                contextCharacter.clearRect(0, 0, WIDTH, HEIGHT); //TODO 내가 보는곳만 하기
+                let myStatus = statuses[socket.id].status
+                storelocalStorage(myStatus);
+                updateWindowCenter(myStatus, TILE_LENGTH);
+                
+                
+                contextCharacter.clearRect(myStatus.x - window.innerWidth, myStatus.y - window.innerHeight, WIDTH, HEIGHT); //TODO 내가 보는곳만 하기
                 contextCharacter.beginPath();
                 contextCharacter.font = '48px serif';
                 idArray.forEach(function (id) {
@@ -385,6 +379,11 @@ class RoomPage extends Component {
                         // console.log(dist)
                         gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
                     }
+                    // 다른 캐릭터가 내 화면 밖으로 나가면 그려주지않고 넘어간다
+                    if (Math.abs(myStatus.x - statuses[id].status.x) > window.innerWidth && Math.abs(myStatus.y - statuses[id].status.y) > window.innerHeight) {
+                        return;
+                    }
+
                     // 캐릭터 삽입 코드
                     contextCharacter.drawImage(icon, 
                         statuses[id].status.x,
@@ -395,14 +394,24 @@ class RoomPage extends Component {
                     // 술 이모티콘 삽입 코드
                     if (statuses[id].status.alchol) {
                       let alchol;
+
                       if (statuses[id].status.alchol == 'beer') {
-                        beer.play()
+                        if (alcholSound) {
+                          beer.play()
+                          alcholSound = false
+                        }
                         alchol = "🍺"
                       } else if (statuses[id].status.alchol == 'cocktail') {
-                        cocktail.play()
+                        if (alcholSound) {
+                          cocktail.play()
+                          alcholSound = false
+                        }
                         alchol = "🍸"
                       } else if (statuses[id].status.alchol == 'wine') {
-                        wine.play()
+                        if (alcholSound) {
+                          wine.play()
+                          alcholSound = false
+                        }
                         alchol = "🍷"
                       }
                       contextCharacter.fillText(alchol,
@@ -445,7 +454,7 @@ class RoomPage extends Component {
             })
         
             //! 일단 주석해
-            //TODO audio가 뜻하는게 뭘까. 강산이가 만든 코드
+            //TODO 노래 obj
             socket.on('music_on', () => {
                 // audio.play();
             })
@@ -579,9 +588,9 @@ class RoomPage extends Component {
                 localStorage.setItem('position', JSON.stringify({row, col}))
             }
             
-            // function updateWindowCenter(myStatus) { //! 위치이동
-            //     window.scrollTo(myStatus.x - window.innerWidth/2  + TILE_LENGTH/2 , myStatus.y - window.innerHeight/2 + TILE_LENGTH/2 )
-            // }
+            function updateWindowCenter(myStatus) { //! 위치이동
+                window.scrollTo(myStatus.x - window.innerWidth/2  + TILE_LENGTH/2 , myStatus.y - window.innerHeight/2 + TILE_LENGTH/2 )
+            }
             
             
             function convertNumToTileRowCol(num) {
@@ -606,7 +615,6 @@ class RoomPage extends Component {
                         rtpCapabilities: device.rtpCapabilities,
                     });
             
-                // console.log ('transport options', transportOptions);
             
                 if (direction === 'recv') {
                     transport = await device.createRecvTransport(transportOptions);
@@ -620,7 +628,6 @@ class RoomPage extends Component {
                       });
             
                 } else if (direction === 'send') {
-                    // console.log(transportOptions);
                     transport = await device.createSendTransport(transportOptions);
                     transport.on('connect', async ({ dtlsParameters }, callback, errback) => {
                         await socket.request('connectTransport', { 
@@ -735,7 +742,7 @@ class RoomPage extends Component {
             async function createRealConsumer(mediaTag, transport, peerId, transportId){
                 
                 const Data = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
-                console.log(Data);
+                // console.log(Data);
                 let {
                     producerId,
                     id,
@@ -792,7 +799,7 @@ class RoomPage extends Component {
                 return;
             }
             console.log('close consumer!')
-            console.log(consumers)
+            // console.log(consumers)
             // console.log('closing consumer', consumer.appData.peerId, consumer.appData.mediaTag);
             try {
                 // tell the server we're closing this consumer. (the server-side
