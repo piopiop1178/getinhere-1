@@ -56,8 +56,9 @@ module.exports = async (io) => {
         });
     
         /* 소켓 연결 종료 */
-        socket.on('disconnect', async() => {
+        socket.on('disconnect', async(reason) => {
             console.log(`socket disconnected!: ${socket.id}`);
+            console.log(reason)
             let target_transport = Object.values(room.roomState.transports).find(
                 (p) => p.appData.socket_id === socket.id);
             await closeTransport(room.roomState, target_transport)
