@@ -13,8 +13,6 @@ let audio = new Audio('../music/all_falls_down.mp3');
 let audioctx
 let gains = {}
 
-const contextCharacter = document.getElementById("character-layer").getContext("2d");
-
 const configuration = {
     "iceServers": [{
             "urls": "stun:stun.l.google.com:19302"
@@ -50,22 +48,20 @@ let constraints = {
 }
 
 
-
-
 const LEFT = 'ArrowLeft', UP = 'ArrowUp', RIGHT = 'ArrowRight', DOWN = 'ArrowDown';
 
 // Initialize distance
 let dist;
 
 class Room extends Component {
-
     state = {
         roomName: "",
         userName: "",
         characterNum: -1,
         map: {},
         characterList: [],
-        users: {}
+        users: {},
+        contextCharacter: document.getElementById("character-layer").getContext("2d"),
     }
 
     componentDidMount = () => {
@@ -144,9 +140,10 @@ class Room extends Component {
             audio.pause();
         })
 
-        const body = document.querySelector('body');
+        // const body = document.querySelector('body');
 
-        body.addEventListener('keydown' ,(e)=> {
+        window.addEventListener('keydown' ,(e)=> {
+            console.log('keydown');
             let st = localStorage.getItem('myStatus');
             let parsed_status = JSON.parse(st);
             let curr_x = parsed_status.x;
@@ -162,16 +159,22 @@ class Room extends Component {
             if(e.code == DOWN)  e.preventDefault();
             if(e.code == UP)    e.preventDefault();
         })
-        body.addEventListener("keyup", function (e) {
+        window.addEventListener("keyup", function (e) {
+            console.log('keyup');
             socket.emit("keyup", e.code);
         });
 
         audioctx = new AudioContext()
 
         socket.on("update", (statuses, idArray) => {
+            // console.log("update");
+            // console.log(statuses)
+            // console.log(idArray)
             this.updateWindowCenter(statuses[socket.id].status);
             const WIDTH = this.state.map._WIDTH;
-            const HEIGHT = this.state.map_HEIGHT;
+            const HEIGHT = this.state.map._HEIGHT;
+            // console.log(WIDTH, HEIGHT);
+            const contextCharacter = this.state.contextCharacter
             contextCharacter.clearRect(0, 0, WIDTH, HEIGHT);
             contextCharacter.beginPath();
             idArray.forEach((id) => {
@@ -300,7 +303,7 @@ class Room extends Component {
 
     render() {
         return (
-            <div className="room">
+            <div className="room" id="room">
                 {/* <div className="video-box">
                     <div id="videos" className="video-container"></div>
                 </div> */}

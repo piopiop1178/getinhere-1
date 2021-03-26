@@ -57,6 +57,7 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
 
     removeUser(socket){
         if (socket.id in this.users){
+            // socket.destroy();
             delete this.users[socket.id];
         }
         this.memberCount -= 1;
@@ -133,7 +134,7 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
                 statuses[user.socket.id] = status_pair;
             }
             io.to(this.name).emit('update', statuses, idArray);
-            }, 50);    // 원래 50
+            }, 100);    // 원래 50
     }
 
     pixelToTile(pixel){

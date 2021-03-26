@@ -53,9 +53,10 @@ class RoomManager {   // Room 함수 실행
             console.log("ERROR : removeUserFromRoom, roomName === undefined");
             return;
         }
+        // socket.leave(room.name);
         room.removeUser(socket);
         delete this.roomByUser[socket.id];
-
+        
         if(room.isEmpty()){
             this.deleteRoom(room);
         }

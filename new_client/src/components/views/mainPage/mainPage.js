@@ -33,14 +33,13 @@ class Mainpage extends Component {
 
     componentDidMount = async () => {
         await this.setState({roomName: this.props.match.params.roomName});
-        let map;
         axios.get('/api/map', {
             params: { 
-                roomName : this.state.roomName
+                roomName : this.props.match.params.roomName,
             }})
         .then(response => {
             this.setState({map : response.data.map})
-            map = response.data.map;
+            const map = response.data.map;
             const width = map._WIDTH;
             const height = map._HEIGHT;
 
@@ -78,21 +77,22 @@ class Mainpage extends Component {
                 contextObject.fillStyle = "black";
                 contextObject.fillRect(pixel_x, pixel_y, tile_length, tile_length);
             }
-        });
-
-
-        axios.get('/api/characterList')
-        .then(response => {
-            const characterList = response.data.characterList;
-            for(let index in characterList){
-                const characterImage = new Image();
-                characterImage.onload = () => {
-                    contextHide.drawImage(characterImage, map._CHAR_SIZE*index, 0, map._CHAR_SIZE, map._CHAR_SIZE);
+        })
+        .then(() => {
+            axios.get('/api/characterList')
+            .then(response => {
+                const characterList = response.data.characterList;
+                const map = this.state.map;
+                for(let index in characterList){
+                    const characterImage = new Image();
+                    characterImage.onload = () => {
+                        contextHide.drawImage(characterImage, map._CHAR_SIZE*index, 0, map._CHAR_SIZE, map._CHAR_SIZE);
+                    }
+                    characterImage.src = characterList[index];
+                    this.state.characterList[index] = characterImage;
                 }
-                characterImage.src = characterList[index];
-                this.state.characterList[index] = characterImage;
-            }
-        });
+            });
+        })
     }
 
     joinRoom = (userName, characterNum) => {

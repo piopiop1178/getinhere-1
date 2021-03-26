@@ -25,6 +25,7 @@ module.exports = (io) => {
             initKeyEvent(socket, room);
             initMusic(socket, room);
             initChat(socket, room);
+            room.start(io);
         });
     });
 
@@ -54,6 +55,7 @@ module.exports = (io) => {
 
         socket.on('disconnect', () => {          
             io.to(room.name).emit('removeUser', socket.id);
+            console.log(socket.id);
             RoomManager.removeSocketFromRoom(socket);
         });
     }
