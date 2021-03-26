@@ -1,6 +1,8 @@
 import React, {Component} from 'react'
 import axios from 'axios';
 // import {Link} from 'react-router-dom';
+import './LandingPage.css'
+import video from './video/landingPage_withoutFace.mov'
 
 class LandingPage extends Component {
 
@@ -8,7 +10,8 @@ class LandingPage extends Component {
         map_index : 0,
         // maps : [map1, map2, map3],
         maps : [],
-        data : {roomName : null, map : null, success: null }
+        data : {roomName : null, map : null, success: null },
+        video :video
     }
 
     componentDidMount = () =>{
@@ -53,6 +56,10 @@ class LandingPage extends Component {
         
         return (
             <>
+            <video className="landing-video" muted autoPlay loop>
+              <source src={video} type="video/mp4" />
+              <strong>Your browser does not support the video tag.</strong>
+            </video>
             <img className="map-image" alt="maps" src={this.state.maps[this.state.map_index]}></img>
             <div className="main-message">
                 Get In Here 🍻
