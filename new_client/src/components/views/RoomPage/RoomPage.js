@@ -13,6 +13,12 @@ import {
     Device,
     parseScalabilityMode
 } from "mediasoup-client"
+
+import beerSource from './sound/beer.mp3'
+import cocktailSource from './sound/cocktail.mp3'
+import wineSource from './sound/wine.mp3'
+import glassBreakSource from './sound/glassbreak.mp3'
+
 //------------------DEBUG-------------------
 // import tile2 from '../../../images/tile2.jpg'
 import icon2 from '../../../images/among.jpg' //TODO 임시방편
@@ -23,6 +29,18 @@ icon.src = icon2
 // };
 // tile.src = this.state.characterList.tile;
 //TODO 임시방편
+
+//TODO 짠 사운드
+
+const beer = new Audio();
+const cocktail = new Audio();
+const wine = new Audio();
+const glassbreak = new Audio();
+beer.src = beerSource
+cocktail.src = cocktailSource
+wine.src = wineSource
+glassbreak.src = glassBreakSource
+
 
 // const socket = io.connect("https://localhost", {transport : ['websocket']});
         /* 소켓 실행시키기 */
@@ -91,8 +109,15 @@ let constraints = {
     }
 }
 
+function updateWindowCenter(myStatus, TILE_LENGTH) {
+  console.log('window 위치이동')
+  document.getElementById('root').scrollTo(myStatus.x - window.innerWidth/2  + TILE_LENGTH/2 , myStatus.y - window.innerHeight/2 + TILE_LENGTH/2 )
+  window.scrollTo(myStatus.x - window.innerWidth/2  + TILE_LENGTH/2 , myStatus.y - window.innerHeight/2 + TILE_LENGTH/2 )
+}
 
 class RoomPage extends Component {
+
+    
 
     state = {
         userid: "wow",
@@ -176,7 +201,6 @@ class RoomPage extends Component {
 
 
 
-
     async componentDidMount() {
         //tmp 승민
         let localStream = null;
@@ -222,6 +246,7 @@ class RoomPage extends Component {
 
 
 
+
         socket.emit('start', document.location.pathname.slice(6))
 
         //-------------------------DEBUG---------------- 밖으로????? 
@@ -254,6 +279,7 @@ class RoomPage extends Component {
         let TILE_LENGTH = this.props.MAP_SETTINGS._TILE_LENGTH
         let TILE_WIDTH = this.props.MAP_SETTINGS._TILE_WIDTH
         let CHAR_SIZE = TILE_LENGTH
+
         // let WIDTH = MAP_SETTINGS._WIDTH
         // let HEIGHT = MAP_SETTINGS._HEIGHT
         // let TILE_LENGTH = MAP_SETTINGS._TILE_LENGTH
@@ -279,6 +305,17 @@ class RoomPage extends Component {
         canvasCharacter.setAttribute("width", MAP_SETTINGS._WIDTH);
         canvasCharacter.setAttribute("height", MAP_SETTINGS._HEIGHT);
         document.body.appendChild(canvasCharacter);
+
+        /* 캐릭터 술 캔버스 설정 */ //tmp
+        // const canvasAlchol = document.createElement("canvas");
+        // const contextAlchol = canvasAlchol.getContext("2d");
+        // canvasAlchol.id = "alchol-layer";
+        // canvasAlchol.style.position = "fixed";
+        // canvasAlchol.style.zIndex = "-1";
+        // canvasAlchol.style.top = "0px";
+        // canvasAlchol.setAttribute("width", MAP_SETTINGS._WIDTH);
+        // canvasAlchol.setAttribute("height", MAP_SETTINGS._HEIGHT);
+        // document.body.appendChild(canvasAlchol);
 
 
         async function init() {
@@ -306,6 +343,18 @@ class RoomPage extends Component {
                 if (curr_x <= 60 && 1200 - curr_y <= 120 && e.code === "KeyX"){
                     socket.emit('music');
                 }
+
+                /* 캐릭터 술 캔버스 설정 */
+                if (e.code === "KeyB") {
+                    console.log('beer')
+                    socket.emit('alchol-icon', 'beer');
+                }
+                if (e.code === "KeyC") {
+                    socket.emit('alchol-icon', 'cocktail');
+                }
+                if (e.code === "KeyW") {
+                    socket.emit('alchol-icon', 'wine');
+                }
         
                 socket.emit('keydown', e.code);
                 if(e.code == RIGHT) e.preventDefault();
@@ -317,15 +366,18 @@ class RoomPage extends Component {
                 socket.emit("keyup", e.code);
             });
     
+
+
             // socket.on("update", function (statuses) {
             socket.on("update", function (statuses, idArray) {
                 // if (MAP_SETTINGS2 == null) return;
 
                 storelocalStorage(statuses[socket.id].status);
-                updateWindowCenter(statuses[socket.id].status);
+                updateWindowCenter(statuses[socket.id].status, TILE_LENGTH);
         
-                contextCharacter.clearRect(0, 0, WIDTH, HEIGHT);
+                contextCharacter.clearRect(0, 0, WIDTH, HEIGHT); //TODO 내가 보는곳만 하기
                 contextCharacter.beginPath();
+                contextCharacter.font = '48px serif';
                 idArray.forEach(function (id) {
                     // Audio volume change
                     if (id !== socket.id && gains[id] != undefined) {
@@ -340,6 +392,24 @@ class RoomPage extends Component {
                         statuses[id].status.width,
                         statuses[id].status.height
                         );
+                    // 술 이모티콘 삽입 코드
+                    if (statuses[id].status.alchol) {
+                      let alchol;
+                      if (statuses[id].status.alchol == 'beer') {
+                        beer.play()
+                        alchol = "🍺"
+                      } else if (statuses[id].status.alchol == 'cocktail') {
+                        cocktail.play()
+                        alchol = "🍸"
+                      } else if (statuses[id].status.alchol == 'wine') {
+                        wine.play()
+                        alchol = "🍷"
+                      }
+                      contextCharacter.fillText(alchol,
+                          statuses[id].status.x + 5,
+                          statuses[id].status.y,
+                          );
+                    }
                 });
             });
         
@@ -376,15 +446,13 @@ class RoomPage extends Component {
         
             //! 일단 주석해
             //TODO audio가 뜻하는게 뭘까. 강산이가 만든 코드
-            // socket.on('music_on', () => {
-            //     // console.log('music_on!');
-            //     audio.play();
-            // })
+            socket.on('music_on', () => {
+                // audio.play();
+            })
         
-            // socket.on('music_off', () => {
-            //     // console.log('music_off!');
-            //     audio.pause();
-            // })
+            socket.on('music_off', () => {
+                // audio.pause();
+            })
             // --------------------------------------------------------------
         
             socket.on('chat', (name, message) => {
@@ -511,9 +579,9 @@ class RoomPage extends Component {
                 localStorage.setItem('position', JSON.stringify({row, col}))
             }
             
-            function updateWindowCenter(myStatus) {
-                window.scrollTo(myStatus.x - window.innerWidth/2  + TILE_LENGTH/2 , myStatus.y - window.innerHeight/2 + TILE_LENGTH/2 )
-            }
+            // function updateWindowCenter(myStatus) { //! 위치이동
+            //     window.scrollTo(myStatus.x - window.innerWidth/2  + TILE_LENGTH/2 , myStatus.y - window.innerHeight/2 + TILE_LENGTH/2 )
+            // }
             
             
             function convertNumToTileRowCol(num) {

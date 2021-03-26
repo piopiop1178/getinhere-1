@@ -35,10 +35,18 @@ module.exports = (io) => {
             initKeyEvent(socket, room);
             initMusic(socket, room);
             initChat(socket, room);
-    
+            
+            initAlcholIcon(socket, room);
         })
 
     });
+
+    /* 캐릭터 술 캔버스 설정 */
+    function initAlcholIcon(socket, room) {
+        socket.on('alchol-icon', (data) => {
+            room.users[socket.id].status.alchol = !room.users[socket.id].status.alchol ? data : false
+        })
+    }
 
     function initSocket(socket, room){
         /* 방 이름이 없으면 */
