@@ -18,6 +18,20 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
         }
     }
 
+    get router(){
+        return this._router;
+    }
+    set router(value){
+        this._router = value;
+    }
+    
+    get roomState(){
+        return this._roomState;
+    }
+    set roomState(value){
+        this._roomState = value;
+    }
+
     get name(){
         return this._name;
     }
@@ -72,6 +86,16 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
         return this.memberCount === 0;
     }
 
+    getUserDatasForDraw(){
+        const userDatas = {}
+        // console.log(this.users);
+        for(let socketId in this.users){
+            let user = this.users[socketId];
+            userDatas[socketId] = {userName: user.userName, characterNum: user.characterNum}
+        }
+        return userDatas;
+    }
+
     /* 이동 관련 메소드 */
 
     start(io){
@@ -119,12 +143,17 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
                         user.status.y = y + 2 * TILE_LENGTH > HEIGHT ? y : y + TILE_LENGTH;
                     }
                 }
-                let status_pair = {status : user.status, id : user.socket.id};
+                let status_pair = {
+                    status: user.status,
+                    id: user.socket.id,
+                    userName: user.userName,
+                    characterNum: user.characterNum,
+                };
                 idArray.push(user.socket.id);
                 statuses[user.socket.id] = status_pair;
             }
             io.to(this.name).emit('update', statuses, idArray);
-            }, 50);    // 원래 50
+            }, 100);    // 원래 50
     }
 
     pixelToTile(pixel){
