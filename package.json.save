@@ -1,0 +1,52 @@
+{
+  "name": "getinhere",
+  "version": "1.0.0",
+  "description": "making_my_own_weapon",
+  "main": "index.js",
+{
+  "name": "getinhere",
+  "version": "1.0.0",
+  "description": "making_my_own_weapon",
+  "main": "index.js",
+{
+  "name": "getinhere",
+  "version": "1.0.0",
+  "description": "making_my_own_weapon",
+  "main": "index.js",
+{
+  "name": "getinhere",
+  "version": "1.0.0",
+  "description": "making_my_own_weapon",
+  "main": "index.js",
+{
+  "name": "getinhere",
+  "version": "1.0.0",
+  "description": "making_my_own_weapon",
+  "main": "index.js",
+{
+  "name": "getinhere",
+  "version": "1.0.0",
+  "description": "making_my_own_weapon",
+  "main": "index.js",
+    "start": "sudo node server/index.js",
+    "wstart": "nodemon server/index.js",
+    "tt": "node server/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "ejs": "^3.1.6",
+    "express": "^4.17.1",
+    "http": "^0.0.1-security",
+    "https": "^1.0.0",
+    "mongoose": "^5.12.0",
+    "nodemon": "^2.0.7",
+    "react-router-dom": "^5.2.0",
+    "redirect-https": "^1.3.1",
+    "simple-peer": "^9.9.3",
+    "socket.io": "^4    "uuid": "^8.3.2"
+  }
+}
