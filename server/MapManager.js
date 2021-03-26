@@ -14,7 +14,7 @@ class MapManager {
         const MusicInfo = require('./schemas/MusicInfo');
 
         /* TODO: populate 사용해서 변경 고려 */
-        MapInfo.find({}, {"_id": false, "__v": false}).exec()
+        MapInfo.find({}, {"_id": false, "__v": false}).sort({"NUMBER": 1}).exec()
             .then((mapInfos) => {
                 for(let mapInfo of mapInfos){
                     this.mapList.push(new Map(mapInfo));
@@ -39,6 +39,9 @@ class MapManager {
     }
     static getMapByIndex(mapIndex){
         return this.mapList[mapIndex];
+    }
+    static getMapList(){
+        return this.mapList.map((map) => map.BACKGROUND_IMG_PATH);
     }
 }
 module.exports = MapManager;

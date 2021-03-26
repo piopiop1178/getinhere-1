@@ -4,7 +4,7 @@ const uuid = require('uuid');
 const Room = require('./Class/Room');
 const User = require('./Class/User');
 
-class RoomManager{   // Room 함수 실행
+class RoomManager {   // Room 함수 실행
     static roomByName = {};
     static roomByUser = {};
     static io = undefined;
@@ -13,13 +13,13 @@ class RoomManager{   // Room 함수 실행
     }
 
     static init(io){
-        this.io = io
+        this.io = io;
     }
 
     /* 새로운 Room을 생성 */
     static createRoom(map){
-        console.log("createRoom");
-        console.log(map);
+        // console.log("createRoom");
+        // console.log(map);
         /* uuid 로 roomName 생성 */
         const tokens = uuid.v4().split('-');
         const roomName = tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
@@ -32,8 +32,8 @@ class RoomManager{   // Room 함수 실행
     }
 
     /* 전달받은 socket으로 User를 생성하여 roomName에 해당하는 Room에 User를 추가 */
-    static addSocketToRoom(socket, room){
-        const user = new User(socket);
+    static addSocketToRoom(socket, room, username, characterNum){
+        const user = new User(socket, username, characterNum);
         /* Room에 User 추가 */
         room.addUser(user);
         /* users 배열에 user.socket.id를 key로 하는 value 값을 roomName으로 설정*/

@@ -14,33 +14,45 @@ const CharacterInfoList = [];
 /* -------------------------------------------- */
 const characterInfo00 = new CharacterInfo({
     NUMBER: 0,
-    SOURCE_PATH: "../image/icon.png",
+    SOURCE_PATH: "/images/1.jpg",
 });
 CharacterInfoList.push(characterInfo00);
 
 const characterInfo01 = new CharacterInfo({
     NUMBER: 1,
-    SOURCE_PATH: "../image/char_snowman.png",
+    SOURCE_PATH: "/images/2.png",
 });
 CharacterInfoList.push(characterInfo01);
 
 const characterInfo02 = new CharacterInfo({
     NUMBER: 2,
-    SOURCE_PATH: "../image/char_snowman2.png",
+    SOURCE_PATH: "/images/3.png",
 });
 CharacterInfoList.push(characterInfo02);
 
 const characterInfo03 = new CharacterInfo({
     NUMBER: 3,
-    SOURCE_PATH: "../image/char_woman1.png",
+    SOURCE_PATH: "/images/4.png",
 });
 CharacterInfoList.push(characterInfo03);
 
 const characterInfo04 = new CharacterInfo({
     NUMBER: 4,
-    SOURCE_PATH: "../image/char_woman2.png",
+    SOURCE_PATH: "/images/5.png",
 });
 CharacterInfoList.push(characterInfo04);
+
+const characterInfo05 = new CharacterInfo({
+    NUMBER: 5,
+    SOURCE_PATH: "/images/6.png",
+});
+CharacterInfoList.push(characterInfo05);
+
+const characterInfo06 = new CharacterInfo({
+    NUMBER: 6,
+    SOURCE_PATH: "/images/7.png",
+});
+CharacterInfoList.push(characterInfo06);
 
 /* -------------------------------------------- */
 // const characterInfo04 = new CharacterInfo({

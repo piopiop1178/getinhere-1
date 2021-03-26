@@ -1,0 +1,216 @@
+/* html 기본 css 속성 초기화 */
+body {
+    margin: 0px;
+    padding: 0px;
+}
+
+/* 비디오 좌우반전 */
+#localVideo
+{
+    transform: rotateY(180deg);
+    -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+    -moz-transform:rotateY(180deg); /* Firefox */
+}
+
+/* /room 의 프리셋 화면 */
+.preset
+{
+    
+}
+
+/* /room 의 메인화면 */
+.room
+{
+    display: none;
+}
+
+/* 채팅창 */
+
+.chat-box {
+    z-index: 3;
+    position: fixed;
+    right: 0px;
+    top: 0px;
+    margin: 4px;
+    width: 250px;
+    height: 500px;
+    padding: 5px;
+}
+
+.chat-box button{
+    width : 40px;
+    height: 100%;
+}
+
+.message-box {
+    width: 100%;
+    height: 100%;
+    background-color: ivory;
+    border-radius: 10px;
+    overflow: auto;
+}
+
+.message-box::-webkit-scrollbar{
+    display: none;
+}
+
+.message-own {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.message-other {
+    width: 100%;
+    display: block;
+}
+
+.message-name {
+    font-size: 12px;
+}
+
+.message-text {
+    font-size: 15px;
+    height: auto;
+}
+
+.input-bar {
+    width: 100%;
+    height: 17px;
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+#chat-message {
+    height: 100%;
+}
+
+/* 내 영상 + 채팅창 등 토글버튼 */
+.toggles {
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.chat-toggle , .invite-toggle, .etc-toggle{
+    margin: 10px 10px;
+    background-color: ivory;
+    border-radius: 20%;
+}
+
+.chat-toggle:hover , .invite-toggle:hover, .etc-toggle:hover {
+    cursor: pointer;
+}
+
+.invite-toggle-notice {
+    display: none;
+    position: absolute;
+    top: -30px;
+    background-color: ivory;
+    font-size : 15px;
+    text-align: center;
+    width: 130px;
+    border-radius: 3px;
+}
+
+
+.local-video-box {
+    display:flex;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 3;
+    position: fixed;
+    right: 0px;
+    bottom: 0px;
+    margin: 1%
+}
+
+#localVideo {
+    margin: 0px auto;
+    height: 100px;
+    width: 150px;
+    border-radius: 10%;
+}
+
+.setting-container {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    bottom: 0px;
+    margin: 1% 0px;
+}
+
+
+/* Scroll Hide 스크롤 숨기기 */
+/* Hide scrollbar for Chrome, Safari and Opera */
+body::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+body {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+
+/* Canvas*/
+canvas {
+    position: absolute;
+    display: block;
+    border: black 1px solid;
+    margin: 0 auto;
+}
+canvas #background-layer{
+    z-index: 3;
+}
+canvas #object-layer{
+    z-index: 2;
+}
+canvas #character-layer{
+    z-index: 2;
+}
+
+.video-box {
+    position: fixed;
+    width: 100%;
+    justify-content: center;
+    top: 1%;            /* 디자인특성을 어떻게 가져가야할지 고민 */
+    z-index: 3;
+}
+
+
+
+/* 기존 코드 */
+.containers {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: repeat(auto-fit, 1fr);
+    grid-template-rows: repeat(auto-fit, 300px);
+}
+
+.video-container {
+    display: flex;
+    justify-content: center;
+}
+
+.vid {
+    flex: 0 1 auto;
+    height: 150px;
+    border-radius: 10%;
+    margin: 0px 5px;
+}
+
+.settings {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 2px 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 10px;
+    margin: 2px 2px;
+    cursor: pointer;
+}

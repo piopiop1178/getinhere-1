@@ -1,35 +1,34 @@
 'use strict';
-
 /* Class */
 // const LobbyManager = require('./LobbyManager');
 const RoomManager = require('./RoomManager');
 // const MapManager = require('./MapManager');
-
+console.log(RoomManager);
 /* 서버로 오는 요청을 담당할 io 정의 */
 module.exports = (io) => {
+    console.log("io connect");
     /* connect 요청 시 */
-    /* 테스트 용으로 임시 방 생성 */
     RoomManager.init(io);
     io.on('connect', (socket) => {
-        /* socket에서 room의 값을 가져온다 */
-        const roomName = socket.handshake.query.room;
-        console.log(roomName);
-        const room = RoomManager.getRoomByRoomName(roomName);
-        console.log(room);
-        initSocket(socket, room);
+        socket.on('test', data => {
+            socket.emit('test', 'hello');
+        });
 
-        /* Room 추가 후 Room 정보를 전달한다 */
-        socket.emit('connected', room.map, room.name);
-        socket.to(room.name).emit('initReceive', socket.id);
-
-        initWebRTC(socket, room);
-        initKeyEvent(socket, room);
-        initMusic(socket, room);
-        initChat(socket, room);
-
+        socket.on('getUsers', (roomName, userName, characterNum) => {
+            const room = RoomManager.getRoomByRoomName(roomName);
+            socket.emit('sendUsers', room.getUserDatasForDraw());
+            // console.log(roomName);
+            // console.log(io);
+            io.to(roomName).emit('addUser', socket.id, userName, characterNum);
+            initSocket(socket, room, userName, characterNum);
+            initWebRTC(socket, room);
+            initKeyEvent(socket, room);
+            initMusic(socket, room);
+            initChat(socket, room);
+        });
     });
 
-    function initSocket(socket, room){
+    function initSocket(socket, room, username, characterNum){
         /* 방 이름이 없으면 */
         if (room === undefined){
             /* ERROR */
@@ -38,7 +37,7 @@ module.exports = (io) => {
         /* 방 이름이 있으면 */
         else{
             /* Room에 socket 추가 */
-            RoomManager.addSocketToRoom(socket, room);
+            RoomManager.addSocketToRoom(socket, room, username, characterNum);
         }
         return room;
     }
@@ -52,20 +51,13 @@ module.exports = (io) => {
                 signal: data.signal
             });
         });
-    
-        /* 기존 Peer 들이 신규 Peer 추가했다는 응답을 받고
-         * 신규 Peer에게 기존 Peer를 연결하라고 initSend 송신 */
-        socket.on('initSend', init_socket_id => {
-            room.users[init_socket_id].socket.emit('initSend', socket.id);
-        });
-    
-        /* 소켓 연결 종료 */
+
         socket.on('disconnect', () => {          
-            io.to(room.name).emit('removePeer', socket.id);
+            io.to(room.name).emit('removeUser', socket.id);
             RoomManager.removeSocketFromRoom(socket);
         });
     }
-    
+
     function initKeyEvent(socket, room){
         /* 키가 눌리는 이벤트 발생 시 */
         socket.on('keydown', function(keyCode) {

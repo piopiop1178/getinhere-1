@@ -50,7 +50,7 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
 
     addUser(user) {
         this.users[user.socket.id] = user;
-        console.log(this.map);
+        // console.log(this.map);
         user.createCharacter(this.map);
         this.memberCount += 1;
     }
@@ -64,6 +64,16 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
 
     isEmpty(){
         return this.memberCount === 0;
+    }
+
+    getUserDatasForDraw(){
+        const userDatas = {}
+        // console.log(this.users);
+        for(let socketId in this.users){
+            let user = this.users[socketId];
+            userDatas[socketId] = {userName: user.userName, characterNum: user.characterNum}
+        }
+        return userDatas;
     }
 
     /* 이동 관련 메소드 */
@@ -113,7 +123,12 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
                         user.status.y = y + 2 * TILE_LENGTH > HEIGHT ? y : y + TILE_LENGTH;
                     }
                 }
-                let status_pair = {status : user.status, id : user.socket.id};
+                let status_pair = {
+                    status: user.status,
+                    id: user.socket.id,
+                    username: user.userName,
+                    characterNum: user.characterNum,
+                };
                 idArray.push(user.socket.id);
                 statuses[user.socket.id] = status_pair;
             }

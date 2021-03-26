@@ -8,8 +8,8 @@ import {
 } from "react-router-dom";
 
 import LandingPage from './components/views/landingPage/landingPage';
-import PresetPage from './components/views/presetPage/presetPage';
-import RoomPage from './components/views/roomPage/roomPage';
+import MainPage from './components/views/mainPage/mainPage';
+import RoomPage from './components/views/mainPage/roomPage';
 
 function App() {
   return (
@@ -23,8 +23,8 @@ function App() {
         */}
         <Switch>
           <Route exact path="/" component={LandingPage} />
-          <Route exact path="/preset" component={PresetPage} />
-          <Route exact path="/room" component={RoomPage} />
+          <Route exact path="/room/:roomName" component={MainPage} />
+          <Route exact path="/test" component={RoomPage} />
         </Switch>
     </Router>
   );
