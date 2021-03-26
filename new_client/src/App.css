@@ -59,6 +59,7 @@ button {
   z-index: -1;
   height: 70vh;
   width: 55vw;
+  width: 55vw;
   position: absolute;
   margin: auto;
   opacity: 0.7;

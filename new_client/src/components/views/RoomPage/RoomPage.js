@@ -26,7 +26,7 @@ icon.src = icon2
 
 // const socket = io.connect("https://localhost", {transport : ['websocket']});
         /* 소켓 실행시키기 */
-const socket = io("https://13.209.75.25", {transport: ['websocket']}) //! 얘는 뭔가요
+const socket = io("https://3.34.91.94", {transport: ['websocket']}) //! 얘는 뭔가요
 
 socket.request = socketPromise.promise(socket);
 
