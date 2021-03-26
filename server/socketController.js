@@ -16,6 +16,7 @@ module.exports = async (io) => {
     const new_room = await RoomManager.createRoom(MapManager.getMapByIndex(0));
 
     io.on('connect', (socket) => {
+        console.log(`socket connect !! ${socket.id}`)
         /* socket에서 room의 값을 가져온다 */
         const roomName = socket.handshake.query.room;
         const room = RoomManager.getRoomByRoomName(roomName);

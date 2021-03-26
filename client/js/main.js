@@ -64,6 +64,7 @@ let socket = io("/", { query: query_param, transports: ['websocket'] })
 socket.request = socketPromise(socket);
 
 socket.on('connect', async() =>{
+    console.log(`socket connect !! ${socket.id}`)
     await navigator.mediaDevices.getUserMedia(constraints).then(stream => {
         localVideo.srcObject = stream;
         localStream = stream;
