@@ -60,7 +60,7 @@ let constraints = {
     }
 }
 let query_param = get_query();
-let socket = io("/", { query: query_param }) 
+let socket = io("/", { query: query_param, transports: ['websocket'] }) 
 socket.request = socketPromise(socket);
 
 socket.on('connect', async() =>{
@@ -222,6 +222,8 @@ async function init(socket) {
     })
 
     socket.on('disconnect', async () => {
+        console.log('socket disconnect!!')
+        
         for (let socket_id in peers) { 
             removePeer(socket_id)
         }
@@ -239,6 +241,7 @@ async function init(socket) {
         videoProducer = null
         audioProducer = null
         consumers = []
+        socket.removeAllListeners();
     })
 
     socket.on('music_on', () => {
