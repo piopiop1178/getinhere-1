@@ -26,7 +26,7 @@ icon.src = icon2
 
 // const socket = io.connect("https://localhost", {transport : ['websocket']});
         /* 소켓 실행시키기 */
-const socket = io("https://13.209.75.25", {transport: ['websocket']}) //! 얘는 뭔가요
+const socket = io("https://52.79.71.148", {transport: ['websocket']}) //! 얘는 뭔가요
 
 socket.request = socketPromise.promise(socket);
 
@@ -366,7 +366,7 @@ class RoomPage extends Component {
             socket.on('disconnect', () => {
                 console.log('GOT DISCONNECTED')
                 for (let socket_id in peers) { 
-                    removePeer(socket_id)
+                    disconnectPeer(socket_id)
                 }
             })
         
@@ -424,8 +424,8 @@ class RoomPage extends Component {
                     videoEl.parentNode.removeChild(videoEl)
                 }
             
-                await unsubscribeFromTrack(socket_id, 'cam-video'); 
-                await unsubscribeFromTrack(socket_id, 'cam-audio'); 
+                await closeClientTrackConsumer(socket_id, 'cam-video'); 
+                await closeClientTrackConsumer(socket_id, 'cam-audio'); 
                 // console.log(consumers);
                 // if (peers[socket_id]) peers[socket_id].destroy() 
                 // delete peers[socket_id]
@@ -449,6 +449,26 @@ class RoomPage extends Component {
             //     if (peers[socket_id]) peers[socket_id].destroy() 
             //     delete peers[socket_id]
             // }
+
+            async function disconnectPeer(socket_id) {
+                let videoEl = document.getElementById(socket_id)
+                if (videoEl) {
+            
+                    const tracks = videoEl.srcObject.getTracks();
+                    console.log('disconnecting tracks')
+                    console.log(tracks)
+            
+                    tracks.forEach(function (track) { 
+                        track.stop()
+                    })
+            
+                    videoEl.srcObject = null
+                    videoEl.parentNode.removeChild(videoEl)
+                }
+            
+                await closeAllTrackConsumer(socket_id, 'cam-video'); 
+                await closeAllTrackConsumer(socket_id, 'cam-audio'); 
+            }
             
             async function addPeer(socket_id, am_initiator) {
                 let newStream = await createConsumer(socket_id);
@@ -703,7 +723,7 @@ class RoomPage extends Component {
                 }
               }
             
-            async function unsubscribeFromTrack(peerId, mediaTag) {
+            async function closeClientTrackConsumer(peerId, mediaTag) {
                 let consumer = await findConsumerForTrack(peerId, mediaTag);
                 
                 if (!consumer) {
@@ -717,6 +737,22 @@ class RoomPage extends Component {
                   console.error(e);
                 }
             }
+
+            async function closeAllTrackConsumer(peerId, mediaTag) {
+                let consumer = await findConsumerForTrack(peerId, mediaTag);
+            
+                if (!consumer) {
+                    console.log('ERROR: cannot find consumer')
+                    return;
+                }
+            
+                try {
+                    await socket.request('closeConsumer', { consumerId: consumer.id })
+                    await closeConsumer(consumer);
+                } catch (e) {
+                    console.error(e);
+                }
+            }
             
             async function closeConsumer(consumer) {
             if (!consumer) {
@@ -727,10 +763,9 @@ class RoomPage extends Component {
             console.log(consumers)
             // console.log('closing consumer', consumer.appData.peerId, consumer.appData.mediaTag);
             try {
-                // tell the server we're closing this consumer. (the server-side
-                // consumer may have been closed already, but that's okay.)
-                await socket.request('closeConsumer', { consumerId: consumer.id });
-                // await sig('close-consumer', { consumerId: consumer.id });
+                /* We don't close serverside consumer in here.
+                 * Thus, caller of closeConsumer must request server to close
+                 * server-side comsumer if needed */
                 await consumer.close();
                 consumers = consumers.filter((c) => c !== consumer);
                 // removeVideoAudio(consumer);

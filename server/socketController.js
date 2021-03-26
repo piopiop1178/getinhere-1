@@ -67,7 +67,7 @@ module.exports = (io) => {
             await closeTransport(room.roomState, target_transport)
             target_transport = Object.values(room.roomState.transports).find(
                 (p) => p.appData.socket_id === socket.id);
-            await closeTransport(room.roomState, target_transport) 
+            await closeTransport(room.roomState, target_transport)
         /* 소켓 연결 종료 */
         // socket.on('disconnect', () => {      
             
@@ -78,7 +78,7 @@ module.exports = (io) => {
 
         socket.on('getRouterRtpCapabilities', (data, callback) => {
             let router = RoomManager.getRouterBySocket(socket);
-            console.log(`router: ${router}`)
+            // console.log(`router: ${router}`)
             callback(router);
         });
         
@@ -88,9 +88,9 @@ module.exports = (io) => {
               const { transport, params } = await createWebRtcTransport(router, socket);
               room.roomState.transports[transport.id] = transport;
               callback(params);
-            } catch (err) {
-              console.error(err);
-              callback({ error: err.message });
+            } catch (error) {
+              console.error(error);
+              callback({ error: error.message });
             }
           });
         
@@ -110,8 +110,8 @@ module.exports = (io) => {
             room.roomState.producers.push(producer);
 
             producer.on('transportclose', () => {
-                console.log('producer\'s transport closed', producer.id);
-                console.log('room state is', room.roomState)
+                console.log(`producer's transport closed producer id is`, producer.id);
+                console.log('closed transport id is', transport.id)
                 closeProducer(room.roomState, producer);
             });
 
@@ -149,14 +149,14 @@ module.exports = (io) => {
                 consumer = roomState.consumers.find((c) => c.id === consumerId);
 
               if (!consumer) {
-                console.err(`close-consumer: server-side consumer ${consumerId} not found`);
+                console.error(`close-consumer: server-side consumer ${consumerId} not found`);
                 return;
               }
           
               await closeConsumer(roomState, consumer);
               callback()
-            } catch (e) {
-              console.error('error in /signaling/close-consumer', e);
+            } catch (error) {
+              console.error('error in /signaling/close-consumer', error);
             }
         });
     }
@@ -254,11 +254,13 @@ async function createWebRtcTransport(router, socket) {
       });
 
     consumer.on('transportclose', () => {
-        console.log(`consumer's transport closed`, consumer.id);
+        console.log(`consumer's transport closed consumer id is`, consumer.id);
+        console.log('closed transport id is', transport.id)
         closeConsumer(roomState, consumer);
     });
     consumer.on('producerclose', () => {
-        console.log(`consumer's producer closed`, consumer.id);
+        console.log(`consumer's producer closed consumer id is`, consumer.id);
+        console.log('closed producer id is', transport.id)
         closeConsumer(roomState, consumer);
     });
 
@@ -267,7 +269,6 @@ async function createWebRtcTransport(router, socket) {
       console.error('consume failed', error);
       return;
     }
-    console.log(consumer);
     if (consumer.type === 'simulcast') {
       console.log('simulcast!!')
       await consumer.setPreferredLayers({ spatialLayer: 2, temporalLayer: 2 });
@@ -291,7 +292,6 @@ async function closeConsumer(roomState, consumer) {
 
   // remove this consumer from our roomState.consumers list
   roomState.consumers = roomState.consumers.filter((c) => c.id !== consumer.id);
-
 }
 
 async function closeTransport(roomState, transport) {
@@ -307,7 +307,7 @@ async function closeTransport(roomState, transport) {
         // so all we need to do, after we call transport.close(), is update
         // our roomState data structure
         delete roomState.transports[transport.id];
-    } catch (e) {
-        err(e);
+    } catch (error) {
+        console.error(error);
     }
 }
