@@ -3,17 +3,16 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './app';
 import reportWebVitals from './reportWebVitals';
+import '@fortawesome/fontawesome-free/js/all.js';
 
 import HttpsRedirect from 'react-https-redirect';
-
-// 실행 커맨드 ($env:HTTPS = "true") -and (npm run start)
 
 ReactDOM.render(
   <HttpsRedirect>
     <React.StrictMode>
       <App />
     </React.StrictMode>
-  </HttpsRedirect>  
+  </HttpsRedirect>
   ,
   document.getElementById('root')
 );

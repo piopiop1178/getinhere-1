@@ -9,7 +9,6 @@ import {
 
 import LandingPage from './components/views/landingPage/landingPage';
 import MainPage from './components/views/mainPage/mainPage';
-import RoomPage from './components/views/mainPage/roomPage';
 
 function App() {
   return (
@@ -24,7 +23,6 @@ function App() {
         <Switch>
           <Route exact path="/" component={LandingPage} />
           <Route exact path="/room/:roomName" component={MainPage} />
-          <Route exact path="/test" component={RoomPage} />
         </Switch>
     </Router>
   );

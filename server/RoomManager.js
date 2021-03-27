@@ -15,22 +15,38 @@ class RoomManager {   // Room 함수 실행
     constructor() {
     }
 
-    static init(io){
-        this.io = io;
+    static async init(io){
+        this.io = io
+        /* 초기 worker를 하나 생성해서 workers에 저장 */
+        let worker = await createMediasoupWorker();
+        this.workers.push(worker);
+        return;
     }
 
     /* 새로운 Room을 생성 */
-    static createRoom(map){
+    static async createRoom(map){
         // console.log("createRoom");
         // console.log(map);
         /* uuid 로 roomName 생성 */
         const tokens = uuid.v4().split('-');
         const roomName = tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
         console.log("********** createRoom ***********");
-        console.log(`localhost?room=${roomName}`);
+        // console.log(`localhost?room=${roomName}`);
         /* roomName으로 새로운 Room을 생성하여 rooms에 추가 */
         const room = new Room(roomName, map);
         this.roomByName[roomName] = room;
+
+        /* 통신 코덱 설정? */
+        const mediaCodecs = config.mediasoup.router.mediaCodecs;
+
+        let worker = this.workers[0];
+        /* worker에 router 생성 */
+        let mediasoupRouter = await worker.createRouter({ mediaCodecs });
+        /* 생성한 router를 room 에 할당 */
+        room.router = mediasoupRouter;
+        console.log(roomName);
+        // return room;
+
         return roomName;
     }
 
@@ -44,22 +60,22 @@ class RoomManager {   // Room 함수 실행
         /* user를 roomName에 해당하는 Room 추가 */
         socket.join(room.name);
         if (room.memberCount === 1){
-            // room.start(this.io);
+            room.start(this.io);
         }
+        return;
     }
 
     /* Room에서 User를 제거 */
     static removeSocketFromRoom(socket){
-        /* */
+
         const room = this.roomByUser[socket.id];
         if (room === undefined){
             console.log("ERROR : removeUserFromRoom, roomName === undefined");
             return;
         }
-        // socket.leave(room.name);
         room.removeUser(socket);
         delete this.roomByUser[socket.id];
-        
+
         if(room.isEmpty()){
             this.deleteRoom(room);
         }
@@ -84,6 +100,29 @@ class RoomManager {   // Room 함수 실행
     static getRoomNameBySocket(socket){
         return this.roomByUser[socket.id].name;
     }
+
+    /* socket이 속한 room의 router를 반환 */
+    static getRouterBySocket(socket){
+        return this.roomByUser[socket.id].router;
+    }
 }
+
+async function createMediasoupWorker() {
+    let worker = await mediasoup.createWorker({
+      logLevel: config.mediasoup.worker.logLevel,
+      logTags: config.mediasoup.worker.logTags,
+      rtcMinPort: config.mediasoup.worker.rtcMinPort,
+      rtcMaxPort: config.mediasoup.worker.rtcMaxPort,
+    });
+  
+    worker.on('died', () => {
+      console.error('mediasoup worker died, exiting in 2 seconds... [pid:%d]', worker.pid);
+      setTimeout(() => process.exit(1), 2000);
+    });
+    
+    return worker;
+    // const mediaCodecs = config.mediasoup.router.mediaCodecs;
+    // mediasoupRouter = await worker.createRouter({ mediaCodecs }); //media server create? 
+  }
 
 module.exports = RoomManager;

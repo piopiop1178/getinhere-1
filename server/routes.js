@@ -27,11 +27,11 @@ module.exports = async (app) => {
         }); 
     });
 
-    app.get('/api/mapIndex', (req, res) => {
+    app.get('/api/mapIndex', async (req, res) => {
         // console.log(`/api/mapIndex ${req.query}`);
         const mapIndex = req.query.mapIndex;
         const map = MapManager.getMapByIndex(mapIndex);
-        const roomName = RoomManager.createRoom(map);
+        const roomName = await RoomManager.createRoom(map);
         return res.status(200).json({
             "roomName": roomName,
             "success": true,
@@ -43,7 +43,7 @@ module.exports = async (app) => {
         // console.log(req.query);
         const roomName = req.query.roomName;
         const map = RoomManager.getRoomByRoomName(roomName).map;
-        // console.log(map)
+
         return res.status(200).json({
             "map": map,
             "success": true,

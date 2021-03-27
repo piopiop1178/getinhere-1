@@ -37,6 +37,7 @@ const musicInfo00 = new MusicInfo({
   NUMBER: 0,
   POSITION_LIST: [761],
   SOURCE_LIST: ["../music/all_falls_down.mp3"],
+  IMAGE_LIST: ["/images/1.jpg"],
 });
 MusicInfoList.push(musicInfo00);
 
@@ -60,6 +61,7 @@ const musicInfo01 = new MusicInfo({
   NUMBER: 1,
   POSITION_LIST: [761],
   SOURCE_LIST: ["../music/all_falls_down.mp3"],
+  IMAGE_LIST: ["/images/1.jpg"],
 });
 MusicInfoList.push(musicInfo01);
 
@@ -83,6 +85,7 @@ const musicInfo02 = new MusicInfo({
   NUMBER: 2,
   POSITION_LIST: [761],
   SOURCE_LIST: ["../music/all_falls_down.mp3"],
+  IMAGE_LIST: ["/images/1.jpg"],
 });
 MusicInfoList.push(musicInfo02);
 /* -------------------------------------------- */

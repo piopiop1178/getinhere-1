@@ -2,52 +2,42 @@ import React, { Component } from 'react';
 import DeviceSelector from './deviceSelector';
 import VideoPreview from './videoPreview';
 import axios from 'axios';
-import {Link} from 'react-router-dom';
 
 class PresetPage extends Component {
     state = {
         characterNum : 0,
-        images: [],
+        characterList: [],
         userName: "이름을 입력해주세요",
     }
 
     componentDidMount = () => {
         axios.get('/api/characterList')
         .then(response => {
-            this.setState({images: response.data.characterList});
-            // console.log(this.state.images);
+            this.setState({characterList: response.data.characterList});
+            // console.log(this.state.characterList);
         });
     }
 
     imageChangeLeft = () => {
         this.setState(state => ({characterNum: state.characterNum - 1}))
         if (this.state.characterNum === 0) {
-            this.setState(state=> ({characterNum: state.characterNum + state.images.length - 1}));
+            this.setState(state=> ({characterNum: state.characterNum + state.characterList.length - 1}));
         }
     }
     imageChangeRight = () => {
         this.setState(state => ({characterNum: state.characterNum + 1}))
-        if (this.state.characterNum+1 === this.state.images.length) {
+        if (this.state.characterNum+1 === this.state.characterList.length) {
             this.setState(state => ({characterNum: state.characterNum - state.characterNum}));
         }
     }
 
-    presetSend = () => {
-        this.props.joinRoom(this.state.userName, this.state.characterNum);
-        // console.log(this.state);
-        // axios.get('/api/preset', {
-        //     params: { 
-        //         userName : this.state.userName,
-        //         characterNum : this.state.characterNum
-        //         }
-        //     })
-        // .then( response => console.log(response.data));
+    finishPreset = () => {
+        this.props.finishPreset(this.state.userName, this.state.characterNum);
     }
 
     inputChange = e =>{
         const target = e.target;
         this.setState({userName : target.value})
-        // console.log(this.state.userName);
     }
 
     render() {
@@ -61,14 +51,14 @@ class PresetPage extends Component {
                     </div>
                     <div className="charcter-changer">
                         <button className="character-select-button" onClick={this.imageChangeLeft}>
-                            <i className="far fa-hand-point-left"></i>&lt;</button>
+                            <i className="far fa-hand-point-left"></i></button>
                         <button className="character-select-button" onClick={this.imageChangeRight}>
-                            <i className="far fa-hand-point-right"></i>&gt;</button>
+                            <i className="far fa-hand-point-right"></i></button>
                     </div>
                     <div className="character-box"> 
                         CHARACTER
                         <div className="character-image">
-                            <img alt="character" src={this.state.images[this.state.characterNum]}></img>                      
+                            <img alt="character" src={this.state.characterList[this.state.characterNum]}></img>                      
                         </div>
                     </div>
                 </div>
@@ -79,7 +69,7 @@ class PresetPage extends Component {
                     <DeviceSelector/>
                 </div>
             </div>
-            <button className="getin-button" onClick={this.presetSend}>
+            <button className="getin-button" onClick={this.finishPreset}>
                 GET IN !
             </button>
             </div>
