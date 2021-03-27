@@ -323,7 +323,9 @@ class RoomPage extends Component {
             // Initialize distance
             let dist;
         
-            let alcholSound
+            let alcholSoundOnceFlag
+            let keyDownUpOnceFlag
+            let keyUpBuffer = {}
             window.addEventListener('keydown' ,(e)=> {
                 let st = localStorage.getItem('myStatus');
                 let parsed_status = JSON.parse(st);
@@ -336,26 +338,30 @@ class RoomPage extends Component {
 
                 /* 캐릭터 술 캔버스 설정 */
                 if (e.code === "KeyB") {
-                    alcholSound = true
+                    alcholSoundOnceFlag = true
                     socket.emit('alchol-icon', 'beer');
                 }
                 if (e.code === "KeyC") {
-                    alcholSound = true
+                    alcholSoundOnceFlag = true
                     socket.emit('alchol-icon', 'cocktail');
                 }
                 if (e.code === "KeyW") {
-                    alcholSound = true
+                    alcholSoundOnceFlag = true
                     socket.emit('alchol-icon', 'wine');
                 }
-        
-                socket.emit('keydown', e.code);
-                if(e.code == RIGHT) e.preventDefault();
-                if(e.code == LEFT)  e.preventDefault();
-                if(e.code == DOWN)  e.preventDefault();
-                if(e.code == UP)    e.preventDefault();
+                
+                // socket.emit('keydown', e.code);
+                if(e.code == UP)    {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+                if(e.code == RIGHT) {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+                if(e.code == DOWN)  {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+                if(e.code == LEFT)  {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
             })
             window.addEventListener("keyup", function (e) {
-                socket.emit("keyup", e.code);
+                if (keyDownUpOnceFlag) {
+                  keyUpBuffer[e.code] = true;
+                } else {
+                  socket.emit("keyup", e.code);
+                }
             });
     
 
@@ -363,6 +369,11 @@ class RoomPage extends Component {
             // socket.on("update", function (statuses) {
             socket.on("update", function (statuses, idArray) {
                 // if (MAP_SETTINGS2 == null) return;
+                keyDownUpOnceFlag = false;
+                if (keyUpBuffer[UP]) { socket.emit("keyup", UP); keyUpBuffer[UP] = false;} 
+                if (keyUpBuffer[RIGHT]) { socket.emit("keyup", RIGHT); keyUpBuffer[RIGHT] = false;} 
+                if (keyUpBuffer[DOWN]) { socket.emit("keyup", DOWN); keyUpBuffer[DOWN] = false;} 
+                if (keyUpBuffer[LEFT]) { socket.emit("keyup", LEFT); keyUpBuffer[LEFT] = false;} 
 
                 let myStatus = statuses[socket.id].status
                 storelocalStorage(myStatus);
@@ -396,21 +407,21 @@ class RoomPage extends Component {
                       let alchol;
 
                       if (statuses[id].status.alchol == 'beer') {
-                        if (alcholSound) {
+                        if (alcholSoundOnceFlag) {
                           beer.play()
-                          alcholSound = false
+                          alcholSoundOnceFlag = false
                         }
                         alchol = "🍺"
                       } else if (statuses[id].status.alchol == 'cocktail') {
-                        if (alcholSound) {
+                        if (alcholSoundOnceFlag) {
                           cocktail.play()
-                          alcholSound = false
+                          alcholSoundOnceFlag = false
                         }
                         alchol = "🍸"
                       } else if (statuses[id].status.alchol == 'wine') {
-                        if (alcholSound) {
+                        if (alcholSoundOnceFlag) {
                           wine.play()
-                          alcholSound = false
+                          alcholSoundOnceFlag = false
                         }
                         alchol = "🍷"
                       }
