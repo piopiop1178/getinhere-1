@@ -49,6 +49,12 @@ module.exports = (io) => {
         /* 방 이름이 있으면 */
         else{
             /* Room에 socket 추가 */
+            //----------------------add---------------------- //preset부터 못들어가게 해야할 것 같음 
+            if (Object.keys(room.users).length >= 9){
+              console.log('room is full!!')
+              return;
+            }
+            //----------------------add----------------------
             RoomManager.addSocketToRoom(socket, room);
         }
         return room;
