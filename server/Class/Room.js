@@ -90,14 +90,14 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
                 let col, row;
                 const x = user.status.x;
                 const y = user.status.y;
+                
+                /* * 개선안: if문 5번 삼항연산자 4번 아울러 대각선 방지, but tmpX tmpY로 메모리 조금 더 씀 */
                 let tmpX = x
                 let tmpY = y;
-
                 if (user.keyPress[UP]    === true) {tmpY = y -   TILE_LENGTH < 0      ? y : y - TILE_LENGTH;}
                 if (user.keyPress[RIGHT] === true) {tmpX = x + 2*TILE_LENGTH > WIDTH  ? x : x + TILE_LENGTH;}
                 if (user.keyPress[DOWN]  === true) {tmpY = y + 2*TILE_LENGTH > HEIGHT ? y : y + TILE_LENGTH;}
                 if (user.keyPress[LEFT]  === true) {tmpX = x -   TILE_LENGTH < 0      ? x : x - TILE_LENGTH;}
-                
                 col = this.pixelToTile(tmpX);
                 row = this.pixelToTile(tmpY);
                 if (!this.checkBlockMap(BLOCKED_AREA, row, col)) {
@@ -105,6 +105,7 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
                     user.status.y = tmpY;
                 }
                 
+                /* * 기존: if문 8번 삼항연산자 4번 */
                 // if (user.keyPress[UP] === true) {
                 //     col = this.pixelToTile(x);
                 //     row = this.pixelToTile(y - TILE_LENGTH);
