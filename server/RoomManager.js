@@ -8,6 +8,7 @@ const mediasoup = require('mediasoup');
 //----------------------add----------------------
 const os = require('os');
 const Logger = require('./Logger');
+const logger = new Logger();
 
 let nextMediasoupWorkerIdx = 0;
 //----------------------add----------------------
