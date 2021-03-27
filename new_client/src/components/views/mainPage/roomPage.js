@@ -2,19 +2,16 @@ import React, { Component } from 'react';
 import {io} from 'socket.io-client';
 // import './roomPage.css'
 
-import socketPromise from './socket.io-promise';
 import * as mediasoup from "mediasoup-client";
+import {
+    types,
+    version,
+    detectDevice,
+    Device,
+    parseScalabilityMode
+} from "mediasoup-client"
 
-const backUrl = 'https://localhost:5000'
-const socket = io(`${backUrl}`, {transport: ['websocket']}) //! 얘는 뭔가요
-
-console.log(socket);
-// const socket = io.connect(`${backUrl}`, {
-//     transports: ['websocket'],
-// });
-
-socket.request = socketPromise.promise(socket);
-
+let socket;
 
 const configuration = {
     "iceServers": [{
@@ -76,42 +73,14 @@ class Room extends Component {
         users: {},
         contextCharacter: document.getElementById("character-layer").getContext("2d"),
     }
-
     componentDidMount = async () => {
-        socket.on('sendUsers', (users) => {
-            console.log(users);
-            for (let socketId in users){
-                this.state.users[socketId] = users[socketId];
-                this.addPeer(socketId);
-            }
-            let socketId = socket.id
-            this.state.users[socketId] = {userName: this.props.userName, characterNum: this.props.characterNum};
-            console.log(this.state.users);
-        });
+        socket = this.props.socket;
 
-        socket.emit('getUsers', this.props.roomName, this.props.userName, this.props.characterNum);
+        /* Room 에서 사용할 socket on 정의 */
+        await this.initSocket();
 
-        socket.on('addUser', (socketId, userName, characterNum) => {
-            this.state.users[socketId] = {userName: userName, characterNum: characterNum};
-            this.addPeer(socketId);
-            console.log('addUser', this.state.users[socketId].userName);
-        });
-
-        socket.on('removeUser', (socketId) => {
-            console.log('removeUser', this.state.users[socketId].userName);
-            this.removePeer(socketId);
-            delete this.state.users[socketId]
-        });
-
-        /* 채팅 */
-
-        socket.on('chat', (name, message) => {
-            // console.log(name, message);
-            document.getElementById("message-box").appendChild(this.makeMessageOther(name, message));
-            this.scrollBottom("message-box");
-        });
-    
-        // console.log(document.getElementById("chat-message"));
+        /* 연결 준비가 되었음을 알림 */
+        socket.emit('ready', this.props.roomName, this.props.userName, this.props.characterNum);
         
         document.getElementById("chat-message").addEventListener("keyup", (e) => {
             // console.log(e.code);
@@ -119,23 +88,6 @@ class Room extends Component {
                 this.sendChat();
             }
         });
-
-        socket.on('signal', data => {
-            peers[data.socket_id].signal(data.signal)
-        })
-
-        socket.on('music_on', () => {
-        // console.log('music_on!');
-            audio.play();
-        })
-
-        socket.on('music_off', () => {
-            // console.log('music_off!');
-            audio.pause();
-        })
-
-        // const body = document.querySelector('body');
-
         window.addEventListener('keydown' ,(e)=> {
             let st = localStorage.getItem('myStatus');
             let parsed_status = JSON.parse(st);
@@ -154,6 +106,54 @@ class Room extends Component {
         })
         window.addEventListener("keyup", function (e) {
             socket.emit("keyup", e.code);
+        });
+        this.setState({
+            roomName: this.props.roomName,
+            userName: this.props.userName,
+            characterNum: this.props.characterNum,
+            map: this.props.map,
+            characterList: this.props.characterList
+        });        
+    }
+
+    initSocket = async () => {
+        /* room에 자신의 socket이 추가된 후 해당 room의 기존 user 정보를 수신 */
+        socket.on('sendUsers', async (users) => {
+            await navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+                const localVideo = document.getElementById("localVideo")
+                localVideo.srcObject = stream;
+                localStream = stream;
+            }).catch(e => alert(`getusermedia error ${e.name}`));
+    
+            await this.clientLoadDevice();
+            await this.createProducer();
+            console.log(users);
+            for (let socketId in users){
+                this.state.users[socketId] = users[socketId];
+                this.addPeer(socketId);
+            }
+            let socketId = socket.id
+            this.state.users[socketId] = {userName: this.props.userName, characterNum: this.props.characterNum};
+            console.log(this.state.users);
+
+            /* 시작 알림 */
+            socket.emit('start', this.props.roomName, this.props.userName, this.props.characterNum);
+        });
+
+        socket.on('music_on', () => {
+        // console.log('music_on!');
+            audio.play();
+        })
+
+        socket.on('music_off', () => {
+            // console.log('music_off!');
+            audio.pause();
+        });
+
+        socket.on('chat', (name, message) => {
+            // console.log(name, message);
+            document.getElementById("message-box").appendChild(this.makeMessageOther(name, message));
+            this.scrollBottom("message-box");
         });
 
         socket.on("update", (statuses, idArray) => {
@@ -190,22 +190,17 @@ class Room extends Component {
             });
         });
 
-        this.setState({
-            roomName: this.props.roomName,
-            userName: this.props.userName,
-            characterNum: this.props.characterNum,
-            map: this.props.map,
-            characterList: this.props.characterList
-        })
+        socket.on('addUser', (socketId, userName, characterNum) => {
+            this.state.users[socketId] = {userName: userName, characterNum: characterNum};
+            this.addPeer(socketId);
+            console.log('addUser', this.state.users[socketId].userName);
+        });
 
-        await navigator.mediaDevices.getUserMedia(constraints).then(stream => {
-            const localVideo = document.getElementById("localVideo")
-            localVideo.srcObject = stream;
-            localStream = stream;
-        }).catch(e => alert(`getusermedia error ${e.name}`))
-
-        await this.clientLoadDevice();
-        await this.createProducer();
+        socket.on('removeUser', (socketId) => {
+            console.log('removeUser', this.state.users[socketId].userName);
+            this.removePeer(socketId);
+            delete this.state.users[socketId]
+        });
     }
 
     /* ---------------- 중요 ------------------- */

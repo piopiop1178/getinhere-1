@@ -51,7 +51,7 @@ class RoomManager {   // Room 함수 실행
     }
 
     /* 전달받은 socket으로 User를 생성하여 roomName에 해당하는 Room에 User를 추가 */
-    static addSocketToRoom(socket, room, username, characterNum){
+    static async addSocketToRoom(socket, room, username, characterNum){
         const user = new User(socket, username, characterNum);
         /* Room에 User 추가 */
         room.addUser(user);

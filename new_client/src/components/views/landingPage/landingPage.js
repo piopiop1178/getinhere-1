@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import axios from 'axios';
-import './LandingPage.css'
+import './landingPage.css'
 import video from './video/landingPage_withoutFace.mov'
 
 class LandingPage extends Component {

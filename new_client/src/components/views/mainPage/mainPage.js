@@ -3,6 +3,12 @@ import PresetPage from './presetPage';
 import RoomPage from './roomPage';
 import axios from 'axios';
 
+import {io} from 'socket.io-client';
+import socketPromise from './socket.io-promise';
+const backUrl = 'https://localhost:5000'
+const socket = io(`${backUrl}`, {transport: ['websocket']}) //! 얘는 뭔가요
+socket.request = socketPromise.promise(socket);
+
 class Mainpage extends Component {
     state = {
         roomName: "",
@@ -15,7 +21,8 @@ class Mainpage extends Component {
     }
 
     componentDidMount = async () => {
-        await this.setState({roomName: this.props.match.params.roomName});
+        this.setState({roomName: this.props.match.params.roomName});
+        socket.emit("initSocket", this.props.match.params.roomName);
         axios.get('/api/map', {
             params: { 
                 roomName : this.props.match.params.roomName,
@@ -147,6 +154,7 @@ class Mainpage extends Component {
                             map={this.state.map}
                             characterList={this.state.characterList}
                             musicList={this.state.musicList}
+                            socket={socket}
                             />
         }
 
