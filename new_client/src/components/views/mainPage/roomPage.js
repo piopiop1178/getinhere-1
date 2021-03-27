@@ -1,14 +1,17 @@
 import React, { Component } from 'react';
-import io from 'socket.io-client';
+import {io} from 'socket.io-client';
 // import './roomPage.css'
 
 import socketPromise from './socket.io-promise';
 import * as mediasoup from "mediasoup-client";
 
-const backUrl = 'https://localhost:4433'
-const socket = io.connect(`${backUrl}`, {
-    transports: ['websocket'],
-});
+const backUrl = 'https://localhost:5000'
+const socket = io(`${backUrl}`, {transport: ['websocket']}) //! 얘는 뭔가요
+
+console.log(socket);
+// const socket = io.connect(`${backUrl}`, {
+//     transports: ['websocket'],
+// });
 
 socket.request = socketPromise.promise(socket);
 
@@ -75,24 +78,8 @@ class Room extends Component {
     }
 
     componentDidMount = async () => {
-        this.setState({
-            roomName: this.props.roomName,
-            userName: this.props.userName,
-            characterNum: this.props.characterNum,
-            map: this.props.map,
-            characterList: this.props.characterList
-        })
-
-        await navigator.mediaDevices.getUserMedia(constraints).then(stream => {
-            const localVideo = document.getElementById("localVideo")
-            localVideo.srcObject = stream;
-            localStream = stream;
-        }).catch(e => alert(`getusermedia error ${e.name}`))
-
-        await this.clientLoadDevice();
-        await this.createProducer();
-
         socket.on('sendUsers', (users) => {
+            console.log(users);
             for (let socketId in users){
                 this.state.users[socketId] = users[socketId];
                 this.addPeer(socketId);
@@ -202,6 +189,23 @@ class Room extends Component {
                 );
             });
         });
+
+        this.setState({
+            roomName: this.props.roomName,
+            userName: this.props.userName,
+            characterNum: this.props.characterNum,
+            map: this.props.map,
+            characterList: this.props.characterList
+        })
+
+        await navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+            const localVideo = document.getElementById("localVideo")
+            localVideo.srcObject = stream;
+            localStream = stream;
+        }).catch(e => alert(`getusermedia error ${e.name}`))
+
+        await this.clientLoadDevice();
+        await this.createProducer();
     }
 
     /* ---------------- 중요 ------------------- */

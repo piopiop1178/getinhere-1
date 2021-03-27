@@ -36,14 +36,6 @@ require('./routes')(app)
 /* https 서버 생성 */
 const httpsServer = https.createServer(options, app).listen(process.env.NODE_PORT);
 
-/* http 서버 생성에 사용할 app2에 미들웨어 함수를 설정하여 https로 리다이렉트 */
-// app2.use(function(req, res, next){
-//     res.redirect("https://" + req.headers['host'] + req.url)
-// });
-
-/* 80 포트로 listen 하는 http 서버 생성 */
-// const httpServer = http.createServer(app2).listen(80);
-
 /* https 서버로 오는 요청을 처리할 socket 생성 */
 const io = require('socket.io')(httpsServer , {
     cors: {
@@ -58,4 +50,4 @@ const io = require('socket.io')(httpsServer , {
 });
 
 /* https 서버로 오는 요청에 대해 소켓이 처리할 내용을 설정 */
-require('./socketController')(io)
+require('./socketController')(io);

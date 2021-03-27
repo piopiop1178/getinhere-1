@@ -12,11 +12,12 @@ module.exports = (io) => {
     /* connect 요청 시 */
     RoomManager.init(io);
     io.on('connect', (socket) => {
+        console.log(socket.id);
         socket.on('getUsers', (roomName, userName, characterNum) => {
+            console.log('getUser!!!!!!');
+            console.log(roomName, userName, characterNum);
             const room = RoomManager.getRoomByRoomName(roomName);
             socket.emit('sendUsers', room.getUserDatasForDraw());
-            // console.log(roomName);
-            // console.log(io);
             io.to(roomName).emit('addUser', socket.id, userName, characterNum);
             initSocket(socket, room, userName, characterNum);
             initWebRTC(socket, room);

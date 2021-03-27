@@ -2,7 +2,6 @@
   "name": "new_client",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://localhost:4433",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",
     "@testing-library/jest-dom": "^5.11.9",
