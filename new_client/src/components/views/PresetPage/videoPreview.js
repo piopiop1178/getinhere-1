@@ -34,7 +34,7 @@ class VideoPreview extends Component {
     render() {
         return (
             // <video className="video-preview" id="video" autoPlay ></video>
-            <video ref={this.videoPrev} className="video-preview" id="video" autoPlay ></video>
+            <video ref={this.videoPrev} className="video-preview" id="video" autoPlay  muted></video>
         );
     
     }

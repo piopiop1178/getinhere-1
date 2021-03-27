@@ -318,7 +318,7 @@ class RoomPage extends Component {
             let MAP_SETTINGS2 = null;
             const LEFT = 'ArrowLeft', UP = 'ArrowUp', RIGHT = 'ArrowRight', DOWN = 'ArrowDown';
         
-            audioctx = new AudioContext()
+            // audioctx = new AudioContext()
         
             // Initialize distance
             let dist;
