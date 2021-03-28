@@ -4,7 +4,7 @@
   "description": "making_my_own_weapon",
   "main": "index.js",
   "scripts": {
-    "start": "sudo node server/index.js",
+    "start": "sudo $(which node) server/index.js",
     "wstart": "nodemon server/index.js",
     "tt": "node server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"

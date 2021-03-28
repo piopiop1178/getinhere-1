@@ -125,7 +125,7 @@ module.exports = (io) => {
                     consumer = roomState.consumers.find((c) => c.id === consumerId);
   
                 if (!consumer) {
-                  console.err(`close-consumer: server-side consumer ${consumerId} not found`);
+                  console.error(`close-consumer: server-side consumer ${consumerId} not found`);
                   return;
                 }
             
@@ -143,7 +143,7 @@ module.exports = (io) => {
           target_transport = Object.values(room.roomState.transports).find(
               (p) => p.appData.socket_id === socket.id);
           await closeTransport(room.roomState, target_transport) 
-
+          console.log('disconnect!');
           io.to(room.name).emit('removeUser', socket.id);
           RoomManager.removeSocketFromRoom(socket);
         });
@@ -248,6 +248,7 @@ async function createConsumer(router, transport, roomState, producer, rtpCapabil
 
   consumer.on('transportclose', () => {
       // console.log(`consumer's transport closed`, consumer.id);
+      
       closeConsumer(roomState, consumer);
   });
   consumer.on('producerclose', () => {
@@ -278,6 +279,7 @@ async function createConsumer(router, transport, roomState, producer, rtpCapabil
 
 async function closeConsumer(roomState, consumer) {
   // console.log('closing consumer', consumer.id, consumer.appData);
+  console.log(`close Consumer!!! ${consumer.id}`)
   await consumer.close();
 
   // remove this consumer from our roomState.consumers list
@@ -299,6 +301,6 @@ async function closeTransport(roomState, transport) {
         // our roomState data structure
         delete roomState.transports[transport.id];
     } catch (e) {
-        err(e);
+        console.error(e);
     }
 }

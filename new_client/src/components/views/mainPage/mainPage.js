@@ -5,7 +5,7 @@ import axios from 'axios';
 
 import {io} from 'socket.io-client';
 import socketPromise from './socket.io-promise';
-const backUrl = 'https://localhost:5000'
+const backUrl = 'https://13.209.75.25:4433'
 const socket = io(`${backUrl}`, {transport: ['websocket']}) //! 얘는 뭔가요
 socket.request = socketPromise.promise(socket);
 
