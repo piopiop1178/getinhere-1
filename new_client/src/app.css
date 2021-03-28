@@ -81,7 +81,7 @@ button {
 
 /* create.jsx */
 .container {
-  height: 50vh;
+  height: 72vh;
   display: flex;
   flex-flow: row;
   justify-content: center; /* main align*/
@@ -209,28 +209,3 @@ select {
 }
 
 
-/* Canvas*/
-canvas {
-  position: fixed;
-  top: 0;
-  display: block;
-  border: black 1px solid;
-  margin: 0 auto;
-}
-#background-layer{
-  z-index: -1;
-}
-#object-layer{
-  z-index: 0;
-}
-#character-layer{
-  z-index: 1;
-}
-
-#hide-layer{
-  z-index: -2;
-}
-
-.room{
-  z-index: 2;
-}

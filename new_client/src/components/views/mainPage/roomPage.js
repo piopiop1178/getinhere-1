@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {io} from 'socket.io-client';
-// import './roomPage.css'
+
 
 import * as mediasoup from "mediasoup-client";
 import {
@@ -10,6 +10,20 @@ import {
     Device,
     parseScalabilityMode
 } from "mediasoup-client"
+
+import beerSource from './sounds/beer.mp3'
+import cocktailSource from './sounds/cocktail.mp3'
+import wineSource from './sounds/wine.mp3'
+import glassBreakSource from './sounds/glassbreak.mp3'
+
+const beer = new Audio();
+const cocktail = new Audio();
+const wine = new Audio();
+const glassbreak = new Audio();
+beer.src = beerSource
+cocktail.src = cocktailSource
+wine.src = wineSource
+glassbreak.src = glassBreakSource
 
 let socket;
 
@@ -45,7 +59,7 @@ let constraints = {
 let localStream = null;
 let peers = {}
 let audioctx
-audioctx = new AudioContext()
+// audioctx = new AudioContext()
 let gains = {}
 
 
@@ -62,6 +76,10 @@ const LEFT = 'ArrowLeft', UP = 'ArrowUp', RIGHT = 'ArrowRight', DOWN = 'ArrowDow
 
 // Initialize distance
 let dist;
+
+let alcholSoundOnceFlag;
+let keyDownUpOnceFlag;
+let keyUpBuffer = {};
 
 class Room extends Component {
     state = {
@@ -97,15 +115,33 @@ class Room extends Component {
             if (curr_x <= 60 && 1200 - curr_y <= 120 && e.code === "KeyX"){
                 socket.emit('music');
             }
+
+            /* 캐릭터 술 캔버스 설정 */
+            if (e.code === "KeyB") {
+                alcholSoundOnceFlag = true
+                socket.emit('alchol-icon', 'beer');
+            }
+            if (e.code === "KeyC") {
+                alcholSoundOnceFlag = true
+                socket.emit('alchol-icon', 'cocktail');
+            }
+            if (e.code === "KeyW") {
+                alcholSoundOnceFlag = true
+                socket.emit('alchol-icon', 'wine');
+            }
     
             socket.emit('keydown', e.code);
-            if(e.code == RIGHT) e.preventDefault();
-            if(e.code == LEFT)  e.preventDefault();
-            if(e.code == DOWN)  e.preventDefault();
-            if(e.code == UP)    e.preventDefault();
+            if(e.code == UP)    {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+            if(e.code == RIGHT) {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+            if(e.code == DOWN)  {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+            if(e.code == LEFT)  {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
         })
         window.addEventListener("keyup", function (e) {
-            socket.emit("keyup", e.code);
+            if (keyDownUpOnceFlag) {
+                keyUpBuffer[e.code] = true;
+              } else {
+                socket.emit("keyup", e.code);
+              }
         });
         this.setState({
             roomName: this.props.roomName,
@@ -142,12 +178,12 @@ class Room extends Component {
 
         socket.on('music_on', () => {
         // console.log('music_on!');
-            audio.play();
+            // audio.play();
         })
 
         socket.on('music_off', () => {
             // console.log('music_off!');
-            audio.pause();
+            // audio.pause();
         });
 
         socket.on('chat', (name, message) => {
@@ -157,15 +193,19 @@ class Room extends Component {
         });
 
         socket.on("update", (statuses, idArray) => {
-            // console.log("update");
-            // console.log(statuses)
-            // console.log(idArray)
-            this.updateWindowCenter(statuses[socket.id].status);
+            keyDownUpOnceFlag = false;
+            if (keyUpBuffer[UP]) { socket.emit("keyup", UP); keyUpBuffer[UP] = false;} 
+            if (keyUpBuffer[RIGHT]) { socket.emit("keyup", RIGHT); keyUpBuffer[RIGHT] = false;} 
+            if (keyUpBuffer[DOWN]) { socket.emit("keyup", DOWN); keyUpBuffer[DOWN] = false;} 
+            if (keyUpBuffer[LEFT]) { socket.emit("keyup", LEFT); keyUpBuffer[LEFT] = false;} 
+
             const WIDTH = this.state.map._WIDTH;
             const HEIGHT = this.state.map._HEIGHT;
             // console.log(WIDTH, HEIGHT);
-            const contextCharacter = this.state.contextCharacter
-            contextCharacter.clearRect(0, 0, WIDTH, HEIGHT);
+            const contextCharacter = this.state.contextCharacter;
+            let myStatus = statuses[socket.id].status;
+            this.updateWindowCenter(myStatus);
+            contextCharacter.clearRect(myStatus.x - window.innerWidth, myStatus.y - window.innerHeight, WIDTH, HEIGHT); //TODO 내가 보는곳만 하기
             contextCharacter.beginPath();
             idArray.forEach((id) => {
                 // Audio volume change
@@ -175,6 +215,11 @@ class Room extends Component {
                     gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
                 }
 
+                // 다른 캐릭터가 내 화면 밖으로 나가면 그려주지않고 넘어간다
+                if (Math.abs(myStatus.x - statuses[id].status.x) > window.innerWidth && Math.abs(myStatus.y - statuses[id].status.y) > window.innerHeight) {
+                    return;
+                }
+
                 // 캐릭터 삽입 코드
                 contextCharacter.drawImage(this.props.characterList[statuses[id].characterNum], 
                     statuses[id].status.x,
@@ -182,7 +227,35 @@ class Room extends Component {
                     statuses[id].status.width,
                     statuses[id].status.height
                     );
-                contextCharacter.font = '20px bold';
+                // 술 이모티콘 삽입 코드
+                if (statuses[id].status.alchol) {
+                    let alchol;
+
+                    if (statuses[id].status.alchol == 'beer') {
+                      if (alcholSoundOnceFlag) {
+                        beer.play()
+                        alcholSoundOnceFlag = false
+                      }
+                      alchol = "🍺"
+                    } else if (statuses[id].status.alchol == 'cocktail') {
+                      if (alcholSoundOnceFlag) {
+                        cocktail.play()
+                        alcholSoundOnceFlag = false
+                      }
+                      alchol = "🍸"
+                    } else if (statuses[id].status.alchol == 'wine') {
+                      if (alcholSoundOnceFlag) {
+                        wine.play()
+                        alcholSoundOnceFlag = false
+                      }
+                      alchol = "🍷"
+                    }
+                    contextCharacter.fillText(alchol,
+                        statuses[id].status.x + 5,
+                        statuses[id].status.y,
+                        );
+                  }
+                contextCharacter.font = '48px serif';
                 contextCharacter.fillText(statuses[id].userName,
                     statuses[id].status.x,
                     statuses[id].status.y,

@@ -22,6 +22,7 @@ module.exports = (io) => {
           initKeyEvent(socket, room);
           initMusic(socket, room);
           initChat(socket, room);
+          initAlcholIcon(socket, room);
         });
 
         socket.on('ready', async (roomName, userName, characterNum) => {
@@ -191,6 +192,13 @@ module.exports = (io) => {
             socket.broadcast.to(room.name).emit('chat', name, message);
         });
         console.log("initChat End");
+    }
+
+        /* 캐릭터 술 캔버스 설정 */
+    function initAlcholIcon(socket, room) {
+        socket.on('alchol-icon', (data) => {
+            room.users[socket.id].status.alchol = !room.users[socket.id].status.alchol ? data : false
+        })
     }
 }
 

@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import PresetPage from './presetPage';
 import RoomPage from './roomPage';
 import axios from 'axios';
+import './mainPage.css'
 
 import {io} from 'socket.io-client';
 import socketPromise from './socket.io-promise';
-const backUrl = 'https://13.209.75.25:4433'
+const backUrl = 'https://localhost:5000'
 const socket = io(`${backUrl}`, {transport: ['websocket']}) //! 얘는 뭔가요
 socket.request = socketPromise.promise(socket);
 
