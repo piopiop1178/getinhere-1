@@ -10,86 +10,55 @@ const config = require('../config');
 /* 서버로 오는 요청을 담당할 io 정의 */
 module.exports = (io) => {
     /* connect 요청 시 */
-    /* 테스트 용으로 임시 방 생성 */
     RoomManager.init(io);
     io.on('connect', (socket) => {
-        console.log('````````````````````````````````````` 소켓 커넥트 `````````````````````````````````')
-        socket.on('start', (urlRoomName) => {
-            /* socket에서 room의 값을 가져온다 */
-            // const roomName = socket.handshake.query.room;
-            const roomName = urlRoomName;
-            // console.log(roomName);
-            const room = RoomManager.getRoomByRoomName(roomName);
-            initSocket(socket, room);
-            
-            //------------mediasoup------------------
-            socket.on('initDone', ()=> {
-                socket.emit('connected', room.map, room.name);
-            })
-            /* Room 추가 후 Room 정보를 전달한다 */
-            // socket.emit('connected', room.map, room.name);
-            // socket.to(room.name).emit('initReceive', socket.id);
-            //------------mediasoup------------------
+        let room;
+        /* MainPage 접속 시 initSocket 수신 */
+        socket.on('initSocket', (roomName) => {
+          console.log('initSocket');
+          room = RoomManager.getRoomByRoomName(roomName);
+          /* 기능 별 socket on 설정 */
+          initWebRTC(socket, room);
+          initKeyEvent(socket, room);
+          initMusic(socket, room);
+          initChat(socket, room);
+          initAlcholIcon(socket, room);
+        });
 
-            initWebRTC(socket, room);
-            initKeyEvent(socket, room);
-            initMusic(socket, room);
-            initChat(socket, room);
-            
-            initAlcholIcon(socket, room);
-        })
-
-    });
-
-    /* 캐릭터 술 캔버스 설정 */
-    function initAlcholIcon(socket, room) {
-        socket.on('alchol-icon', (data) => {
-            room.users[socket.id].status.alchol = !room.users[socket.id].status.alchol ? data : false
-        })
-    }
-
-    function initSocket(socket, room){
-        /* 방 이름이 없으면 */
-        if (room === undefined){
-            /* ERROR */
+        socket.on('ready', async (roomName, userName, characterNum) => {
+          console.log('ready');
+          if (room === undefined){
             console.log("ERROR : io.on('connect'), roomName === undefined");
-        }
-        /* 방 이름이 있으면 */
-        else{
-            /* Room에 socket 추가 */
-            RoomManager.addSocketToRoom(socket, room);
-        }
-        return room;
-    }
+            return;
+          }
+          socket.emit('sendUsers', room.getUserDatasForDraw()); 
+          await RoomManager.addSocketToRoom(socket, room, userName, characterNum);
+        });
+
+        /* 신규 user가 준비가 끝나고 시작하면 기존 user들에게 신규 user 추가 알림 */
+        socket.on('start', (roomName, userName, characterNum) => {
+          const users = room.users; 
+          for(let socketId in users){
+            if(socketId !== socket.id){
+              users[socketId].socket.emit('addUser', socket.id, userName, characterNum);
+            } 
+            // console.log(socketId);
+            // let user = this.users[socketId];
+            // userDatas[socketId] = {userName: user.userName, characterNum: user.characterNum}
+          }
+          // socket.broadcast.to('roomName').emit('addUser', socket.id, userName, characterNum);
+          // io.to(roomName).emit('addUser', socket.id, userName, characterNum);
+        });
+    });
     
     function initWebRTC(socket, room){
-        /* 기존 Peer 들이 신규 Peer 추가했다는 응답을 받고
-         * 신규 Peer에게 기존 Peer를 연결하라고 initSend 송신 */
-        socket.on('initSend', init_socket_id => {
-            room.users[init_socket_id].socket.emit('initSend', socket.id);
-        });
-        
-        socket.on('disconnect', async() => {
-            let target_transport = Object.values(room.roomState.transports).find(
-                (p) => p.appData.socket_id === socket.id);
-            await closeTransport(room.roomState, target_transport)
-            target_transport = Object.values(room.roomState.transports).find(
-                (p) => p.appData.socket_id === socket.id);
-            await closeTransport(room.roomState, target_transport) 
-        /* 소켓 연결 종료 */
-        // socket.on('disconnect', () => {      
-            
-            
-            io.to(room.name).emit('removePeer', socket.id);
-            RoomManager.removeSocketFromRoom(socket);
-        });
-
         socket.on('getRouterRtpCapabilities', (data, callback) => {
+            console.log('getRouterRtpCapabilities');
             let router = RoomManager.getRouterBySocket(socket);
-            console.log(`router: ${router}`)
+            // console.log(`router: ${router}`)
             callback(router);
         });
-        
+
         socket.on('createTransport', async (data, callback) => {
             let router = RoomManager.getRouterBySocket(socket);
             try {
@@ -101,7 +70,7 @@ module.exports = (io) => {
               callback({ error: err.message });
             }
           });
-        
+
         socket.on('connectTransport', async (data, callback) => {
             const transport = room.roomState.transports[data.transportId];
             await transport.connect({ dtlsParameters: data.dtlsParameters });
@@ -118,8 +87,8 @@ module.exports = (io) => {
             room.roomState.producers.push(producer);
 
             producer.on('transportclose', () => {
-                console.log('producer\'s transport closed', producer.id);
-                console.log('room state is', room.roomState)
+                // console.log('producer\'s transport closed', producer.id);
+                // console.log('room state is', room.roomState)
                 closeProducer(room.roomState, producer);
             });
 
@@ -151,24 +120,37 @@ module.exports = (io) => {
         });
 
         socket.on('closeConsumer', async (data, callback) => {
-          let roomState = room.roomState;
-          try {
-            let { consumerId } = data,
-                consumer = roomState.consumers.find((c) => c.id === consumerId);
-
-              if (!consumer) {
-                console.err(`close-consumer: server-side consumer ${consumerId} not found`);
-                return;
-              }
-          
-              await closeConsumer(roomState, consumer);
-              callback()
+            let roomState = room.roomState;
+            try {
+                let { consumerId } = data,
+                    consumer = roomState.consumers.find((c) => c.id === consumerId);
+  
+                if (!consumer) {
+                  console.error(`close-consumer: server-side consumer ${consumerId} not found`);
+                  return;
+                }
+            
+                await closeConsumer(roomState, consumer);
+                callback()
             } catch (e) {
-              console.error('error in /signaling/close-consumer', e);
+                console.error('error in /signaling/close-consumer', e);
             }
         });
+
+        socket.on('disconnect', async () => {          
+          let target_transport = Object.values(room.roomState.transports).find(
+              (p) => p.appData.socket_id === socket.id);
+          await closeTransport(room.roomState, target_transport)
+          target_transport = Object.values(room.roomState.transports).find(
+              (p) => p.appData.socket_id === socket.id);
+          await closeTransport(room.roomState, target_transport) 
+          console.log('disconnect!');
+          io.to(room.name).emit('removeUser', socket.id);
+          RoomManager.removeSocketFromRoom(socket);
+        });
+        console.log("initWebRTC End");
     }
-    
+
     function initKeyEvent(socket, room){
         /* 키가 눌리는 이벤트 발생 시 */
         socket.on('keydown', function(keyCode) {
@@ -185,6 +167,7 @@ module.exports = (io) => {
                 room.users[socket.id].keyPress[keyCode] = false;
             }
         });
+        console.log("initKeyEvent End");
     }
     
     function initMusic(socket, room){
@@ -200,6 +183,7 @@ module.exports = (io) => {
                 io.to(room.name).emit('music_off');
             }
         })
+        console.log("initMusic End");
     }
 
     function initChat(socket, room) {
@@ -207,94 +191,103 @@ module.exports = (io) => {
             // console.log(name, message);
             socket.broadcast.to(room.name).emit('chat', name, message);
         });
+        console.log("initChat End");
+    }
 
+        /* 캐릭터 술 캔버스 설정 */
+    function initAlcholIcon(socket, room) {
+        socket.on('alchol-icon', (data) => {
+            room.users[socket.id].status.alchol = !room.users[socket.id].status.alchol ? data : false
+        })
     }
 }
 
+/* 추가된 코드 */
+
 async function createWebRtcTransport(router, socket) {
-    const {
-      maxIncomingBitrate,
-      initialAvailableOutgoingBitrate
-    } = config.mediasoup.webRtcTransport;
-  
-    const transport = await router.createWebRtcTransport({
-      listenIps: config.mediasoup.webRtcTransport.listenIps,
-      enableUdp: true,
-      enableTcp: true,
-      preferUdp: true,
-      appData: {socket_id: socket.id},
-      initialAvailableOutgoingBitrate,
-    });
-    if (maxIncomingBitrate) {
-      try {
-        await transport.setMaxIncomingBitrate(maxIncomingBitrate);
-      } catch (error) {
-      }
-    }
-    return {
-      transport,
-      params: {
-        id: transport.id,
-        iceParameters: transport.iceParameters,
-        iceCandidates: transport.iceCandidates,
-        dtlsParameters: transport.dtlsParameters
-      },
-    };
-  }
+  const {
+    maxIncomingBitrate,
+    initialAvailableOutgoingBitrate
+  } = config.mediasoup.webRtcTransport;
 
-  async function createConsumer(router, transport, roomState, producer, rtpCapabilities) {
-    let consumer;
-
-    if (!router.canConsume(
-      {
-        producerId: producer.id,
-        rtpCapabilities,
-      })
-    ) {
-      console.error('can not consume');
-      return;
-    }
+  const transport = await router.createWebRtcTransport({
+    listenIps: config.mediasoup.webRtcTransport.listenIps,
+    enableUdp: true,
+    enableTcp: true,
+    preferUdp: true,
+    appData: { socket_id: socket.id },
+    initialAvailableOutgoingBitrate,
+  });
+  if (maxIncomingBitrate) {
     try {
-        consumer = await transport.consume({
-        producerId: producer.id,
-        rtpCapabilities,
-        paused: true,
-      });
-
-    consumer.on('transportclose', () => {
-        console.log(`consumer's transport closed`, consumer.id);
-        closeConsumer(roomState, consumer);
-    });
-    consumer.on('producerclose', () => {
-        console.log(`consumer's producer closed`, consumer.id);
-        closeConsumer(roomState, consumer);
-    });
-
-      roomState.consumers.push(consumer);
+      await transport.setMaxIncomingBitrate(maxIncomingBitrate);
     } catch (error) {
-      console.error('consume failed', error);
-      return;
     }
-    console.log(consumer);
-    if (consumer.type === 'simulcast') {
-      console.log('simulcast!!')
-      await consumer.setPreferredLayers({ spatialLayer: 2, temporalLayer: 2 });
-    }
-    // console.log('consumer', consumer);
-    return {
-      producerId: producer.id,
-      id: consumer.id,
-      kind: consumer.kind,
-      rtpParameters: consumer.rtpParameters,
-      type: consumer.type,
-      producerPaused: consumer.producerPaused
-    };
   }
-  
+  return {
+    transport,
+    params: {
+      id: transport.id,
+      iceParameters: transport.iceParameters,
+      iceCandidates: transport.iceCandidates,
+      dtlsParameters: transport.dtlsParameters
+    },
+  };
+}
 
+async function createConsumer(router, transport, roomState, producer, rtpCapabilities) {
+  let consumer;
+
+  if (!router.canConsume(
+    {
+      producerId: producer.id,
+      rtpCapabilities,
+    })
+  ) {
+    console.error('can not consume');
+    return;
+  }
+  try {
+      consumer = await transport.consume({
+      producerId: producer.id,
+      rtpCapabilities,
+      paused: true,
+    });
+
+  consumer.on('transportclose', () => {
+      // console.log(`consumer's transport closed`, consumer.id);
+      
+      closeConsumer(roomState, consumer);
+  });
+  consumer.on('producerclose', () => {
+      // console.log(`consumer's producer closed`, consumer.id);
+      closeConsumer(roomState, consumer);
+  });
+
+    roomState.consumers.push(consumer);
+  } catch (error) {
+    console.error('consume failed', error);
+    return;
+  }
+  // console.log(consumer);
+  if (consumer.type === 'simulcast') {
+    // console.log('simulcast!!')
+    await consumer.setPreferredLayers({ spatialLayer: 2, temporalLayer: 2 });
+  }
+  // console.log('consumer', consumer);
+  return {
+    producerId: producer.id,
+    id: consumer.id,
+    kind: consumer.kind,
+    rtpParameters: consumer.rtpParameters,
+    type: consumer.type,
+    producerPaused: consumer.producerPaused
+  };
+}
 
 async function closeConsumer(roomState, consumer) {
   // console.log('closing consumer', consumer.id, consumer.appData);
+  console.log(`close Consumer!!! ${consumer.id}`)
   await consumer.close();
 
   // remove this consumer from our roomState.consumers list
@@ -316,6 +309,6 @@ async function closeTransport(roomState, transport) {
         // our roomState data structure
         delete roomState.transports[transport.id];
     } catch (e) {
-        err(e);
+        console.error(e);
     }
 }

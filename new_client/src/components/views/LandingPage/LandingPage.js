@@ -1,17 +1,13 @@
 import React, {Component} from 'react'
 import axios from 'axios';
-// import {Link} from 'react-router-dom';
-import './LandingPage.css'
+import './landingPage.css'
 import video from './video/landingPage_withoutFace.mov'
 
 class LandingPage extends Component {
 
-    state= {
+    state = {
         map_index : 0,
-        // maps : [map1, map2, map3],
         maps : [],
-        data : {roomName : null, map : null, success: null },
-        video :video
     }
 
     componentDidMount = () =>{
@@ -28,16 +24,13 @@ class LandingPage extends Component {
             })
         .then( response => {
             const { history } = this.props;
-            this.setState({data : response.data})
             history.push({
-                pathname: `/room/${this.state.data.roomName}`,
-                state: {data: response.data}
+                pathname: `/room/${response.data.roomName}`,
             });
         });
     };
 
     MapLeft = () =>{
-        // db에서?서버에서? map정보를 불러온다.
         this.setState( state => ({map_index: state.map_index -1}));
         if (this.state.map_index === 0) {
             this.setState( state => ({map_index: state.map_index + state.maps.length }));
@@ -52,13 +45,11 @@ class LandingPage extends Component {
     };
 
     render(){
-
-        
         return (
             <>
             <video className="landing-video" muted autoPlay loop>
-              <source src={video} type="video/mp4" />
-              <strong>Your browser does not support the video tag.</strong>
+                <source src={video} type="video/mp4" />
+                <strong>Your browser does not support the video tag.</strong>
             </video>
             <img className="map-image" alt="maps" src={this.state.maps[this.state.map_index]}></img>
             <div className="main-message">
@@ -73,10 +64,7 @@ class LandingPage extends Component {
                     <i className="far fa-hand-point-right"></i>
                 </button>
             </div>
-            <button className="start-button" onClick={this.mapIndexSend}>
-               Start ! 
-                {/* 이 버튼을 누르면, ①Map 정보를 넘겨주고, ② room을 생성해놓고 room 정보까지 넘겨줘야 한다. */}
-            </button>
+            <button className="start-button" onClick={this.mapIndexSend}>Start !</button>
             </>
         )
     }
