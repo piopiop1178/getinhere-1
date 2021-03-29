@@ -1,10 +1,28 @@
 'use strict';
 
 class User{
-    constructor(socket){
+    constructor(socket, userName, characterNum){
         this.socket = socket;
         this.keyPress = {};
         this.status = {};
+        this.userName = userName;
+        this.characterNum = characterNum;
+    }
+
+    get username() {
+        return this._username;
+    }
+
+    set username(value) {
+        this._username = value;
+    }
+
+    get characterNum() {
+        return this._characterNum;
+    }
+
+    set characterNum(value) {
+        this._characterNum = value;
     }
 
     get socket() {

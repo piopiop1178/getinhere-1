@@ -18,6 +18,20 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
         }
     }
 
+    get router(){
+        return this._router;
+    }
+    set router(value){
+        this._router = value;
+    }
+    
+    get roomState(){
+        return this._roomState;
+    }
+    set roomState(value){
+        this._roomState = value;
+    }
+
     get name(){
         return this._name;
     }
@@ -72,6 +86,16 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
         return this.memberCount === 0;
     }
 
+    getUserDatasForDraw(){
+        const userDatas = {}
+        // console.log(this.users);
+        for(let socketId in this.users){
+            let user = this.users[socketId];
+            userDatas[socketId] = {userName: user.userName, characterNum: user.characterNum}
+        }
+        return userDatas;
+    }
+
     /* 이동 관련 메소드 */
 
     start(io){
@@ -90,7 +114,7 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
                 let col, row;
                 const x = user.status.x;
                 const y = user.status.y;
-                
+
                 /* * 개선안: if문 5번 삼항연산자 4번 아울러 대각선 방지, but tmpX tmpY로 메모리 조금 더 씀 */
                 let tmpX = x
                 let tmpY = y;
@@ -134,7 +158,12 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
                 //       user.status.x = x - TILE_LENGTH < 0 ? x : x - TILE_LENGTH;
                 //   }
                 // }
-                let status_pair = {status : user.status, id : user.socket.id};
+                let status_pair = {
+                    status: user.status,
+                    id: user.socket.id,
+                    userName: user.userName,
+                    characterNum: user.characterNum,
+                };
                 idArray.push(user.socket.id);
                 statuses[user.socket.id] = status_pair;
             }

@@ -1,3 +1,4 @@
+require('dotenv').config();
 module.exports = {
     listenIp: '0.0.0.0',
     listenPort: 3000,
@@ -70,8 +71,10 @@ module.exports = {
       webRtcTransport: {
         listenIps: [
           {
-            ip: '172.31.32.71', //©ö?¨ö¨ù ip????? server??  // private
-            announcedIp: '3.34.91.94', //  public
+            // ip: '127.0.0.1', //ï¿½ï¿½?ï¿½ï¿½ï¿½ï¿½ ip????? server?? 
+            // announcedIp: '127.0.0.1',
+            ip: process.env.CONFIG_IP, 
+            announcedIp: process.env.CONFIG_ANNOUNCE_IP,
           }
         ],
         maxIncomingBitrate: 1500000,
