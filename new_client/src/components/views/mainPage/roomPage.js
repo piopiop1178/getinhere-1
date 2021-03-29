@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
-import {io} from 'socket.io-client';
+// import {io} from 'socket.io-client';
 // import dotenv from 'dotenv';
 // require('dotenv').config()
 
 import * as mediasoup from "mediasoup-client";
-import {
-    types,
-    version,
-    detectDevice,
-    Device,
-    parseScalabilityMode
-} from "mediasoup-client"
+// import {
+//     types,
+//     version,
+//     detectDevice,
+//     Device,
+//     parseScalabilityMode
+// } from "mediasoup-client"
 
 import beerSource from './sounds/beer.mp3'
 import cocktailSource from './sounds/cocktail.mp3'
@@ -27,20 +27,6 @@ wine.src = wineSource
 glassbreak.src = glassBreakSource
 
 let socket;
-
-const configuration = {
-    "iceServers": [{
-            "urls": "stun:stun.l.google.com:19302"
-        },
-        {
-            "urls": [
-            "turn:13.250.13.83:3478?transport=udp"
-            ],
-            "username": "YzYNCouZM1mhqhmseWk6",
-            "credential": "YzYNCouZM1mhqhmseWk6"
-        }
-    ]
-}
 
 let constraints = {
     audio: true,
@@ -59,9 +45,9 @@ let constraints = {
 
 let localStream = null;
 let peers = {}
-let audioctx
+// let audioctx
 // audioctx = new AudioContext()
-let gains = {}
+// let gains = {}
 
 
 let device, 
@@ -71,12 +57,12 @@ videoProducer,
 audioProducer, 
 consumers = []
 
-let audio = new Audio('../music/all_falls_down.mp3');
+// let audio = new Audio('../music/all_falls_down.mp3');
 
 const LEFT = 'ArrowLeft', UP = 'ArrowUp', RIGHT = 'ArrowRight', DOWN = 'ArrowDown';
 
 // Initialize distance
-let dist;
+// let dist;
 
 let alcholSoundOnceFlag;
 let keyDownUpOnceFlag;
@@ -103,7 +89,7 @@ class Room extends Component {
         
         document.getElementById("chat-message").addEventListener("keyup", (e) => {
             // console.log(e.code);
-            if(e.code == "Enter"){
+            if(e.code === "Enter"){
                 this.sendChat();
             }
         });
@@ -132,10 +118,10 @@ class Room extends Component {
             }
     
             socket.emit('keydown', e.code);
-            if(e.code == UP)    {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
-            if(e.code == RIGHT) {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
-            if(e.code == DOWN)  {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
-            if(e.code == LEFT)  {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+            if(e.code === UP)    {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+            if(e.code === RIGHT) {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+            if(e.code === DOWN)  {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+            if(e.code === LEFT)  {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
         })
         window.addEventListener("keyup", function (e) {
             if (keyDownUpOnceFlag) {
@@ -200,21 +186,22 @@ class Room extends Component {
             if (keyUpBuffer[DOWN]) { socket.emit("keyup", DOWN); keyUpBuffer[DOWN] = false;} 
             if (keyUpBuffer[LEFT]) { socket.emit("keyup", LEFT); keyUpBuffer[LEFT] = false;} 
 
-            const WIDTH = this.state.map._WIDTH;
-            const HEIGHT = this.state.map._HEIGHT;
+            // const WIDTH = this.state.map._WIDTH;
+            // const HEIGHT = this.state.map._HEIGHT;
             // console.log(WIDTH, HEIGHT);
             const contextCharacter = this.state.contextCharacter;
             let myStatus = statuses[socket.id].status;
+            this.storelocalStorage(myStatus);
             this.updateWindowCenter(myStatus);
             contextCharacter.clearRect(myStatus.x - window.innerWidth, myStatus.y - window.innerHeight, window.innerWidth*2, window.innerHeight*2); //TODO 내가 보는곳만 하기
             contextCharacter.beginPath();
             idArray.forEach((id) => {
                 // Audio volume change
-                if (id !== socket.id && gains[id] != undefined) {
-                    dist = this.calcDistance(statuses[id].status, statuses[socket.id].status)
-                    // console.log(dist)
-                    gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
-                }
+                // if (id !== socket.id && gains[id] != undefined) {
+                //     dist = this.calcDistance(statuses[id].status, statuses[socket.id].status)
+                //     // console.log(dist)
+                //     gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
+                // }
 
                 // 다른 캐릭터가 내 화면 밖으로 나가면 그려주지않고 넘어간다
                 if (Math.abs(myStatus.x - statuses[id].status.x) > window.innerWidth && Math.abs(myStatus.y - statuses[id].status.y) > window.innerHeight) {
@@ -232,19 +219,19 @@ class Room extends Component {
                 if (statuses[id].status.alchol) {
                     let alchol;
 
-                    if (statuses[id].status.alchol == 'beer') {
+                    if (statuses[id].status.alchol === 'beer') {
                       if (alcholSoundOnceFlag) {
                         beer.play()
                         alcholSoundOnceFlag = false
                       }
                       alchol = "🍺"
-                    } else if (statuses[id].status.alchol == 'cocktail') {
+                    } else if (statuses[id].status.alchol === 'cocktail') {
                       if (alcholSoundOnceFlag) {
                         cocktail.play()
                         alcholSoundOnceFlag = false
                       }
                       alchol = "🍸"
-                    } else if (statuses[id].status.alchol == 'wine') {
+                    } else if (statuses[id].status.alchol === 'wine') {
                       if (alcholSoundOnceFlag) {
                         wine.play()
                         alcholSoundOnceFlag = false
@@ -449,12 +436,13 @@ class Room extends Component {
         }
     }
 
-    // storelocalStorage = (myStatus) =>  {
-    //     localStorage.setItem('myStatus', JSON.stringify(myStatus));
-    //     let row = myStatus.y/TILE_LENGTH + 1;
-    //     let col = myStatus.x/TILE_LENGTH + 1;
-    //     localStorage.setItem('position', JSON.stringify({row, col}))
-    // }
+    storelocalStorage = (myStatus) =>  {
+        const TILE_LENGTH = this.state.map._TILE_LENGTH;
+        localStorage.setItem('myStatus', JSON.stringify(myStatus));
+        let row = myStatus.y/TILE_LENGTH + 1;
+        let col = myStatus.x/TILE_LENGTH + 1;
+        localStorage.setItem('position', JSON.stringify({row, col}))
+    }
     
     updateButtons = () => {
         for (let index in localStream.getVideoTracks()) {
