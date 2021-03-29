@@ -10,6 +10,9 @@ import {
 import LandingPage from './components/views/landingPage/landingPage';
 import MainPage from './components/views/mainPage/mainPage';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 function App() {
   return (
     <Router>
