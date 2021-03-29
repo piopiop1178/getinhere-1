@@ -415,7 +415,7 @@ class Room extends Component {
     }
 
     sendChat = () => {
-        const name = socket.id;
+        const name = this.state.userName;
         const chatMessage = document.getElementById("chat-message");
         const message = chatMessage.value;
         // console.log(message)
