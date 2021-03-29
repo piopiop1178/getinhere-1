@@ -32,6 +32,25 @@ class PresetPage extends Component {
     }
 
     finishPreset = () => {
+        if(this.state.userName == ""){
+            alert("이름을 입력해주세요");
+            return;
+        }
+        if(this.state.userName.length < 2){
+            alert("이름은 2자 이상 입니다");
+            return;
+        }
+        if(this.state.userName.length > 14){
+            alert("이름은 14자 이내 입니다");
+            return;
+        }
+        // const regex = /^[가-힣a-zA-z0-9]{2,15}$/;    // 특수문자 미포함
+        const regex = /^[가-힣a-zA-z0-9\{\}\[\]\/?.,;:|\)*~`!^\-_+@\#$%&\\\=\(\'\"]{2,15}$/;
+        if(!regex.test(this.state.userName)){
+            alert("이름은 한글, 영문, 숫자, 일부 특수문자( \{\}\[\]\/?.,;:|\)*~`!^\-_+@\#$%&\\\=\(\'\" )만 가능합니다");
+            return;
+        }
+
         this.props.finishPreset(this.state.userName, this.state.characterNum);
     }
 

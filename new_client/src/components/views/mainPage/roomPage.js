@@ -29,6 +29,7 @@ wine.src = wineSource
 glassbreak.src = glassBreakSource
 
 let socket;
+let reconnect_checker = false
 
 let constraints = {
     audio: true,
@@ -120,6 +121,11 @@ class Room extends Component {
             if (e.code === "KeyW") {
                 alcholSoundOnceFlag = true
                 socket.emit('alchol-icon', 'wine');
+            }
+
+            /* Test command for socket disconnect */
+            if(e.code === "KeyQ" && e.ctrlKey) {
+                socket.emit("testSocketDisconnect")
             }
     
             socket.emit('keydown', e.code);
@@ -285,10 +291,34 @@ class Room extends Component {
 
         socket.on('disconnect', async () => {
             console.log('got disconnected')
-            for (let socket_id in this.status.users){
+            for (let socket_id in this.state.users){
                 this.disconnectPeer(socket_id);
             }
+
+            peers = {}
+            device = null;
+            recvTransport = null
+            sendTransport = null
+            videoProducer = null
+            audioProducer = null
+            consumers = []
+            await socket.connect()
         })
+
+        socket.io.removeAllListeners("open")
+        socket.io.on("open", async () => {
+            console.log('"open" event of manager fired')
+            if (reconnect_checker) {
+                Object.keys(socket._callbacks).forEach(function(eventname) {
+                    socket.removeAllListeners(eventname.slice(1))
+                })
+                // socket.removeAllListeners()
+                socket.emit("initSocket", this.props.roomName);
+                await this.initSocket()
+                socket.emit('ready', this.props.roomName, this.props.userName, this.props.characterNum);
+            }
+        })
+        reconnect_checker = true
     }
 
     /* ---------------- 중요 ------------------- */
@@ -405,7 +435,7 @@ class Room extends Component {
     }
 
     sendChat = () => {
-        const name = socket.id;
+        const name = this.state.userName;
         const chatMessage = document.getElementById("chat-message");
         const message = chatMessage.value;
         // console.log(message)

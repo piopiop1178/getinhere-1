@@ -27,8 +27,9 @@ module.exports = (io) => {
 
         socket.on('ready', async (roomName, userName, characterNum) => {
           console.log('ready');
+          room = RoomManager.getRoomByRoomName(roomName)
           if (room === undefined){
-            console.log("ERROR : io.on('connect'), roomName === undefined");
+            console.log("ERROR : io.on('connect'), room === undefined");
             return;
           }
           socket.emit('sendUsers', room.getUserDatasForDraw()); 
@@ -37,6 +38,7 @@ module.exports = (io) => {
 
         /* 신규 user가 준비가 끝나고 시작하면 기존 user들에게 신규 user 추가 알림 */
         socket.on('start', (roomName, userName, characterNum) => {
+          room = RoomManager.getRoomByRoomName(roomName)
           const users = room.users; 
           for(let socketId in users){
             if(socketId !== socket.id){
@@ -167,6 +169,11 @@ module.exports = (io) => {
                 room.users[socket.id].keyPress[keyCode] = false;
             }
         });
+
+        /* Keypress event to test socket disconnect */
+        socket.on('testSocketDisconnect', () => {
+          socket.disconnect()
+        })
         console.log("initKeyEvent End");
     }
     
