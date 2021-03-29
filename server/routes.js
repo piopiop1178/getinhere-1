@@ -41,6 +41,7 @@ module.exports = async (app) => {
     app.get('/api/map', (req, res) => {
         // console.log(`/api/mapIndex ${req.query}`);
         // console.log(req.query);
+        console.log(req.query);
         const roomName = req.query.roomName;
         const map = RoomManager.getRoomByRoomName(roomName).map;
         return res.status(200).json({

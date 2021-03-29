@@ -77,16 +77,18 @@ class RoomManager {   // Room 함수 실행
         delete this.roomByUser[socket.id];
 
         if(room.isEmpty()){
-            // setTimeout(this.deleteRoom(room), 10000);
-            this.deleteRoom(room);
+            setTimeout(this.deleteRoom(room), 10000);
+            // this.deleteRoom(room);
         }
     }
 
     static deleteRoom(room){
-        delete this.roomByName[room.name];
-        // if(this.roomByName[room.name] !== undefined){
-        //     delete this.roomByName[room.name];
-        // }
+        // delete this.roomByName[room.name];
+        const target_room = this.roomByName[room.name];
+        if(target_room !== undefined && target_room.isEmpty()){
+            delete this.roomByName[room.name];
+        }
+        return;
     }
 
     static getSocketsByRoomName(roomName){

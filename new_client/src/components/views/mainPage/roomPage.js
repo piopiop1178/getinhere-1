@@ -164,14 +164,14 @@ class Room extends Component {
     
             await this.clientLoadDevice();
             await this.createProducer();
-            console.log(users);
+            // console.log(users);
             for (let socketId in users){
                 this.state.users[socketId] = users[socketId];
                 this.addPeer(socketId);
             }
             let socketId = socket.id
             this.state.users[socketId] = {userName: this.props.userName, characterNum: this.props.characterNum};
-            console.log(this.state.users);
+            // console.log(this.state.users);
 
             /* 시작 알림 */
             socket.emit('start', this.props.roomName, this.props.userName, this.props.characterNum);
@@ -267,7 +267,7 @@ class Room extends Component {
         socket.on('addUser', (socketId, userName, characterNum) => {
             this.state.users[socketId] = {userName: userName, characterNum: characterNum};
             this.addPeer(socketId);
-            console.log('addUser', this.state.users[socketId].userName);
+            // console.log('addUser', this.state.users[socketId].userName);
         });
 
         socket.on('removeUser', (socketId) => {
@@ -277,7 +277,7 @@ class Room extends Component {
         });
 
         socket.on('disconnect', async () => {
-            console.log('got disconnected')
+            // console.log('got disconnected')
             for (let socket_id in this.status.users){
                 this.disconnectPeer(socket_id);
             }
@@ -301,13 +301,13 @@ class Room extends Component {
     }    
 
     removePeer = async (socket_id) => {
-        console.log('removePeer!!')
+        // console.log('removePeer!!')
         let videoEl = document.getElementById(socket_id)
         if (videoEl) {
     
             const tracks = videoEl.srcObject.getTracks();
-            console.log('Removing tracks')
-            console.log(tracks)
+            // console.log('Removing tracks')
+            // console.log(tracks)
     
             tracks.forEach(function (track) { 
                 track.stop()
@@ -333,8 +333,8 @@ class Room extends Component {
         if (videoEl) {
     
             const tracks = videoEl.srcObject.getTracks();
-            console.log('disconnecting tracks')
-            console.log(tracks)
+            // console.log('disconnecting tracks')
+            // console.log(tracks)
     
             tracks.forEach(function (track) { 
                 track.stop()
@@ -352,23 +352,20 @@ class Room extends Component {
 
     //tmp 승민
     clientLoadDevice = async () => {
-        console.log(`Device! request: ${socket.request}`);
+        // console.log(`Device! request: ${socket.request}`);
         const data = await socket.request('getRouterRtpCapabilities');
-        console.log(`data._data: ${data._data}`); //왜 이거 못쓰는지?? 
-        console.log('data', data);
+        // console.log(`data._data: ${data._data}`); //왜 이거 못쓰는지?? 
+        // console.log('data', data);
         await this.loadDevice(data._data.rtpCapabilities);
         return;
     }
 
     loadDevice = async (routerRtpCapabilities) => {
-        console.log('load device 입니다다아아ㅏ');
         try {
-            console.log('load device try 입니다아아ㅏ');
             device = new mediasoup.Device();
-            console.log('loadDevice function',device);
+            // console.log('loadDevice function',device);
             await device.load({ routerRtpCapabilities });
-            console.log('loadDevice function after',device);
-            // console.log(device);
+            // console.log('loadDevice function after',device);
         } catch (error) {
             if (error.name === 'UnsupportedError') {
             console.error('browser not supported');
@@ -398,7 +395,7 @@ class Room extends Component {
     }
 
     sendChat = () => {
-        const name = socket.id;
+        const name = this.state.userName;
         const chatMessage = document.getElementById("chat-message");
         const message = chatMessage.value;
         // console.log(message)
@@ -488,7 +485,7 @@ class Room extends Component {
     }
 
     createTransport = async (direction) => {
-        console.log('createTransport device', device);
+        // console.log('createTransport device', device);
         let transport,
             transportOptions = await socket.request('createTransport', {
                 forceTcp: false,
@@ -538,30 +535,30 @@ class Room extends Component {
         transport.on('connectionstatechange', (state) => {
             switch (state) {
                 case 'connecting':
-                    console.log(`Transport Connecting ${transport.id}`)
+                    // console.log(`Transport Connecting ${transport.id}`)
                 break;
     
                 case 'connected':
-                    console.log(`Transport Connected ${transport.id}`)
+                    // console.log(`Transport Connected ${transport.id}`)
                 break;
     
                 case 'failed':
-                    console.log(`Transport Failed ${transport.id}`)
+                    // console.log(`Transport Failed ${transport.id}`)
                     this.leaveRoom(socket)
                 break;
     
                 case 'closed':
-                    console.log(`Transport closed ${transport.id}`)
+                    // console.log(`Transport closed ${transport.id}`)
                     this.leaveRoom(socket)
                 break;
     
                 case 'disconnected':
-                    console.log(`Transport disconnected ${transport.id}`)
+                    // console.log(`Transport disconnected ${transport.id}`)
                     this.leaveRoom(socket)
                 break;
     
                 default: 
-                    console.log(`Transpot ${state} ${transport.id}`)
+                    // console.log(`Transpot ${state} ${transport.id}`)
                 break;
             }
         });
@@ -570,13 +567,13 @@ class Room extends Component {
 
     createProducer = async () => {
         if (!sendTransport) {
-            console.log('Creating sendTransport')
+            // console.log('Creating sendTransport')
             sendTransport = await this.createTransport('send');
         }
     
         //! For temporary use
         if (!recvTransport) {
-            console.log('Creating recvTransport')
+            // console.log('Creating recvTransport')
             recvTransport = await this.createTransport('recv');
         }
         //! For temporary use
@@ -600,7 +597,7 @@ class Room extends Component {
         // create a receive transport if we don't already have one
         //! On error fixing
         if (!recvTransport) {
-            console.log('Creating recvTransport')
+            // console.log('Creating recvTransport')
             recvTransport = await this.createTransport('recv');
         }
         //! On error fixing
@@ -627,7 +624,7 @@ class Room extends Component {
 
     createRealConsumer = async (mediaTag, transport, peerId, transportId) => {
         const Data = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
-        console.log(Data);
+        // console.log(Data);
         let {
             producerId,
             id,
