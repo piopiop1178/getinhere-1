@@ -6,12 +6,7 @@ fullchain.pem
 privkey.pem
 
 # MongoDB
-<<<<<<< HEAD
 .env
 
 # 뻐킹 congif
 config.js
-
-=======
-.env
->>>>>>> 01b055bd8fedd4618f23f6ab34df53c01aa55e1c
