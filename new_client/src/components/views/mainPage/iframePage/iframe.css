@@ -1,0 +1,42 @@
+.iframe-wrapper {
+  position: fixed;
+  width: 100%;
+  height: 80%;
+  bottom: 0px;
+}
+
+.invite-code-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: fixed;
+}
+
+.invite-code-input {
+  width: 30%;
+  height: 1.5rem;
+  padding: 0px;
+  margin-left: 0px;
+}
+
+.iframe-game-guide {
+  background-color: white;
+}
+
+.invite-code-button {
+  display: block;
+  height: 1.5rem;
+}
+
+.iframe-close-button {
+  /* position: fixed;
+  right: 0px; */
+  font-size: 1.5rem;
+  border-radius: 10%;
+}
+
+#iframe-game {
+  width: 100%;
+  height: 100%;
+  border: none;
+}

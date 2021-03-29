@@ -16,6 +16,8 @@ import beerSource from './sounds/beer.mp3'
 import cocktailSource from './sounds/cocktail.mp3'
 import wineSource from './sounds/wine.mp3'
 import glassBreakSource from './sounds/glassbreak.mp3'
+import IframePage from './iframePage/iframe.js'; // 0329 승민
+
 
 const beer = new Audio();
 const cocktail = new Audio();
@@ -77,6 +79,7 @@ class Room extends Component {
         characterList: [],
         users: {},
         contextCharacter: document.getElementById("character-layer").getContext("2d"),
+        isIframeOn: false, // 0329 
     }
     componentDidMount = async () => {
         socket = this.props.socket;
@@ -100,8 +103,10 @@ class Room extends Component {
             let curr_y = parsed_status.y;
     
             if (curr_x <= 60 && 1200 - curr_y <= 120 && e.code === "KeyX"){
-                socket.emit('music');
+                // socket.emit('music');
+                this.setState({isIframeOn: !this.state.isIframeOn});
             }
+
 
             /* 캐릭터 술 캔버스 설정 */
             if (e.code === "KeyB") {
@@ -138,6 +143,90 @@ class Room extends Component {
             characterList: this.props.characterList
         });        
     }
+
+    updatePosition = (statuses, idArray) => {
+      keyDownUpOnceFlag = false;
+      if (keyUpBuffer[UP]) { socket.emit("keyup", UP); keyUpBuffer[UP] = false;} 
+      if (keyUpBuffer[RIGHT]) { socket.emit("keyup", RIGHT); keyUpBuffer[RIGHT] = false;} 
+      if (keyUpBuffer[DOWN]) { socket.emit("keyup", DOWN); keyUpBuffer[DOWN] = false;} 
+      if (keyUpBuffer[LEFT]) { socket.emit("keyup", LEFT); keyUpBuffer[LEFT] = false;} 
+
+      // const WIDTH = this.state.map._WIDTH;
+      // const HEIGHT = this.state.map._HEIGHT;
+      // console.log(WIDTH, HEIGHT);
+      const contextCharacter = this.state.contextCharacter;
+      let myStatus = statuses[socket.id].status;
+      this.storelocalStorage(myStatus);
+      this.updateWindowCenter(myStatus);
+      contextCharacter.clearRect(myStatus.x - window.innerWidth, myStatus.y - window.innerHeight, window.innerWidth*2, window.innerHeight*2); //TODO 내가 보는곳만 하기
+      contextCharacter.beginPath();
+      idArray.forEach((id) => {
+          // Audio volume change
+          // if (id !== socket.id && gains[id] != undefined) {
+          //     dist = this.calcDistance(statuses[id].status, statuses[socket.id].status)
+          //     // console.log(dist)
+          //     gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
+          // }
+
+          // 다른 캐릭터가 내 화면 밖으로 나가면 그려주지않고 넘어간다
+          if (Math.abs(myStatus.x - statuses[id].status.x) > window.innerWidth && Math.abs(myStatus.y - statuses[id].status.y) > window.innerHeight) {
+              return;
+          }
+
+          // 캐릭터 삽입 코드
+          contextCharacter.drawImage(this.props.characterList[statuses[id].characterNum], 
+              statuses[id].status.x,
+              statuses[id].status.y,
+              statuses[id].status.width,
+              statuses[id].status.height
+              );
+          // 술 이모티콘 삽입 코드
+          if (statuses[id].status.alchol) {
+              let alchol;
+
+              if (statuses[id].status.alchol === 'beer') {
+                if (alcholSoundOnceFlag) {
+                  beer.play()
+                  alcholSoundOnceFlag = false
+                }
+                alchol = "🍺"
+              } else if (statuses[id].status.alchol === 'cocktail') {
+                if (alcholSoundOnceFlag) {
+                  cocktail.play()
+                  alcholSoundOnceFlag = false
+                }
+                alchol = "🍸"
+              } else if (statuses[id].status.alchol === 'wine') {
+                if (alcholSoundOnceFlag) {
+                  wine.play()
+                  alcholSoundOnceFlag = false
+                }
+                alchol = "🍷"
+              }
+              contextCharacter.fillText(alchol,
+                  statuses[id].status.x + 5,
+                  statuses[id].status.y,
+                  );
+            }
+          contextCharacter.font = '48px serif';
+          contextCharacter.fillText(statuses[id].userName,
+              statuses[id].status.x,
+              statuses[id].status.y,
+          );
+      });
+    }
+
+    updatePositionSocketOff = () => {
+      console.log('remove update socket on ')
+      socket.removeAllListeners("update");
+    }
+    
+    updatePositionSocketOn = () => {
+      console.log('add update socket on ')
+      socket.on("update", this.updatePosition );
+    }
+
+
 
     initSocket = async () => {
         /* room에 자신의 socket이 추가된 후 해당 room의 기존 user 정보를 수신 */
@@ -179,77 +268,8 @@ class Room extends Component {
             this.scrollBottom("message-box");
         });
 
-        socket.on("update", (statuses, idArray) => {
-            keyDownUpOnceFlag = false;
-            if (keyUpBuffer[UP]) { socket.emit("keyup", UP); keyUpBuffer[UP] = false;} 
-            if (keyUpBuffer[RIGHT]) { socket.emit("keyup", RIGHT); keyUpBuffer[RIGHT] = false;} 
-            if (keyUpBuffer[DOWN]) { socket.emit("keyup", DOWN); keyUpBuffer[DOWN] = false;} 
-            if (keyUpBuffer[LEFT]) { socket.emit("keyup", LEFT); keyUpBuffer[LEFT] = false;} 
-
-            // const WIDTH = this.state.map._WIDTH;
-            // const HEIGHT = this.state.map._HEIGHT;
-            // console.log(WIDTH, HEIGHT);
-            const contextCharacter = this.state.contextCharacter;
-            let myStatus = statuses[socket.id].status;
-            this.storelocalStorage(myStatus);
-            this.updateWindowCenter(myStatus);
-            contextCharacter.clearRect(myStatus.x - window.innerWidth, myStatus.y - window.innerHeight, window.innerWidth*2, window.innerHeight*2); //TODO 내가 보는곳만 하기
-            contextCharacter.beginPath();
-            idArray.forEach((id) => {
-                // Audio volume change
-                // if (id !== socket.id && gains[id] != undefined) {
-                //     dist = this.calcDistance(statuses[id].status, statuses[socket.id].status)
-                //     // console.log(dist)
-                //     gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
-                // }
-
-                // 다른 캐릭터가 내 화면 밖으로 나가면 그려주지않고 넘어간다
-                if (Math.abs(myStatus.x - statuses[id].status.x) > window.innerWidth && Math.abs(myStatus.y - statuses[id].status.y) > window.innerHeight) {
-                    return;
-                }
-
-                // 캐릭터 삽입 코드
-                contextCharacter.drawImage(this.props.characterList[statuses[id].characterNum], 
-                    statuses[id].status.x,
-                    statuses[id].status.y,
-                    statuses[id].status.width,
-                    statuses[id].status.height
-                    );
-                // 술 이모티콘 삽입 코드
-                if (statuses[id].status.alchol) {
-                    let alchol;
-
-                    if (statuses[id].status.alchol === 'beer') {
-                      if (alcholSoundOnceFlag) {
-                        beer.play()
-                        alcholSoundOnceFlag = false
-                      }
-                      alchol = "🍺"
-                    } else if (statuses[id].status.alchol === 'cocktail') {
-                      if (alcholSoundOnceFlag) {
-                        cocktail.play()
-                        alcholSoundOnceFlag = false
-                      }
-                      alchol = "🍸"
-                    } else if (statuses[id].status.alchol === 'wine') {
-                      if (alcholSoundOnceFlag) {
-                        wine.play()
-                        alcholSoundOnceFlag = false
-                      }
-                      alchol = "🍷"
-                    }
-                    contextCharacter.fillText(alchol,
-                        statuses[id].status.x + 5,
-                        statuses[id].status.y,
-                        );
-                  }
-                contextCharacter.font = '48px serif';
-                contextCharacter.fillText(statuses[id].userName,
-                    statuses[id].status.x,
-                    statuses[id].status.y,
-                );
-            });
-        });
+        // socket.on("update", (statuses, idArray) => {this.updatePosition(statuses, idArray)} );
+        socket.on("update", this.updatePosition );
 
         socket.on('addUser', (socketId, userName, characterNum) => {
             this.state.users[socketId] = {userName: userName, characterNum: characterNum};
@@ -739,9 +759,26 @@ class Room extends Component {
         consumers = [];
     }
 
+    closeIframe = () => {
+      console.log('closeIframe /roomPage.js');
+      this.setState({isIframeOn: false});
+    }
+
     render() {
+        let iframeRender;
+        if (this.state.isIframeOn) {
+          iframeRender = <IframePage  
+            closeIframe={this.closeIframe} 
+            updatePositionSocketOn={this.updatePositionSocketOn}
+            updatePositionSocketOff={this.updatePositionSocketOff}
+          />
+        } else {
+          iframeRender = <div></div>
+        }
         return (
-            <div className="room" id="room">
+          
+          <div className="room" id="room">
+            {iframeRender}
                 <div className="video-box">
                     <div id="videos" className="video-container"></div>
                 </div>

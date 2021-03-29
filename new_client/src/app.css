@@ -131,6 +131,10 @@ button {
   color: darkblue;
 }
 
+canvas {
+  border: none;
+}
+
 .character-box {
   display: flex;
   flex-flow: column;
