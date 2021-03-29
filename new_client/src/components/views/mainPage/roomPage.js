@@ -206,7 +206,7 @@ class Room extends Component {
             const contextCharacter = this.state.contextCharacter;
             let myStatus = statuses[socket.id].status;
             this.updateWindowCenter(myStatus);
-            contextCharacter.clearRect(myStatus.x - window.innerWidth, myStatus.y - window.innerHeight, WIDTH, HEIGHT); //TODO 내가 보는곳만 하기
+            contextCharacter.clearRect(myStatus.x - window.innerWidth, myStatus.y - window.innerHeight, window.innerWidth*2, window.innerHeight*2); //TODO 내가 보는곳만 하기
             contextCharacter.beginPath();
             idArray.forEach((id) => {
                 // Audio volume change
