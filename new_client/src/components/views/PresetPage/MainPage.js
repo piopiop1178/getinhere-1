@@ -54,19 +54,21 @@ class Main extends Component {
             let audio = new Audio('../music/all_falls_down.mp3'); //TODO 경로 재설정해주기
             
             /* 캔버스 만들기(BG와 OBJ만 있음) */
+            /* 백그라운드 */
             const canvasBackground = document.createElement("canvas");
             const contextBackground = canvasBackground.getContext("2d");
             canvasBackground.id = "background-layer";
             canvasBackground.style.position = "absolute";
-            canvasBackground.style.zIndex = "-3";
-            canvasBackground.style.top = "0px";
+            canvasBackground.style.zIndex = "-10";
+            // canvasBackground.style.top = "0px";
     
+            /* 오브젝트 */
             const canvasObject = document.createElement("canvas");
             const contextObject = canvasObject.getContext("2d");
             canvasObject.id = "object-layer";
             canvasObject.style.position = "absolute";
-            canvasObject.style.zIndex = "-2";
-            canvasObject.style.top = "0px";
+            canvasObject.style.zIndex = "-5";
+            // canvasObject.style.top = "0px";
     
     
             /* Canvas 관련 전역변수 설정 */

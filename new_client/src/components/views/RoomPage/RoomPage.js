@@ -285,12 +285,13 @@ class RoomPage extends Component {
 
         //! 추후 수정 및 리팩토링 필요
         /* 캐릭터 캔버스 설정 */
+        /* 캐릭터 */
         const canvasCharacter = document.createElement("canvas");
         const contextCharacter = canvasCharacter.getContext("2d");
         canvasCharacter.id = "character-layer";
         canvasCharacter.style.position = "absolute";
-        canvasCharacter.style.zIndex = "-1";
-        canvasCharacter.style.top = "0px";
+        canvasCharacter.style.zIndex = "0";
+        // canvasCharacter.style.top = "0px";
         canvasCharacter.setAttribute("width", MAP_SETTINGS._WIDTH);
         canvasCharacter.setAttribute("height", MAP_SETTINGS._HEIGHT);
         document.body.appendChild(canvasCharacter);
@@ -599,8 +600,8 @@ class RoomPage extends Component {
                 localStorage.setItem('position', JSON.stringify({row, col}))
             }
             
-            function updateWindowCenter(myStatus) { //! 위치이동
-                window.scrollTo(myStatus.x - window.innerWidth/2  + TILE_LENGTH/2 , myStatus.y - window.innerHeight/2 + TILE_LENGTH/2 )
+            function updateWindowCenter(myStatus) { //! 위치이동 // 상단 여백만큼 내려주기 일단 150px: roomPage.css
+                window.scrollTo(myStatus.x - window.innerWidth/2  + TILE_LENGTH/2 , myStatus.y - window.innerHeight/2 + TILE_LENGTH/2 +150 )
             }
             
             
