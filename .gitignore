@@ -9,4 +9,5 @@ privkey.pem
 .env
 
 # 뻐킹 congif
+config.js
 
