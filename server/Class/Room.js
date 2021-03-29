@@ -16,6 +16,8 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
             producers: [],
             consumers: []
         }
+        this.video = false;
+        this.tetris = false;
     }
 
     get router(){
@@ -67,6 +69,20 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
 
     set music(value){
         this._music = value;
+    }
+
+    get video(){
+        return this._video;
+    }
+    set video(value){
+        this._video = value;
+    }
+
+    get tetris(){
+        return this._tetris;
+    }
+    set tetris(value){
+        this._tetris = value;
     }
 
     addUser(user) {

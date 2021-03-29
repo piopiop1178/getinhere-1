@@ -23,6 +23,7 @@ module.exports = (io) => {
           initMusic(socket, room);
           initChat(socket, room);
           initAlcholIcon(socket, room);
+          initObject(socket, room);
         });
 
         socket.on('ready', async (roomName, userName, characterNum) => {
@@ -205,6 +206,33 @@ module.exports = (io) => {
     function initAlcholIcon(socket, room) {
         socket.on('alchol-icon', (data) => {
             room.users[socket.id].status.alchol = !room.users[socket.id].status.alchol ? data : false
+        })
+    }
+
+    function initObject(socket, room){
+        socket.on('youtube', () => {
+            if (room.video === false){
+                room.video = true;
+                io.to(room.name).emit('youtube_on');
+            }
+            else {
+                room.video = false;
+                io.to(room.name).emit('youtube_off');
+            }
+        })
+        socket.on('video', (video_id) =>{
+            io.to(room.name).emit('video_on', video_id);
+        })
+        
+        socket.on('tetris', () => {
+            if (room.tetris === false){
+                room.tetris = true;
+                io.to(room.name).emit('tetris_on');
+            }
+            else {
+                room.tetris = false;
+                io.to(room.name).emit('tetris_off');
+            }
         })
     }
 }
