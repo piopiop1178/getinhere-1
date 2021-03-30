@@ -15,7 +15,7 @@
 }
 
 .input {
-  flex-basis: 100%;
+  flex-basis: 80%;
   font-size: 1.2rem;
   outline: 0;
   z-index: 10;
@@ -30,5 +30,11 @@
 .buttonImg {
   height: 70%;
   padding: 0.5em 0.2em;
+  width: 1vw;
   z-index: 10;
+}
+
+.closeButton {
+  position: fixed;
+  right: 13vw;
 }

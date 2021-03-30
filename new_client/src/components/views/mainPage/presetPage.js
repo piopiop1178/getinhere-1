@@ -3,11 +3,21 @@ import DeviceSelector from './deviceSelector';
 import VideoPreview from './videoPreview';
 import axios from 'axios';
 
-class PresetPage extends Component {
+export class LoadingPage extends Component {
+    render() {
+        return (
+            <div className="loading" id="loading">
+                <img src="/images/Spinner.gif"></img>
+            </div>
+        );
+    }
+}
+
+export class PresetPage extends Component {
     state = {
         characterNum : 0,
         characterList: [],
-        userName: "이름을 입력해주세요",
+        userName: "",
     }
 
     componentDidMount = () => {
@@ -31,7 +41,7 @@ class PresetPage extends Component {
         }
     }
 
-    finishPreset = () => {
+    finishPreset = (e) => {
         if(this.state.userName == ""){
             alert("이름을 입력해주세요");
             return;
@@ -45,9 +55,9 @@ class PresetPage extends Component {
             return;
         }
         // const regex = /^[가-힣a-zA-z0-9]{2,15}$/;    // 특수문자 미포함
-        const regex = /^[가-힣a-zA-z0-9\{\}\[\]\/?.,;:|\)*~`!^\-_+@\#$%&\\\=\(\'\"]{2,15}$/;
+        const regex = /^[ㄱ-ㅎ가-힣a-zA-z0-9\{\}\[\]\/?.,;:|\)*~`!^\-_+@\#$%&\\\=\(\'\"]{2,15}$/;
         if(!regex.test(this.state.userName)){
-            alert("이름은 한글, 영문, 숫자, 일부 특수문자( \{\}\[\]\/?.,;:|\)*~`!^\-_+@\#$%&\\\=\(\'\" )만 가능합니다");
+            alert("이름은 한글, 영문, 숫자, 일부 특수문자( (){}[]?.,;:|*~`!^-_+@#$%&\\='\" )만 가능합니다");
             return;
         }
 
@@ -97,4 +107,4 @@ class PresetPage extends Component {
 }
   
 
-export default PresetPage
+export default {PresetPage, LoadingPage}

@@ -4,7 +4,7 @@ import VideoList from './videoList';
 import SearchHeader from './searchHeader';
 import VideoDetail from './videoDetail';
 
-const YoutubeMain = ({ socket, youtube }) => {
+const YoutubeMain = ({ close, updatePositionSocketOn, updatePositionSocketOff, socket, youtube }) => {
     const [videos, setVideos] = useState([]);
     const [selectedVideo, setSelectedVideo] = useState(null);
 
@@ -21,16 +21,21 @@ const YoutubeMain = ({ socket, youtube }) => {
       },
       [youtube]
     );
-  
+
     useEffect(() => {
       youtube
         .mostPopular() 
         .then(videos => setVideos(videos));
     }, [youtube]);
+    
     return (
       <div className={styles.app}>
-        <SearchHeader onSearch={search} />
-        <section className={styles.content}>
+        <SearchHeader 
+            close ={close} 
+            updatePositionSocketOn={updatePositionSocketOn}
+            updatePositionSocketOff={updatePositionSocketOff}
+            onSearch={search} />
+        <div className={styles.content}>
           {selectedVideo && (
             <div className={styles.detail}>
               <VideoDetail socket={socket} video={selectedVideo} />
@@ -43,7 +48,7 @@ const YoutubeMain = ({ socket, youtube }) => {
               display={selectedVideo ? 'list' : 'grid'}
             />
           </div>
-        </section>
+        </div>
       </div>
     );
   }

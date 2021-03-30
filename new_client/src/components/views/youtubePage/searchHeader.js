@@ -1,7 +1,7 @@
 import styles from './searchHeader.module.css'
-import React, { memo, useRef } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 
-const SerchHeader = memo(({ onSearch }) => {
+const SerchHeader = memo(({ close, updatePositionSocketOff, updatePositionSocketOn, onSearch }) => {
     const inputRef = useRef();
     const handleSearch = () => {
       const value = inputRef.current.value;
@@ -10,13 +10,27 @@ const SerchHeader = memo(({ onSearch }) => {
     const onClick = () => {
       handleSearch();
     };
-  
+    
+    const closeButton = () => {
+        updatePositionSocketOn()
+        close()
+    }
+    
+    const updateOff = () => {
+        updatePositionSocketOff()
+    }
+
     const onKeyPress = event => {
       if (event.key === 'Enter') {
         console.log(window.getSelection());
         handleSearch();
       }
     };
+
+    useEffect(() =>{
+        updateOff();
+    })
+
     return (
       <header className={styles.header}>
         <div className={styles.logo}>
@@ -38,6 +52,7 @@ const SerchHeader = memo(({ onSearch }) => {
             alt="search"
           />
         </button>
+        <button className={styles.closeButton} onClick={closeButton}>❌</button>
       </header>
     );
   });

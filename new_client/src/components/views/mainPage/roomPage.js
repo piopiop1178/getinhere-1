@@ -19,6 +19,7 @@ import glassBreakSource from './sounds/glassbreak.mp3'
 import IframePage from './iframePage/iframe.js'; // 0329 승민
 import YoutubeMain from '../youtubePage/youtubeMain';
 import Youtube from '../youtubePage/youtube-fetch';
+import YoutubeIframe from '../youtubePage/youtubeIframe';
 
 const uuuuu = new Youtube();
 
@@ -73,19 +74,43 @@ const LEFT = 'ArrowLeft', UP = 'ArrowUp', RIGHT = 'ArrowRight', DOWN = 'ArrowDow
 let alcholSoundOnceFlag;
 let keyDownUpOnceFlag;
 let keyUpBuffer = {};
+let curr_space
+let changeSpace = true
 
 // youtube synchro play
 var tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-var player;
-function onYouTubeIframeAPIReady(video_id) {
-    console.log(window);
-
-    player = new window.YT.Player("player1", {
-        height: '360',
-        width: '640',
+var player1;
+var player2;
+function onYouTubeIframeAPIReady1(video_id) {
+    player1 = new window.YT.Player("player1", {
+        height: '100%',
+        width: '100%',
+        videoId: video_id,
+        events: {
+        'onReady': onPlayerReady,
+        'onStateChange': onPlayerStateChange
+        },
+        playerVars: {
+        autoplay: 1,        // Auto-play the video on load
+        controls: 0,        // Show pause/play buttons in player
+        showinfo: 0,        // Hide the video title
+        modestbranding: 0,  // Hide the Youtube Logo
+        loop: 0,            // Run the video in a loop
+        fs: 0,              // Hide the full screen button
+        cc_load_policy: 0,  // Hide closed captions
+        iv_load_policy: 0,  // Hide the Video Annotations
+        autohide: 0,         // Hide video controls when playing
+        mute: 0
+        },
+    });
+}
+function onYouTubeIframeAPIReady2(video_id) {
+    player2 = new window.YT.Player("player2", {
+        height: 0,
+        width: 0,
         videoId: video_id,
         events: {
         'onReady': onPlayerReady,
@@ -124,9 +149,10 @@ class Room extends Component {
         characterList: [],
         users: {},
         contextCharacter: document.getElementById("character-layer").getContext("2d"),
-        isIframeOn: false, // 0329 
+        objects: 0, // 0: 기본상태, 1: 동영상 검색창, 2: 동영상 같이보기, 3: 게임하기, 4. 노래
     }
     componentDidMount = async () => {
+        console.log(this.state.users)
         socket = this.props.socket;
 
         /* Room 에서 사용할 socket on 정의 */
@@ -147,12 +173,6 @@ class Room extends Component {
             let curr_x = parsed_status.x;
             let curr_y = parsed_status.y;
     
-            if (curr_x <= 60 && 1200 - curr_y <= 120 && e.code === "KeyX"){
-                // socket.emit('music');
-                this.setState({isIframeOn: !this.state.isIframeOn});
-            }
-
-
             /* 캐릭터 술 캔버스 설정 */
             if (e.code === "KeyB") {
                 alcholSoundOnceFlag = true
@@ -172,14 +192,22 @@ class Room extends Component {
                 socket.emit("testSocketDisconnect")
             }
     
+            /* 동영상, 게임하기, 노래 등 */
+            if (curr_x <= 60 && 1200 - curr_y <= 120 && e.code === "KeyX"){
+                if (this.state.objects ===0) this.setState({objects : 3})
+                else {
+                    this.setState({objects : 0})    
+                    this.updatePositionSocketOn()
+                }
+            }
+
             if (e.code ==="KeyA" && document.activeElement.tagName ==='BODY'){            
                 // socket.emit('youtube');
                 if (this.state.objects ===0) this.setState({objects : 1})
-                else this.setState({objects : 0})         
-            }
-
-            if (e.code === "KeyZ"){
-                socket.emit('tetris');
+                else {
+                    this.setState({objects : 0})      
+                    this.updatePositionSocketOn()
+                }
             }
 
             socket.emit('keydown', e.code);
@@ -205,85 +233,93 @@ class Room extends Component {
     }
 
     updatePosition = (statuses, idArray) => {
-      keyDownUpOnceFlag = false;
-      if (keyUpBuffer[UP]) { socket.emit("keyup", UP); keyUpBuffer[UP] = false;} 
-      if (keyUpBuffer[RIGHT]) { socket.emit("keyup", RIGHT); keyUpBuffer[RIGHT] = false;} 
-      if (keyUpBuffer[DOWN]) { socket.emit("keyup", DOWN); keyUpBuffer[DOWN] = false;} 
-      if (keyUpBuffer[LEFT]) { socket.emit("keyup", LEFT); keyUpBuffer[LEFT] = false;} 
+        keyDownUpOnceFlag = false;
+        if (keyUpBuffer[UP]) { socket.emit("keyup", UP); keyUpBuffer[UP] = false;} 
+        if (keyUpBuffer[RIGHT]) { socket.emit("keyup", RIGHT); keyUpBuffer[RIGHT] = false;} 
+        if (keyUpBuffer[DOWN]) { socket.emit("keyup", DOWN); keyUpBuffer[DOWN] = false;} 
+        if (keyUpBuffer[LEFT]) { socket.emit("keyup", LEFT); keyUpBuffer[LEFT] = false;} 
 
-      // const WIDTH = this.state.map._WIDTH;
-      // const HEIGHT = this.state.map._HEIGHT;
-      // console.log(WIDTH, HEIGHT);
-      const contextCharacter = this.state.contextCharacter;
-      let myStatus = statuses[socket.id].status;
-      this.storelocalStorage(myStatus);
-      this.updateWindowCenter(myStatus);
-      contextCharacter.clearRect(myStatus.x - window.innerWidth, myStatus.y - window.innerHeight, window.innerWidth*2, window.innerHeight*2); //TODO 내가 보는곳만 하기
-      contextCharacter.beginPath();
-      idArray.forEach((id) => {
-          // Audio volume change
-          // if (id !== socket.id && gains[id] != undefined) {
-          //     dist = this.calcDistance(statuses[id].status, statuses[socket.id].status)
-          //     // console.log(dist)
-          //     gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
-          // }
+        // const WIDTH = this.state.map._WIDTH;
+        // const HEIGHT = this.state.map._HEIGHT;
+        // console.log(WIDTH, HEIGHT);
+        const contextCharacter = this.state.contextCharacter;
+        let myStatus = statuses[socket.id].status;
 
-          // 다른 캐릭터가 내 화면 밖으로 나가면 그려주지않고 넘어간다
-          if (Math.abs(myStatus.x - statuses[id].status.x) > window.innerWidth && Math.abs(myStatus.y - statuses[id].status.y) > window.innerHeight) {
-              return;
-          }
+        curr_space = this.calcSpace(myStatus.x, myStatus.y)
+        if ((myStatus.space !== curr_space) && changeSpace) {
+            changeSpace = false
+            socket.emit('spaceChange', myStatus.space, curr_space)
+        }
 
-          // 캐릭터 삽입 코드
-          contextCharacter.drawImage(this.props.characterList[statuses[id].characterNum], 
-              statuses[id].status.x,
-              statuses[id].status.y,
-              statuses[id].status.width,
-              statuses[id].status.height
-              );
-          // 술 이모티콘 삽입 코드
-          if (statuses[id].status.alchol) {
-              let alchol;
+        this.storelocalStorage(myStatus);
+        this.updateWindowCenter(myStatus);
+        contextCharacter.clearRect(myStatus.x - window.innerWidth, myStatus.y - window.innerHeight, window.innerWidth*2, window.innerHeight*2); //TODO 내가 보는곳만 하기
+        contextCharacter.beginPath();
+        idArray.forEach((id) => {
+            // Audio volume change
+            // if (id !== socket.id && gains[id] != undefined) {
+            //     dist = this.calcDistance(statuses[id].status, statuses[socket.id].status)
+            //     // console.log(dist)
+            //     gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
+            // }
 
-              if (statuses[id].status.alchol === 'beer') {
-                if (alcholSoundOnceFlag) {
-                  beer.play()
-                  alcholSoundOnceFlag = false
-                }
-                alchol = "🍺"
-              } else if (statuses[id].status.alchol === 'cocktail') {
-                if (alcholSoundOnceFlag) {
-                  cocktail.play()
-                  alcholSoundOnceFlag = false
-                }
-                alchol = "🍸"
-              } else if (statuses[id].status.alchol === 'wine') {
-                if (alcholSoundOnceFlag) {
-                  wine.play()
-                  alcholSoundOnceFlag = false
-                }
-                alchol = "🍷"
-              }
-              contextCharacter.fillText(alchol,
-                  statuses[id].status.x + 5,
-                  statuses[id].status.y,
-                  );
+            // 다른 캐릭터가 내 화면 밖으로 나가면 그려주지않고 넘어간다
+            if (Math.abs(myStatus.x - statuses[id].status.x) > window.innerWidth && Math.abs(myStatus.y - statuses[id].status.y) > window.innerHeight) {
+                return;
             }
-          contextCharacter.font = '48px serif';
-          contextCharacter.fillText(statuses[id].userName,
-              statuses[id].status.x,
-              statuses[id].status.y,
-          );
-      });
+
+            // 캐릭터 삽입 코드
+            contextCharacter.drawImage(this.props.characterList[statuses[id].characterNum], 
+                statuses[id].status.x,
+                statuses[id].status.y,
+                statuses[id].status.width,
+                statuses[id].status.height
+                );
+            // 술 이모티콘 삽입 코드
+            if (statuses[id].status.alchol) {
+                let alchol;
+
+                if (statuses[id].status.alchol === 'beer') {
+                    if (alcholSoundOnceFlag) {
+                        beer.play()
+                        alcholSoundOnceFlag = false
+                    }
+                    alchol = "🍺"
+                } else if (statuses[id].status.alchol === 'cocktail') {
+                    if (alcholSoundOnceFlag) {
+                        cocktail.play()
+                        alcholSoundOnceFlag = false
+                    }
+                    alchol = "🍸"
+                } else if (statuses[id].status.alchol === 'wine') {
+                    if (alcholSoundOnceFlag) {
+                    wine.play()
+                    alcholSoundOnceFlag = false
+                    }
+                    alchol = "🍷"
+                }
+                contextCharacter.fillText(alchol,
+                    statuses[id].status.x + 5,
+                    statuses[id].status.y,
+                    );
+                }
+            contextCharacter.font = '48px serif';
+            contextCharacter.fillText(statuses[id].userName,
+                statuses[id].status.x,
+                statuses[id].status.y,
+            );
+        });
+        changeSpace = true
     }
 
     updatePositionSocketOff = () => {
-      console.log('remove update socket on ')
-      socket.removeAllListeners("update");
+        // console.log('remove update socket on ')
+        socket.removeAllListeners("update");
     }
     
     updatePositionSocketOn = () => {
-      console.log('add update socket on ')
-      socket.on("update", this.updatePosition );
+        // console.log('add update socket on ')
+        socket.on("update", this.updatePosition );
     }
 
 
@@ -312,14 +348,14 @@ class Room extends Component {
             socket.emit('start', this.props.roomName, this.props.userName, this.props.characterNum);
         });
 
-        socket.on('music_on', () => {
-        // console.log('music_on!');
-            // audio.play();
+        socket.on('music_on', (video_id) => {
+            this.setState({objects:4})
+            onYouTubeIframeAPIReady2(video_id)
+            this.updatePositionSocketOn()
         })
 
         socket.on('music_off', () => {
-            // console.log('music_off!');
-            // audio.pause();
+            // 210330기준 기능없음
         });
 
         socket.on('chat', (name, message) => {
@@ -336,28 +372,34 @@ class Room extends Component {
         // })
         
         socket.on('video_on', (video_id)=>{
-            onYouTubeIframeAPIReady(video_id)
-            const unMute = () => player.unMute()
-            const stopVideo = () => player.stopVideo()
-            const playVideo = () => player.playVideo()
-            const setVolume = () => player.setVolume(50)
-            // window.addEventListener('keydown', e => {
-            // if (e.code === 'KeyA') console.log(player.getVolume());
-            // if (e.code === 'KeyS') setVolume()
-            // if (e.code === 'KeyP') playVideo()
-            // if (e.code === 'KeyP') player.isMuted() ? player.unMute() : player.mute() // 소리 끄고 켜는 버튼 제공. 사용자가 이렇게 누르는 것은 괜찮다
-            // })
-            this.setState({objects:0})
+            this.setState({objects:2})
+            onYouTubeIframeAPIReady1(video_id)
         })
 
-        socket.on('tetris_on', () =>{
-            console.log('onon');
-            this.setState({objects : 2})
-        })
-        socket.on('tetris_off', () =>{
-            this.setState({objects : 0})
-        })  
+        socket.on('removeOutUser', (socketId) => {
+            consumers.forEach((consumer) => {
+                if (consumer.appData.peerId === socketId) {
+                    this.pauseConsumer(consumer)
+                }
+            })
 
+            let videoEl = document.getElementById(socketId)
+            if (videoEl) {
+                videoEl.style.display = 'none'
+            }
+        })
+        socket.on('addInUser', (socketId) => {
+            consumers.forEach((consumer) => {
+                if (consumer.appData.peerId === socketId) {
+                    this.resumeConsumer(consumer)
+                }
+            })
+
+            let videoEl = document.getElementById(socketId)
+            if (videoEl) {
+                videoEl.style.display = 'block'
+            }
+        })
 
         // socket.on("update", (statuses, idArray) => {this.updatePosition(statuses, idArray)} );
         socket.on("update", this.updatePosition );
@@ -419,6 +461,7 @@ class Room extends Component {
         newVid.className = "vid"
         videos.appendChild(newVid)
         
+        newVid.style.display = 'none'
         peers[socket_id] = null;
     }    
 
@@ -610,6 +653,21 @@ class Room extends Component {
         return Math.sqrt(Math.pow((status1.x - status2.x)/CHAR_SIZE, 2) + Math.pow((status1.y - status2.y)/CHAR_SIZE, 2))
     }
 
+    calcSpace = (x, y) => {
+        if (y > 360) {
+            return 1;
+        }
+        else if (x <= 780) {
+            return 2;
+        }
+        else if (x >= 1680) {
+            return 4;
+        }
+        else {
+            return 3;
+        }
+    }
+
     createTransport = async (direction) => {
         console.log('createTransport device', device);
         let transport,
@@ -740,8 +798,8 @@ class Room extends Component {
             await this.sleep(100);
         }
         // okay, we're ready. let's ask the peer to send us media
-        await this.resumeConsumer(videoConsumer);
-        await this.resumeConsumer(audioConsumer);
+        //! await this.resumeConsumer(videoConsumer);
+        //! await this.resumeConsumer(audioConsumer);
         // keep track of all our consumers
         // updatePeersDisplay();
     
@@ -781,6 +839,17 @@ class Room extends Component {
                 await consumer.resume();
             } catch (e) {
                 console.error(e);
+            }
+        }
+    }
+
+    pauseConsumer = async (consumer) => {
+        if (consumer) {
+            try {
+                await socket.request('pauseConsumer', { consumerId: consumer.id })
+                await consumer.pause()
+            } catch (e) {
+                console.error(e)
             }
         }
     }
@@ -875,31 +944,50 @@ class Room extends Component {
     }
 
     closeIframe = () => {
-      console.log('closeIframe /roomPage.js');
-      this.setState({isIframeOn: false});
+        this.setState({objects : 0});
+    }
+
+    youtubeClose = () => {
+        this.setState({objects : 0})
+        this.updatePositionSocketOn()
     }
 
     render() {
+        let videoPage;
+        if (this.state.objects === 1){
+            videoPage = <YoutubeMain 
+                socket={this.props.socket}
+                youtube={uuuuu} 
+                updatePositionSocketOn={this.updatePositionSocketOn}
+                updatePositionSocketOff={this.updatePositionSocketOff}
+                close={this.closeIframe}
+                />
+        }
+        let youtubeVideo;
+        if (this.state.objects === 2){
+            youtubeVideo = <YoutubeIframe 
+                updatePositionSocketOff={this.updatePositionSocketOff}
+                closeButton={this.youtubeClose} />
+        }
         let iframeRender;
-        if (this.state.isIframeOn) {
+        if (this.state.objects === 3) {
           iframeRender = <IframePage  
             closeIframe={this.closeIframe} 
             updatePositionSocketOn={this.updatePositionSocketOn}
             updatePositionSocketOff={this.updatePositionSocketOff}
           />
-        } else {
-          iframeRender = <div></div>
-        }
-        let videoPage;
-        if (this.state.objects === 1){
-            videoPage = <YoutubeMain socket={this.props.socket} youtube={uuuuu}></YoutubeMain>
+        } 
+        let youtubeMusic;
+        if (this.state.objects === 4){
+            youtubeMusic = <div><div className="player2" id="player2"></div></div>
         }
         return (
           
           <div className="room" id="room">
             {iframeRender}
                 <div className="youtubePage">{videoPage}</div>
-                <div id="player1" className="player1"></div>
+                {youtubeVideo}
+                {youtubeMusic}
                 <div className="video-box">
                     <div id="videos" className="video-container"></div>
                 </div>
