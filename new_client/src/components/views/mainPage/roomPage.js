@@ -220,7 +220,7 @@ class Room extends Component {
         const contextCharacter = this.state.contextCharacter;
         let myStatus = statuses[socket.id].status;
 
-        curr_space = (myStatus.y <= 360) ? 2 : 1
+        curr_space = this.calcSpace(myStatus.x, myStatus.y)
         if ((myStatus.space !== curr_space) && changeSpace) {
             changeSpace = false
             socket.emit('spaceChange', myStatus.space, curr_space)
@@ -376,7 +376,10 @@ class Room extends Component {
                 }
             })
 
-            document.getElementById(socketId).style.display = 'none'
+            let videoEl = document.getElementById(socketId)
+            if (videoEl) {
+                videoEl.style.display = 'none'
+            }
         })
         socket.on('addInUser', (socketId) => {
             consumers.forEach((consumer) => {
@@ -385,7 +388,10 @@ class Room extends Component {
                 }
             })
 
-            document.getElementById(socketId).style.display = 'block'
+            let videoEl = document.getElementById(socketId)
+            if (videoEl) {
+                videoEl.style.display = 'block'
+            }
         })
 
         // socket.on("update", (statuses, idArray) => {this.updatePosition(statuses, idArray)} );
@@ -448,6 +454,7 @@ class Room extends Component {
         newVid.className = "vid"
         videos.appendChild(newVid)
         
+        newVid.style.display = 'none'
         peers[socket_id] = null;
     }    
 
@@ -639,6 +646,21 @@ class Room extends Component {
         return Math.sqrt(Math.pow((status1.x - status2.x)/CHAR_SIZE, 2) + Math.pow((status1.y - status2.y)/CHAR_SIZE, 2))
     }
 
+    calcSpace = (x, y) => {
+        if (y > 360) {
+            return 1;
+        }
+        else if (x <= 780) {
+            return 2;
+        }
+        else if (x >= 1680) {
+            return 4;
+        }
+        else {
+            return 3;
+        }
+    }
+
     createTransport = async (direction) => {
         console.log('createTransport device', device);
         let transport,
@@ -769,8 +791,8 @@ class Room extends Component {
             await this.sleep(100);
         }
         // okay, we're ready. let's ask the peer to send us media
-        await this.resumeConsumer(videoConsumer);
-        await this.resumeConsumer(audioConsumer);
+        //! await this.resumeConsumer(videoConsumer);
+        //! await this.resumeConsumer(audioConsumer);
         // keep track of all our consumers
         // updatePeersDisplay();
     

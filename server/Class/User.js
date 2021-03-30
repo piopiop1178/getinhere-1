@@ -56,7 +56,7 @@ class User{
         }
         this.status.x = Math.floor(Math.random()*map.TILE_WIDTH)*map.TILE_LENGTH;
         this.status.y = Math.floor(Math.random()*map.TILE_HEIGHT)*map.TILE_LENGTH;
-        this.status.space = (this.status.y <= 360) ? 2 : 1;
+        this.status.space = 0;
         this.status.height = map.CHAR_SIZE;
         this.status.width = map.CHAR_SIZE;
         this.status.color = color;
