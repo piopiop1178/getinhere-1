@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PresetPage from './presetPage';
+import {PresetPage, LoadingPage} from './presetPage';
 import RoomPage from './roomPage';
 import axios from 'axios';
 import './mainPage.css'
@@ -27,6 +27,7 @@ class Mainpage extends Component {
         map: {},
         characterList: [],
         musicList: {},
+        isLoadingMain: true,
         isFinishedPreset: false,
     }
 
@@ -102,6 +103,11 @@ class Mainpage extends Component {
                 document.getElementById("main").appendChild(canvasHide);
             });
         })
+        setTimeout(() => {
+            this.setState({
+                isLoadingMain: false,
+            })
+        }, 2000);
     }
 
 
@@ -148,26 +154,33 @@ class Mainpage extends Component {
     }
 
     finishPreset = (userName, characterNum) => {
+        if(this.state.isInitMain===false){
+            return ;
+        }
         this.setState({userName, characterNum});
         this.setState({isFinishedPreset: true});
     }
 
     render () {
         let contentPage;
-        if (this.state.isFinishedPreset === false) {
-            contentPage = <PresetPage finishPreset={this.finishPreset}/>
-        } else {
-            contentPage = <RoomPage
-                            roomName={this.state.roomName}
-                            userName={this.state.userName}
-                            characterNum={this.state.characterNum}
-                            map={this.state.map}
-                            characterList={this.state.characterList}
-                            musicList={this.state.musicList}
-                            socket={socket}
-                            />
+        if (this.state.isLoadingMain){
+            contentPage = <LoadingPage/>
         }
-
+        else{
+            if (this.state.isFinishedPreset === false) {
+                contentPage = <PresetPage finishPreset={this.finishPreset}/>
+            } else {
+                contentPage = <RoomPage
+                                roomName={this.state.roomName}
+                                userName={this.state.userName}
+                                characterNum={this.state.characterNum}
+                                map={this.state.map}
+                                characterList={this.state.characterList}
+                                musicList={this.state.musicList}
+                                socket={socket}
+                                />
+            }
+        }
         return (
             <div id="main">
                 {contentPage}
