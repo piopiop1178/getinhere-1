@@ -125,6 +125,7 @@ class Room extends Component {
         users: {},
         contextCharacter: document.getElementById("character-layer").getContext("2d"),
         isIframeOn: false, // 0329 
+        objects: 0,
     }
     componentDidMount = async () => {
         socket = this.props.socket;
@@ -336,6 +337,7 @@ class Room extends Component {
         // })
         
         socket.on('video_on', (video_id)=>{
+            this.setState({objects:3})
             onYouTubeIframeAPIReady(video_id)
             const unMute = () => player.unMute()
             const stopVideo = () => player.stopVideo()
@@ -347,7 +349,6 @@ class Room extends Component {
             // if (e.code === 'KeyP') playVideo()
             // if (e.code === 'KeyP') player.isMuted() ? player.unMute() : player.mute() // 소리 끄고 켜는 버튼 제공. 사용자가 이렇게 누르는 것은 괜찮다
             // })
-            this.setState({objects:0})
         })
 
         socket.on('tetris_on', () =>{
@@ -894,12 +895,16 @@ class Room extends Component {
         if (this.state.objects === 1){
             videoPage = <YoutubeMain socket={this.props.socket} youtube={uuuuu}></YoutubeMain>
         }
+        let youtubeVideo;
+        if (this.state.objects ===3){
+            youtubeVideo = <div id="player1" className="player1"></div>
+        }
         return (
           
           <div className="room" id="room">
             {iframeRender}
                 <div className="youtubePage">{videoPage}</div>
-                <div id="player1" className="player1"></div>
+                {youtubeVideo}
                 <div className="video-box">
                     <div id="videos" className="video-container"></div>
                 </div>

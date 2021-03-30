@@ -4,7 +4,6 @@ import styles from './videoDetail.module.css';
 const VideoDetail = ({ socket, video, video: { snippet } }) => {
   
   const shareVideo = ()=>{
-    console.log(video.id)
     socket.emit('video', video.id)
   }
 
@@ -20,7 +19,7 @@ const VideoDetail = ({ socket, video, video: { snippet } }) => {
         frameBorder="0"
         allowFullScreen
       ></iframe>
-      <button className={styles.button} onClick={shareVideo}> 같이 보기 </button>
+      <div className={styles.buttondiv}><button className={styles.button} onClick={shareVideo}> 친구들이랑 같이 보기 </button></div>
       <h2>{snippet.title}</h2>
       <h3>{snippet.channelTitle}</h3>
       <pre className={styles.description}>{snippet.description}</pre>
