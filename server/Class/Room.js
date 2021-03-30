@@ -17,7 +17,6 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
             consumers: []
         }
         this.video = false;
-        this.tetris = false;
     }
 
     get router(){
@@ -78,12 +77,6 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
         this._video = value;
     }
 
-    get tetris(){
-        return this._tetris;
-    }
-    set tetris(value){
-        this._tetris = value;
-    }
 
     addUser(user) {
         this.users[user.socket.id] = user;

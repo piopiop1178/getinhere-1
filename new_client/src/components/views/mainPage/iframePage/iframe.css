@@ -1,6 +1,6 @@
 .iframe-wrapper {
   position: fixed;
-  width: 100%;
+  width: 87vw;
   height: 80%;
   bottom: 0px;
 }
@@ -26,11 +26,12 @@
 .invite-code-button {
   display: block;
   height: 1.5rem;
+  margin-right: 20px;
 }
 
 .iframe-close-button {
-  /* position: fixed;
-  right: 0px; */
+  position: fixed;
+  right: 13vw;
   font-size: 1.5rem;
   border-radius: 10%;
 }

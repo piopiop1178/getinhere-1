@@ -2,9 +2,6 @@ import React, { Component } from 'react';
 import './iframe.css'
 
 class IframePage extends Component {
-  state = {
-
-  }
 
   componentDidMount = () => {
       console.log('iframe.js is on')
@@ -20,7 +17,6 @@ class IframePage extends Component {
     document.querySelector('#iframe-game').src = document.querySelector('.invite-code-input').value;
     document.querySelector('.invite-code-input').value = "";
   }
-
 
   render() {
     return (

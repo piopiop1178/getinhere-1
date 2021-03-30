@@ -15,7 +15,7 @@ module.exports = (io) => {
         let room;
         /* MainPage 접속 시 initSocket 수신 */
         socket.on('initSocket', (roomName) => {
-          console.log('initSocket');
+          // console.log('initSocket');
           room = RoomManager.getRoomByRoomName(roomName);
           /* 기능 별 socket on 설정 */
           initWebRTC(socket, room);
@@ -28,7 +28,7 @@ module.exports = (io) => {
         });
 
         socket.on('ready', async (roomName, userName, characterNum) => {
-          console.log('ready');
+          // console.log('ready');
           room = RoomManager.getRoomByRoomName(roomName)
           if (room === undefined){
             console.log("ERROR : io.on('connect'), room === undefined");
@@ -57,7 +57,7 @@ module.exports = (io) => {
     
     function initWebRTC(socket, room){
         socket.on('getRouterRtpCapabilities', (data, callback) => {
-            console.log('getRouterRtpCapabilities');
+            // console.log('getRouterRtpCapabilities');
             let router = RoomManager.getRouterBySocket(socket);
             // console.log(`router: ${router}`)
             callback(router);
@@ -156,11 +156,11 @@ module.exports = (io) => {
           target_transport = Object.values(room.roomState.transports).find(
               (p) => p.appData.socket_id === socket.id);
           await closeTransport(room.roomState, target_transport) 
-          console.log('disconnect!');
+          // console.log('disconnect!');
           io.to(room.name).emit('removeUser', socket.id);
           RoomManager.removeSocketFromRoom(socket);
         });
-        console.log("initWebRTC End");
+        // console.log("initWebRTC End");
     }
 
     function initKeyEvent(socket, room){
@@ -184,23 +184,21 @@ module.exports = (io) => {
         socket.on('testSocketDisconnect', () => {
             socket.disconnect()
         })
-        console.log("initKeyEvent End");
+        // console.log("initKeyEvent End");
     }
     
     function initMusic(socket, room){
-        socket.on('music', () => {
+        socket.on('music', (video_id) => {
             if (room.music === false){
-                // console.log(`music_on!! ${roomManager.rooms[roomName].music}`);
                 room.music = true;
-                io.to(room.name).emit('music_on');
+                io.to(room.name).emit('music_on', video_id);
             }
-            else {
-                // console.log(`music_off!! ${roomManager.rooms[roomName].music}`);
+            else {  //210330기준 미사용
                 room.music = false;
                 io.to(room.name).emit('music_off');
             }
         })
-        console.log("initMusic End");
+        // console.log("initMusic End");
     }
 
     function initChat(socket, room) {
@@ -208,7 +206,7 @@ module.exports = (io) => {
             // console.log(name, message);
             socket.broadcast.to(room.name).emit('chat', name, message);
         });
-        console.log("initChat End");
+        // console.log("initChat End");
     }
 
         /* 캐릭터 술 캔버스 설정 */
@@ -232,17 +230,7 @@ module.exports = (io) => {
         socket.on('video', (video_id) =>{
             io.to(room.name).emit('video_on', video_id);
         })
-        
-        socket.on('tetris', () => {
-            if (room.tetris === false){
-                room.tetris = true;
-                io.to(room.name).emit('tetris_on');
-            }
-            else {
-                room.tetris = false;
-                io.to(room.name).emit('tetris_off');
-            }
-        })
+      
     }
 
     function initSpaceChange(socket, room) {

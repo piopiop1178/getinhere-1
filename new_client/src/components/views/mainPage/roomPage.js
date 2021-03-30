@@ -19,6 +19,7 @@ import glassBreakSource from './sounds/glassbreak.mp3'
 import IframePage from './iframePage/iframe.js'; // 0329 승민
 import YoutubeMain from '../youtubePage/youtubeMain';
 import Youtube from '../youtubePage/youtube-fetch';
+import YoutubeIframe from '../youtubePage/youtubeIframe';
 
 const uuuuu = new Youtube();
 
@@ -81,13 +82,35 @@ var tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-var player;
-function onYouTubeIframeAPIReady(video_id) {
-    console.log(window);
-
-    player = new window.YT.Player("player1", {
-        height: '360',
-        width: '640',
+var player1;
+var player2;
+function onYouTubeIframeAPIReady1(video_id) {
+    player1 = new window.YT.Player("player1", {
+        height: '100%',
+        width: '100%',
+        videoId: video_id,
+        events: {
+        'onReady': onPlayerReady,
+        'onStateChange': onPlayerStateChange
+        },
+        playerVars: {
+        autoplay: 1,        // Auto-play the video on load
+        controls: 0,        // Show pause/play buttons in player
+        showinfo: 0,        // Hide the video title
+        modestbranding: 0,  // Hide the Youtube Logo
+        loop: 0,            // Run the video in a loop
+        fs: 0,              // Hide the full screen button
+        cc_load_policy: 0,  // Hide closed captions
+        iv_load_policy: 0,  // Hide the Video Annotations
+        autohide: 0,         // Hide video controls when playing
+        mute: 0
+        },
+    });
+}
+function onYouTubeIframeAPIReady2(video_id) {
+    player2 = new window.YT.Player("player2", {
+        height: 0,
+        width: 0,
         videoId: video_id,
         events: {
         'onReady': onPlayerReady,
@@ -126,10 +149,10 @@ class Room extends Component {
         characterList: [],
         users: {},
         contextCharacter: document.getElementById("character-layer").getContext("2d"),
-        isIframeOn: false, // 0329 
-        objects: 0,
+        objects: 0, // 0: 기본상태, 1: 동영상 검색창, 2: 동영상 같이보기, 3: 게임하기, 4. 노래
     }
     componentDidMount = async () => {
+        console.log(this.state.users)
         socket = this.props.socket;
 
         /* Room 에서 사용할 socket on 정의 */
@@ -150,12 +173,6 @@ class Room extends Component {
             let curr_x = parsed_status.x;
             let curr_y = parsed_status.y;
     
-            if (curr_x <= 60 && 1200 - curr_y <= 120 && e.code === "KeyX"){
-                // socket.emit('music');
-                this.setState({isIframeOn: !this.state.isIframeOn});
-            }
-
-
             /* 캐릭터 술 캔버스 설정 */
             if (e.code === "KeyB") {
                 alcholSoundOnceFlag = true
@@ -175,14 +192,22 @@ class Room extends Component {
                 socket.emit("testSocketDisconnect")
             }
     
+            /* 동영상, 게임하기, 노래 등 */
+            if (curr_x <= 60 && 1200 - curr_y <= 120 && e.code === "KeyX"){
+                if (this.state.objects ===0) this.setState({objects : 3})
+                else {
+                    this.setState({objects : 0})    
+                    this.updatePositionSocketOn()
+                }
+            }
+
             if (e.code ==="KeyA" && document.activeElement.tagName ==='BODY'){            
                 // socket.emit('youtube');
                 if (this.state.objects ===0) this.setState({objects : 1})
-                else this.setState({objects : 0})         
-            }
-
-            if (e.code === "KeyZ"){
-                socket.emit('tetris');
+                else {
+                    this.setState({objects : 0})      
+                    this.updatePositionSocketOn()
+                }
             }
 
             socket.emit('keydown', e.code);
@@ -288,12 +313,12 @@ class Room extends Component {
     }
 
     updatePositionSocketOff = () => {
-        console.log('remove update socket on ')
+        // console.log('remove update socket on ')
         socket.removeAllListeners("update");
     }
     
     updatePositionSocketOn = () => {
-        console.log('add update socket on ')
+        // console.log('add update socket on ')
         socket.on("update", this.updatePosition );
     }
 
@@ -323,14 +348,14 @@ class Room extends Component {
             socket.emit('start', this.props.roomName, this.props.userName, this.props.characterNum);
         });
 
-        socket.on('music_on', () => {
-        // console.log('music_on!');
-            // audio.play();
+        socket.on('music_on', (video_id) => {
+            this.setState({objects:4})
+            onYouTubeIframeAPIReady2(video_id)
+            this.updatePositionSocketOn()
         })
 
         socket.on('music_off', () => {
-            // console.log('music_off!');
-            // audio.pause();
+            // 210330기준 기능없음
         });
 
         socket.on('chat', (name, message) => {
@@ -347,26 +372,8 @@ class Room extends Component {
         // })
         
         socket.on('video_on', (video_id)=>{
-            this.setState({objects:3})
-            onYouTubeIframeAPIReady(video_id)
-            const unMute = () => player.unMute()
-            const stopVideo = () => player.stopVideo()
-            const playVideo = () => player.playVideo()
-            const setVolume = () => player.setVolume(50)
-            // window.addEventListener('keydown', e => {
-            // if (e.code === 'KeyA') console.log(player.getVolume());
-            // if (e.code === 'KeyS') setVolume()
-            // if (e.code === 'KeyP') playVideo()
-            // if (e.code === 'KeyP') player.isMuted() ? player.unMute() : player.mute() // 소리 끄고 켜는 버튼 제공. 사용자가 이렇게 누르는 것은 괜찮다
-            // })
-        })
-
-        socket.on('tetris_on', () =>{
-            console.log('onon');
-            this.setState({objects : 2})
-        })
-        socket.on('tetris_off', () =>{
-            this.setState({objects : 0})
+            this.setState({objects:2})
+            onYouTubeIframeAPIReady1(video_id)
         })
 
         socket.on('removeOutUser', (socketId) => {
@@ -942,23 +949,31 @@ class Room extends Component {
     }
 
     render() {
+        let videoPage;
+        if (this.state.objects === 1){
+            videoPage = <YoutubeMain 
+                socket={this.props.socket}
+                youtube={uuuuu} 
+                updatePositionSocketOn={this.updatePositionSocketOn}
+                updatePositionSocketOff={this.updatePositionSocketOff}
+                close={this.closeIframe}
+                />
+        }
+        let youtubeVideo;
+        if (this.state.objects === 2){
+            youtubeVideo = <YoutubeIframe closeButton={this.youtubeClose}></YoutubeIframe>
+        }
         let iframeRender;
-        if (this.state.isIframeOn) {
+        if (this.state.objects === 3) {
           iframeRender = <IframePage  
             closeIframe={this.closeIframe} 
             updatePositionSocketOn={this.updatePositionSocketOn}
             updatePositionSocketOff={this.updatePositionSocketOff}
           />
-        } else {
-          iframeRender = <div></div>
-        }
-        let videoPage;
-        if (this.state.objects === 1){
-            videoPage = <YoutubeMain socket={this.props.socket} youtube={uuuuu}></YoutubeMain>
-        }
-        let youtubeVideo;
-        if (this.state.objects ===3){
-            youtubeVideo = <div id="player1" className="player1"></div>
+        } 
+        let youtubeMusic;
+        if (this.state.objects === 4){
+            youtubeMusic = <div><div className="player2" id="player2"></div></div>
         }
         return (
           

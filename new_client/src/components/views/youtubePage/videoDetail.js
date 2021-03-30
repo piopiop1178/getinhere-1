@@ -6,6 +6,9 @@ const VideoDetail = ({ socket, video, video: { snippet } }) => {
   const shareVideo = ()=>{
     socket.emit('video', video.id)
   }
+  const shareAudio = () =>{
+      socket.emit('music', video.id)
+  }
 
   return(
     <section className={styles.detail}>
@@ -20,6 +23,7 @@ const VideoDetail = ({ socket, video, video: { snippet } }) => {
         allowFullScreen
       ></iframe>
       <div className={styles.buttondiv}><button className={styles.button} onClick={shareVideo}> 친구들이랑 같이 보기 </button></div>
+      <div className={styles.buttondiv}><button className={styles.button} onClick={shareAudio}> 친구들이랑 같이 듣기 </button></div>
       <h2>{snippet.title}</h2>
       <h3>{snippet.channelTitle}</h3>
       <pre className={styles.description}>{snippet.description}</pre>
