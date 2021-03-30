@@ -144,8 +144,6 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
                     user.status.x = tmpX;
                     user.status.y = tmpY;
                 }
-
-                user.status.space = (tmpY <= 360) ? 2 : 1
                 
                 /* * 기존: if문 8번 삼항연산자 4번 */
                 // if (user.keyPress[UP] === true) {

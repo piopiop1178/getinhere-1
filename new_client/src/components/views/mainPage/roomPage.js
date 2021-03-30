@@ -73,7 +73,8 @@ const LEFT = 'ArrowLeft', UP = 'ArrowUp', RIGHT = 'ArrowRight', DOWN = 'ArrowDow
 let alcholSoundOnceFlag;
 let keyDownUpOnceFlag;
 let keyUpBuffer = {};
-let changingSpace = false
+let curr_space
+let changeSpace = true
 
 // youtube synchro play
 var tag = document.createElement('script');
@@ -219,12 +220,10 @@ class Room extends Component {
         const contextCharacter = this.state.contextCharacter;
         let myStatus = statuses[socket.id].status;
 
-        //TODO
-        let st = localStorage.getItem('myStatus');
-        let parsed_status = JSON.parse(st);
-        if (myStatus.space !== parsed_status.space && (!changingSpace)) {
-            changingSpace = true
-            // socket.emit('spaceChange', parsed_status.space, myStatus.space)
+        curr_space = (myStatus.y <= 360) ? 2 : 1
+        if ((myStatus.space !== curr_space) && changeSpace) {
+            changeSpace = false
+            socket.emit('spaceChange', myStatus.space, curr_space)
         }
 
         this.storelocalStorage(myStatus);
@@ -285,6 +284,7 @@ class Room extends Component {
                 statuses[id].status.y,
             );
         });
+        changeSpace = true
     }
 
     updatePositionSocketOff = () => {
@@ -370,20 +370,22 @@ class Room extends Component {
         })
 
         socket.on('removeOutUser', (socketId) => {
-            //TODO
             consumers.forEach((consumer) => {
                 if (consumer.appData.peerId === socketId) {
                     this.pauseConsumer(consumer)
                 }
             })
+
+            document.getElementById(socketId).style.display = 'none'
         })
         socket.on('addInUser', (socketId) => {
-            //TODO
             consumers.forEach((consumer) => {
                 if (consumer.appData.peerId === socketId) {
                     this.resumeConsumer(consumer)
                 }
             })
+
+            document.getElementById(socketId).style.display = 'block'
         })
 
         // socket.on("update", (statuses, idArray) => {this.updatePosition(statuses, idArray)} );
@@ -604,8 +606,6 @@ class Room extends Component {
         let row = myStatus.y/TILE_LENGTH + 1;
         let col = myStatus.x/TILE_LENGTH + 1;
         localStorage.setItem('position', JSON.stringify({row, col}))
-
-        changingSpace = false;
     }
     
     updateButtons = () => {

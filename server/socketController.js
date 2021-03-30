@@ -247,6 +247,7 @@ module.exports = (io) => {
 
     function initSpaceChange(socket, room) {
         socket.on('spaceChange', (oldSpace, newSpace) => {
+            room.users[socket.id].status.space = newSpace
             Object.values(room.users).forEach((user) => {
                 /* Need to be changed to send emit with list of changed users */
                 if (user.status.space === oldSpace) {
@@ -258,7 +259,6 @@ module.exports = (io) => {
                     socket.emit('addInUser', user.socket.id)
                 }
             })
-            console.log('"spaceChange" event done')
         })
     }
 }
