@@ -73,6 +73,7 @@ const LEFT = 'ArrowLeft', UP = 'ArrowUp', RIGHT = 'ArrowRight', DOWN = 'ArrowDow
 let alcholSoundOnceFlag;
 let keyDownUpOnceFlag;
 let keyUpBuffer = {};
+let changingSpace = false
 
 // youtube synchro play
 var tag = document.createElement('script');
@@ -206,85 +207,94 @@ class Room extends Component {
     }
 
     updatePosition = (statuses, idArray) => {
-      keyDownUpOnceFlag = false;
-      if (keyUpBuffer[UP]) { socket.emit("keyup", UP); keyUpBuffer[UP] = false;} 
-      if (keyUpBuffer[RIGHT]) { socket.emit("keyup", RIGHT); keyUpBuffer[RIGHT] = false;} 
-      if (keyUpBuffer[DOWN]) { socket.emit("keyup", DOWN); keyUpBuffer[DOWN] = false;} 
-      if (keyUpBuffer[LEFT]) { socket.emit("keyup", LEFT); keyUpBuffer[LEFT] = false;} 
+        keyDownUpOnceFlag = false;
+        if (keyUpBuffer[UP]) { socket.emit("keyup", UP); keyUpBuffer[UP] = false;} 
+        if (keyUpBuffer[RIGHT]) { socket.emit("keyup", RIGHT); keyUpBuffer[RIGHT] = false;} 
+        if (keyUpBuffer[DOWN]) { socket.emit("keyup", DOWN); keyUpBuffer[DOWN] = false;} 
+        if (keyUpBuffer[LEFT]) { socket.emit("keyup", LEFT); keyUpBuffer[LEFT] = false;} 
 
-      // const WIDTH = this.state.map._WIDTH;
-      // const HEIGHT = this.state.map._HEIGHT;
-      // console.log(WIDTH, HEIGHT);
-      const contextCharacter = this.state.contextCharacter;
-      let myStatus = statuses[socket.id].status;
-      this.storelocalStorage(myStatus);
-      this.updateWindowCenter(myStatus);
-      contextCharacter.clearRect(myStatus.x - window.innerWidth, myStatus.y - window.innerHeight, window.innerWidth*2, window.innerHeight*2); //TODO 내가 보는곳만 하기
-      contextCharacter.beginPath();
-      idArray.forEach((id) => {
-          // Audio volume change
-          // if (id !== socket.id && gains[id] != undefined) {
-          //     dist = this.calcDistance(statuses[id].status, statuses[socket.id].status)
-          //     // console.log(dist)
-          //     gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
-          // }
+        // const WIDTH = this.state.map._WIDTH;
+        // const HEIGHT = this.state.map._HEIGHT;
+        // console.log(WIDTH, HEIGHT);
+        const contextCharacter = this.state.contextCharacter;
+        let myStatus = statuses[socket.id].status;
 
-          // 다른 캐릭터가 내 화면 밖으로 나가면 그려주지않고 넘어간다
-          if (Math.abs(myStatus.x - statuses[id].status.x) > window.innerWidth && Math.abs(myStatus.y - statuses[id].status.y) > window.innerHeight) {
-              return;
-          }
+        //TODO
+        let st = localStorage.getItem('myStatus');
+        let parsed_status = JSON.parse(st);
+        if (myStatus.space !== parsed_status.space && (!changingSpace)) {
+            changingSpace = true
+            // socket.emit('spaceChange', parsed_status.space, myStatus.space)
+        }
 
-          // 캐릭터 삽입 코드
-          contextCharacter.drawImage(this.props.characterList[statuses[id].characterNum], 
-              statuses[id].status.x,
-              statuses[id].status.y,
-              statuses[id].status.width,
-              statuses[id].status.height
-              );
-          // 술 이모티콘 삽입 코드
-          if (statuses[id].status.alchol) {
-              let alchol;
+        this.storelocalStorage(myStatus);
+        this.updateWindowCenter(myStatus);
+        contextCharacter.clearRect(myStatus.x - window.innerWidth, myStatus.y - window.innerHeight, window.innerWidth*2, window.innerHeight*2); //TODO 내가 보는곳만 하기
+        contextCharacter.beginPath();
+        idArray.forEach((id) => {
+            // Audio volume change
+            // if (id !== socket.id && gains[id] != undefined) {
+            //     dist = this.calcDistance(statuses[id].status, statuses[socket.id].status)
+            //     // console.log(dist)
+            //     gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
+            // }
 
-              if (statuses[id].status.alchol === 'beer') {
-                if (alcholSoundOnceFlag) {
-                  beer.play()
-                  alcholSoundOnceFlag = false
-                }
-                alchol = "🍺"
-              } else if (statuses[id].status.alchol === 'cocktail') {
-                if (alcholSoundOnceFlag) {
-                  cocktail.play()
-                  alcholSoundOnceFlag = false
-                }
-                alchol = "🍸"
-              } else if (statuses[id].status.alchol === 'wine') {
-                if (alcholSoundOnceFlag) {
-                  wine.play()
-                  alcholSoundOnceFlag = false
-                }
-                alchol = "🍷"
-              }
-              contextCharacter.fillText(alchol,
-                  statuses[id].status.x + 5,
-                  statuses[id].status.y,
-                  );
+            // 다른 캐릭터가 내 화면 밖으로 나가면 그려주지않고 넘어간다
+            if (Math.abs(myStatus.x - statuses[id].status.x) > window.innerWidth && Math.abs(myStatus.y - statuses[id].status.y) > window.innerHeight) {
+                return;
             }
-          contextCharacter.font = '48px serif';
-          contextCharacter.fillText(statuses[id].userName,
-              statuses[id].status.x,
-              statuses[id].status.y,
-          );
-      });
+
+            // 캐릭터 삽입 코드
+            contextCharacter.drawImage(this.props.characterList[statuses[id].characterNum], 
+                statuses[id].status.x,
+                statuses[id].status.y,
+                statuses[id].status.width,
+                statuses[id].status.height
+                );
+            // 술 이모티콘 삽입 코드
+            if (statuses[id].status.alchol) {
+                let alchol;
+
+                if (statuses[id].status.alchol === 'beer') {
+                    if (alcholSoundOnceFlag) {
+                        beer.play()
+                        alcholSoundOnceFlag = false
+                    }
+                    alchol = "🍺"
+                } else if (statuses[id].status.alchol === 'cocktail') {
+                    if (alcholSoundOnceFlag) {
+                        cocktail.play()
+                        alcholSoundOnceFlag = false
+                    }
+                    alchol = "🍸"
+                } else if (statuses[id].status.alchol === 'wine') {
+                    if (alcholSoundOnceFlag) {
+                    wine.play()
+                    alcholSoundOnceFlag = false
+                    }
+                    alchol = "🍷"
+                }
+                contextCharacter.fillText(alchol,
+                    statuses[id].status.x + 5,
+                    statuses[id].status.y,
+                    );
+                }
+            contextCharacter.font = '48px serif';
+            contextCharacter.fillText(statuses[id].userName,
+                statuses[id].status.x,
+                statuses[id].status.y,
+            );
+        });
     }
 
     updatePositionSocketOff = () => {
-      console.log('remove update socket on ')
-      socket.removeAllListeners("update");
+        console.log('remove update socket on ')
+        socket.removeAllListeners("update");
     }
     
     updatePositionSocketOn = () => {
-      console.log('add update socket on ')
-      socket.on("update", this.updatePosition );
+        console.log('add update socket on ')
+        socket.on("update", this.updatePosition );
     }
 
 
@@ -357,8 +367,24 @@ class Room extends Component {
         })
         socket.on('tetris_off', () =>{
             this.setState({objects : 0})
-        })  
+        })
 
+        socket.on('removeOutUser', (socketId) => {
+            //TODO
+            consumers.forEach((consumer) => {
+                if (consumer.appData.peerId === socketId) {
+                    this.pauseConsumer(consumer)
+                }
+            })
+        })
+        socket.on('addInUser', (socketId) => {
+            //TODO
+            consumers.forEach((consumer) => {
+                if (consumer.appData.peerId === socketId) {
+                    this.resumeConsumer(consumer)
+                }
+            })
+        })
 
         // socket.on("update", (statuses, idArray) => {this.updatePosition(statuses, idArray)} );
         socket.on("update", this.updatePosition );
@@ -578,6 +604,8 @@ class Room extends Component {
         let row = myStatus.y/TILE_LENGTH + 1;
         let col = myStatus.x/TILE_LENGTH + 1;
         localStorage.setItem('position', JSON.stringify({row, col}))
+
+        changingSpace = false;
     }
     
     updateButtons = () => {
@@ -782,6 +810,17 @@ class Room extends Component {
                 await consumer.resume();
             } catch (e) {
                 console.error(e);
+            }
+        }
+    }
+
+    pauseConsumer = async (consumer) => {
+        if (consumer) {
+            try {
+                await socket.request('pauseConsumer', { consumerId: consumer.id })
+                await consumer.pause()
+            } catch (e) {
+                console.error(e)
             }
         }
     }

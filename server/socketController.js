@@ -24,6 +24,7 @@ module.exports = (io) => {
           initChat(socket, room);
           initAlcholIcon(socket, room);
           initObject(socket, room);
+          initSpaceChange(socket, room);
         });
 
         socket.on('ready', async (roomName, userName, characterNum) => {
@@ -122,6 +123,14 @@ module.exports = (io) => {
             callback();
         });
 
+        socket.on('pauseConsumer', async (data, callback) => {
+            let { consumerId } = data,
+                consumer = room.roomState.consumers.find((c) => c.id === consumerId);
+
+            await consumer.pause();
+            callback();
+        })
+
         socket.on('closeConsumer', async (data, callback) => {
             let roomState = room.roomState;
             try {
@@ -173,7 +182,7 @@ module.exports = (io) => {
 
         /* Keypress event to test socket disconnect */
         socket.on('testSocketDisconnect', () => {
-          socket.disconnect()
+            socket.disconnect()
         })
         console.log("initKeyEvent End");
     }
@@ -233,6 +242,23 @@ module.exports = (io) => {
                 room.tetris = false;
                 io.to(room.name).emit('tetris_off');
             }
+        })
+    }
+
+    function initSpaceChange(socket, room) {
+        socket.on('spaceChange', (oldSpace, newSpace) => {
+            Object.values(room.users).forEach((user) => {
+                /* Need to be changed to send emit with list of changed users */
+                if (user.status.space === oldSpace) {
+                    user.socket.emit('removeOutUser', socket.id)
+                    socket.emit('removeOutUser', user.socket.id)
+                }
+                else if (user.status.space === newSpace && user.socket.id != socket.id) {
+                    user.socket.emit('addInUser', socket.id)
+                    socket.emit('addInUser', user.socket.id)
+                }
+            })
+            console.log('"spaceChange" event done')
         })
     }
 }
