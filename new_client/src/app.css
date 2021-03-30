@@ -133,6 +133,7 @@ button {
 
 canvas {
   border: none;
+  display:block;
 }
 
 .character-box {

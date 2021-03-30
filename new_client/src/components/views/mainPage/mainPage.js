@@ -28,6 +28,7 @@ class Mainpage extends Component {
         characterList: [],
         musicList: {},
         isFinishedPreset: false,
+        faceBase64: null,
     }
 
     componentDidMount = async () => {
@@ -147,9 +148,10 @@ class Mainpage extends Component {
         return arr;
     }
 
-    finishPreset = (userName, characterNum) => {
+    finishPreset = (userName, characterNum, faceBase64) => {
         this.setState({userName, characterNum});
         this.setState({isFinishedPreset: true});
+        this.setState({faceBase64})
     }
 
     render () {
@@ -165,6 +167,7 @@ class Mainpage extends Component {
                             characterList={this.state.characterList}
                             musicList={this.state.musicList}
                             socket={socket}
+                            faceMode={this.state.faceBase64} // 얼굴모드일때 넘겨줄 데이터
                             />
         }
 

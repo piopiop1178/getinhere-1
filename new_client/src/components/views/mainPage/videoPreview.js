@@ -24,7 +24,6 @@ class VideoPreview extends Component {
         const video = document.querySelector('video');
         
         navigator.mediaDevices.getUserMedia(constraints).then(stream => {
-            // console.log('Received local stream');
             video.srcObject = stream;
         }).catch(e => alert(`getusermedia error ${e.name}`))
     }

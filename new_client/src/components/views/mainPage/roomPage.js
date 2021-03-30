@@ -135,6 +135,7 @@ class Room extends Component {
 
         /* 연결 준비가 되었음을 알림 */
         socket.emit('ready', this.props.roomName, this.props.userName, this.props.characterNum);
+        // socket.emit('ready', this.props.roomName, this.props.userName, this.props.faceMode);
         
         document.getElementById("chat-message").addEventListener("keyup", (e) => {
             // console.log(e.code);
