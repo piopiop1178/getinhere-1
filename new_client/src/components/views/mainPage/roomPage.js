@@ -944,8 +944,12 @@ class Room extends Component {
     }
 
     closeIframe = () => {
-      console.log('closeIframe /roomPage.js');
-      this.setState({isIframeOn: false});
+        this.setState({objects : 0});
+    }
+
+    youtubeClose = () => {
+        this.setState({objects : 0})
+        this.updatePositionSocketOn()
     }
 
     render() {
@@ -961,7 +965,9 @@ class Room extends Component {
         }
         let youtubeVideo;
         if (this.state.objects === 2){
-            youtubeVideo = <YoutubeIframe closeButton={this.youtubeClose}></YoutubeIframe>
+            youtubeVideo = <YoutubeIframe 
+                updatePositionSocketOff={this.updatePositionSocketOff}
+                closeButton={this.youtubeClose} />
         }
         let iframeRender;
         if (this.state.objects === 3) {
@@ -981,6 +987,7 @@ class Room extends Component {
             {iframeRender}
                 <div className="youtubePage">{videoPage}</div>
                 {youtubeVideo}
+                {youtubeMusic}
                 <div className="video-box">
                     <div id="videos" className="video-container"></div>
                 </div>

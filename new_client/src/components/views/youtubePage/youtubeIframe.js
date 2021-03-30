@@ -6,6 +6,10 @@ class YoutubeIframe extends Component {
     closeButton=() => {
         this.props.closeButton()
     }
+    
+    componentDidMount = () => {
+        this.props.updatePositionSocketOff()
+    }
 
     render() {
         return (
