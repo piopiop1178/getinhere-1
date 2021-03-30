@@ -220,7 +220,7 @@ class Room extends Component {
         const contextCharacter = this.state.contextCharacter;
         let myStatus = statuses[socket.id].status;
 
-        curr_space = (myStatus.y <= 360) ? 2 : 1
+        curr_space = this.calcSpace(myStatus.x, myStatus.y)
         if ((myStatus.space !== curr_space) && changeSpace) {
             changeSpace = false
             socket.emit('spaceChange', myStatus.space, curr_space)
@@ -376,7 +376,10 @@ class Room extends Component {
                 }
             })
 
-            document.getElementById(socketId).style.display = 'none'
+            let videoEl = document.getElementById(socketId)
+            if (videoEl) {
+                videoEl.style.display = 'none'
+            }
         })
         socket.on('addInUser', (socketId) => {
             consumers.forEach((consumer) => {
@@ -385,7 +388,10 @@ class Room extends Component {
                 }
             })
 
-            document.getElementById(socketId).style.display = 'block'
+            let videoEl = document.getElementById(socketId)
+            if (videoEl) {
+                videoEl.style.display = 'block'
+            }
         })
 
         // socket.on("update", (statuses, idArray) => {this.updatePosition(statuses, idArray)} );
@@ -917,6 +923,22 @@ class Room extends Component {
     closeIframe = () => {
       console.log('closeIframe /roomPage.js');
       this.setState({isIframeOn: false});
+    }
+
+    calcSpace = (x, y) => {
+        //TODO
+        if (y > 420) {
+            return 1;
+        }
+        else if (x <= 780) {
+            return 2;
+        }
+        else if (x >= 1560) {
+            return 4;
+        }
+        else {
+            return 3;
+        }
     }
 
     render() {
