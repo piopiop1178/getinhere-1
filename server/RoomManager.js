@@ -32,7 +32,7 @@ class RoomManager {   // Room 함수 실행
         /* uuid 로 roomName 생성 */
         const tokens = uuid.v4().split('-');
         const roomName = tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
-        console.log("********** createRoom ***********");
+        // console.log("********** createRoom ***********");
         // console.log(`localhost?room=${roomName}`);
         /* roomName으로 새로운 Room을 생성하여 rooms에 추가 */
         const room = new Room(roomName, map);
@@ -51,7 +51,7 @@ class RoomManager {   // Room 함수 실행
         worker.appData.numRouters += 1;
         /* 생성한 router를 room 에 할당 */
         room.router = mediasoupRouter;
-        console.log(roomName);
+        // console.log(roomName);
         // return room;
 
         return roomName;
@@ -146,7 +146,7 @@ async function initializeMediasoupWorker(workers) {
         {
             const usage = await worker.getResourceUsage();
 
-            console.log('mediasoup Worker resource usage [pid:%d]: %o', worker.pid, usage);
+            // console.log('mediasoup Worker resource usage [pid:%d]: %o', worker.pid, usage);
         }, 120000);
     }
   }
@@ -166,7 +166,7 @@ function getMediasoupWorker(workers)
     }
     if (++nextMediasoupWorkerIdx === workers.length)
             nextMediasoupWorkerIdx = 0;
-    console.log(worker.pid)
+    // console.log(worker.pid)
     return worker;
 }
 

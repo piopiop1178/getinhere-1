@@ -22,7 +22,7 @@ const SerchHeader = memo(({ close, updatePositionSocketOff, updatePositionSocket
 
     const onKeyPress = event => {
       if (event.key === 'Enter') {
-        console.log(window.getSelection());
+        // console.log(window.getSelection());
         handleSearch();
       }
     };
