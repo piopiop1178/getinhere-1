@@ -1061,7 +1061,7 @@ class Room extends Component {
                         </div>
                     </div>
                     <div className="input-bar">
-                        <input autoComplete="off" type="text" id="chat-message" maxlength='140'/>
+                        <input autoComplete="off" type="text" id="chat-message" maxLength='140'/>
                         <button onClick={this.sendChat}>✉</button>
                     </div>
                 </div>

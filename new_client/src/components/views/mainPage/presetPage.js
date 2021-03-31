@@ -14,6 +14,9 @@ export class LoadingPage extends Component {
     }
 }
 
+
+
+
 export class PresetPage extends Component {
     state = {
         characterNum : 0,
@@ -21,9 +24,8 @@ export class PresetPage extends Component {
         userName: "",
         refresh: 0,
         ctx: null,
-        photoCanvas: null
-    }
-
+        photoCanvas: document.querySelector('.photo-canvas')
+    }    
     componentDidMount = () => {
         axios.get('/api/characterList')
         .then(response => {
@@ -66,8 +68,10 @@ export class PresetPage extends Component {
             return;
         }
 
-        this.props.finishPreset(this.state.userName, this.state.characterNum, this.state.photoCanvas.toDataURL());
-
+        
+        let pc = document.querySelector('.photo-canvas');
+        this.props.finishPreset(this.state.userName, this.state.characterNum, pc.toDataURL());
+        console.log('pc.toDataURL()', pc.toDataURL());
     }
 
     inputChange = e =>{
@@ -77,11 +81,6 @@ export class PresetPage extends Component {
 
     render() {
         let characterImage = null;
-        let faceModeCanvasStyle = {
-            "transform": "rotateY(180deg)",
-            "WebkitTransform": "rotateY(180deg)",
-            "position": "relative",
-        }
         if (this.state.characterNum < this.state.characterList.length) {
             characterImage = <img alt="character" src={this.state.characterList[this.state.characterNum]}></img>                      
         } else {
