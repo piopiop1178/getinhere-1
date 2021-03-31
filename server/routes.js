@@ -64,4 +64,13 @@ module.exports = async (app) => {
             "success": true,
         }); 
     });
+
+    app.get('/api/usersCount', (req, res) => {
+        const roomName = req.query.roomName;
+        const room = RoomManager.getRoomByRoomName(roomName);
+        return res.status(200).json({
+            "usersCount": Object.keys(room.users).length,
+            "success": true,
+        });
+    });
 }

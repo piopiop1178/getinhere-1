@@ -30,73 +30,87 @@ class Mainpage extends Component {
         isLoadingMain: true,
         isFinishedPreset: false,
         faceBase64: null,
+        isFull: false,
     }
 
     mainRef = React.createRef();
 
     componentDidMount = async () => {
-        this.setState({roomName: this.props.match.params.roomName});
-        socket.emit("initSocket", this.props.match.params.roomName);
-        axios.get('/api/map', {
+        await axios.get('/api/usersCount', {
             params: { 
                 roomName : this.props.match.params.roomName,
-            }})
-        .then(response => {
-            this.setState({map : response.data.map})
-
-            const map = response.data.map;
-            const width = map._WIDTH;
-            const height = map._HEIGHT;
-
-            /* canvas 생성 */
-            const canvasBackground = document.createElement("canvas");
-            const contextBackground = canvasBackground.getContext("2d");
-            canvasBackground.id = "background-layer";
-
-            const canvasObject = document.createElement("canvas");
-            const contextObject = canvasObject.getContext("2d");
-            canvasObject.id = "object-layer";
-
-            const canvasCharacter = document.createElement("canvas");
-            canvasCharacter.id = "character-layer";
-
-            /* canvas 속성 설정 및 main에 추가 */
-            const main = this.mainRef.current; // 이렇게 main에 접근
-            
-            canvasBackground.setAttribute("width", width);
-            canvasBackground.setAttribute("height", height);
-            main.appendChild(canvasBackground);
-            
-            canvasObject.setAttribute("width", width);
-            canvasObject.setAttribute("height", height);
-            main.appendChild(canvasObject);
-            
-            canvasCharacter.setAttribute("width", width);
-            canvasCharacter.setAttribute("height", height);
-            // document.getElementById("main").appendChild(canvasCharacter);
-            main.appendChild(canvasCharacter);
-            
-            this.drawBackground(contextBackground, map, width, height);
-            // this.drawBlockZone(contextObject, map._BLOCKED_AREA, map._TILE_LENGTH, map._TILE_WIDTH);
-            // console.log(map._MUSIC_LIST);
-            this.drawMusicObject(contextObject, map._MUSIC_LIST, map._TILE_LENGTH, map._TILE_WIDTH);
+            }
+        })
+        .then((response) => {
+            console.log(response.data.usersCount);
+            if(response.data.usersCount > 8){
+                this.goBack();
+            }
         })
         .then(() => {
-            axios.get('/api/characterList')
+            this.setState({roomName: this.props.match.params.roomName});
+            socket.emit("initSocket", this.props.match.params.roomName);
+            axios.get('/api/map', {
+                params: { 
+                    roomName : this.props.match.params.roomName,
+                }
+            })
             .then(response => {
-                const characterList = response.data.characterList;
-                const map = this.state.map;
+                this.setState({map : response.data.map})
+
+                const map = response.data.map;
                 const width = map._WIDTH;
                 const height = map._HEIGHT;
 
+                /* canvas 생성 */
+                const canvasBackground = document.createElement("canvas");
+                const contextBackground = canvasBackground.getContext("2d");
+                canvasBackground.id = "background-layer";
 
-                for(let index in characterList){
-                    const characterImage = new Image();
-                    characterImage.src = characterList[index];
-                    this.state.characterList[index] = characterImage;
-                }
-            });
-        })
+                const canvasObject = document.createElement("canvas");
+                const contextObject = canvasObject.getContext("2d");
+                canvasObject.id = "object-layer";
+
+                const canvasCharacter = document.createElement("canvas");
+                canvasCharacter.id = "character-layer";
+
+                /* canvas 속성 설정 및 main에 추가 */
+                const main = document.getElementById("main");
+                
+                canvasBackground.setAttribute("width", width);
+                canvasBackground.setAttribute("height", height);
+                main.appendChild(canvasBackground);
+                
+                canvasObject.setAttribute("width", width);
+                canvasObject.setAttribute("height", height);
+                main.appendChild(canvasObject);
+                
+                canvasCharacter.setAttribute("width", width);
+                canvasCharacter.setAttribute("height", height);
+                document.getElementById("main").appendChild(canvasCharacter);
+                
+                this.drawBackground(contextBackground, map, width, height);
+                // this.drawBlockZone(contextObject, map._BLOCKED_AREA, map._TILE_LENGTH, map._TILE_WIDTH);
+                // console.log(map._MUSIC_LIST);
+                this.drawMusicObject(contextObject, map._MUSIC_LIST, map._TILE_LENGTH, map._TILE_WIDTH);
+            })
+            .then(() => {
+                axios.get('/api/characterList')
+                .then(response => {
+                    const characterList = response.data.characterList;
+                    const map = this.state.map;
+                    const width = map._WIDTH;
+                    const height = map._HEIGHT;
+
+
+                    for(let index in characterList){
+                        const characterImage = new Image();
+                        characterImage.src = characterList[index];
+                        this.state.characterList[index] = characterImage;
+                    }
+                });
+            })
+        });
     }
 
     drawMusicObject(contextObject, musics, TILE_LENGTH, TILE_WIDTH){
@@ -152,6 +166,15 @@ class Mainpage extends Component {
         }
     }
 
+    goBack = () => {
+        alert('방이 꽉 찼습니다');
+        const { history } = this.props;
+        history.goBack();
+            // history.push({
+            //     pathname: `/`,
+            // });
+    }
+
     loadingFinished = () => {this.setState({isLoadingMain: false})} // mainPage->presetPage->videoPage로 함수 전달됨
 
     render () {
@@ -162,9 +185,13 @@ class Mainpage extends Component {
         } else {
             loadingPage = <div></div>
         }
-
         if (this.state.isFinishedPreset === false) {
-            contentPage = <PresetPage finishPreset={this.finishPreset} loadingFinished={this.loadingFinished}/>
+            contentPage = <PresetPage 
+                            finishPreset={this.finishPreset}
+                            loadingFinished={this.loadingFinished}
+                            roomName={this.state.roomName}
+                            goBack={this.goBack}
+                            />
         } else {
             contentPage = <RoomPage
                             roomName={this.state.roomName}
@@ -174,7 +201,8 @@ class Mainpage extends Component {
                             characterList={this.state.characterList}
                             musicList={this.state.musicList}
                             socket={socket}
-                            faceMode={this.state.faceBase64} 
+                            faceMode={this.state.faceBase64}
+                            goBack={this.goBack}
                             />
         }
         return (
