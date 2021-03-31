@@ -5,9 +5,6 @@ class toggleButton extends Component {
 
   componentDidMount = () => {
         /* Copy Invite_url to my Clipboard */
-    
-
-
   }
 
   copyInviteLinkToClipboard = () => {

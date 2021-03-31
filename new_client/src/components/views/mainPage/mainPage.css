@@ -70,6 +70,8 @@ canvas {
 
 .room {
   z-index: 2;
+  justify-content: center;
+  display: flex;
 }
 
 /* -----------------   ROOM END    ----------------- */
@@ -204,6 +206,7 @@ canvas {
   justify-content: center;
   top: 1%; /* 디자인특성을 어떻게 가져가야할지 고민 */
   z-index: 3;
+  display: flex;
 }
 
 /* 기존 코드 */
@@ -214,9 +217,14 @@ canvas {
   grid-template-rows: repeat(auto-fit, 300px);
 }
 
+.video-container::-webkit-scrollbar {
+  /* display: none; */
+}
+
 .video-container {
   display: flex;
-  justify-content: center;
+  width: auto;
+  overflow-x: auto;
 }
 
 .vid {
