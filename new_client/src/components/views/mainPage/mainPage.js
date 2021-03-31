@@ -159,11 +159,10 @@ class Mainpage extends Component {
             return ;
         }
         this.setState({userName, characterNum});
-        this.setState({isFinishedPreset: true});
         if (characterNum == this.state.characterList.length) {
             this.setState({faceBase64})
-            // localStorage.setItem(socket.id, faceBase64) //!내 얼굴 로컬에 저장하기
         }
+        this.setState({isFinishedPreset: true});
     }
 
     goBack = () => {

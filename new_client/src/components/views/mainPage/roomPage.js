@@ -156,6 +156,8 @@ class Room extends Component {
         socket = this.props.socket;
 
         //! 내 얼굴 넣기
+        console.log('this.props.faceMode', this.props);
+
         if (this.props.faceMode) {
             let characterImage = new Image();
             characterImage.onload = () => {
@@ -163,7 +165,6 @@ class Room extends Component {
             }
             characterImage.src = this.props.faceMode //! 그리기
             this.state.faceList[socket.id] = characterImage; //! 리스트에 넣기
-            this.state.faceListNum =this.state.faceListNum + 1
         }
         //! 내 얼굴 넣기 끝
 
@@ -312,6 +313,7 @@ class Room extends Component {
             let drawImageSrc = statuses[id].characterNum != -1 ? this.props.characterList[statuses[id].characterNum] : this.state.faceList[statuses[id].id]
             if (!drawImageSrc) {return;}
 
+            console.log('-------------------------------', drawImageSrc);
 
             // 캐릭터 삽입 코드
             contextCharacter.drawImage(
@@ -350,7 +352,7 @@ class Room extends Component {
                     statuses[id].status.y,
                     );
                 }
-            contextCharacter.font = '48px Bangers';
+            contextCharacter.font = '40px Bangers';
             contextCharacter.shadowColor = 'white' // string
                 //Color of the shadow;  RGB, RGBA, HSL, HEX, and other inputs are valid.
             contextCharacter.shadowOffsetX = 0; // integer
@@ -362,7 +364,7 @@ class Room extends Component {
 
             contextCharacter.fillText(statuses[id].userName,
                 statuses[id].status.x,
-                statuses[id].status.y+90,
+                statuses[id].status.y + 90,
             );
         });
         changeSpace = true
@@ -534,7 +536,6 @@ class Room extends Component {
         let characterImage = new Image();
         characterImage.src = characterNum;
         this.state.faceList[socketId] = characterImage;
-        this.state.faceListNum =this.state.faceListNum + 1
     }
 
     addPeer = async (socket_id, sameSpace) => {
