@@ -342,10 +342,19 @@ class Room extends Component {
                     statuses[id].status.y,
                     );
                 }
-            contextCharacter.font = '48px serif';
+            contextCharacter.font = '48px Bangers';
+            contextCharacter.shadowColor = 'white' // string
+                //Color of the shadow;  RGB, RGBA, HSL, HEX, and other inputs are valid.
+            contextCharacter.shadowOffsetX = 0; // integer
+                //Horizontal distance of the shadow, in relation to the text.
+            contextCharacter.shadowOffsetY = 0; // integer
+                //Vertical distance of the shadow, in relation to the text.
+            contextCharacter.shadowBlur = 5; // integer
+
+
             contextCharacter.fillText(statuses[id].userName,
                 statuses[id].status.x,
-                statuses[id].status.y,
+                statuses[id].status.y+90,
             );
         });
         changeSpace = true
