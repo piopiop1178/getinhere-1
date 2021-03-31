@@ -29,6 +29,7 @@ class Mainpage extends Component {
         musicList: {},
         isLoadingMain: true,
         isFinishedPreset: false,
+        faceBase64: null,
     }
 
     componentDidMount = async () => {
@@ -85,22 +86,12 @@ class Mainpage extends Component {
                 const width = map._WIDTH;
                 const height = map._HEIGHT;
 
-                const canvasHide = document.createElement("canvas");
-                const contextHide = canvasHide.getContext("2d");
-                canvasHide.id = "hide-layer";
 
                 for(let index in characterList){
                     const characterImage = new Image();
-                    characterImage.onload = () => {
-                        // contextHide.drawImage(characterImage, map._CHAR_SIZE*index, 0, map._CHAR_SIZE, map._CHAR_SIZE);
-                    }
                     characterImage.src = characterList[index];
                     this.state.characterList[index] = characterImage;
                 }
-
-                canvasHide.setAttribute("width", width);
-                canvasHide.setAttribute("height", height);
-                document.getElementById("main").appendChild(canvasHide);
             });
         })
         setTimeout(() => {
@@ -147,18 +138,21 @@ class Mainpage extends Component {
         let arr = []
         let row = num % TILE_WIDTH ? parseInt(num / TILE_WIDTH) + 1 : parseInt(num / TILE_WIDTH);
         let col = num % TILE_WIDTH ? num % TILE_WIDTH : TILE_WIDTH;
-        // console.log(row, col);
         arr[0] = row
         arr[1] = col
         return arr;
     }
 
-    finishPreset = (userName, characterNum) => {
+    finishPreset = (userName, characterNum, faceBase64) => {
         if(this.state.isInitMain===false){
             return ;
         }
         this.setState({userName, characterNum});
         this.setState({isFinishedPreset: true});
+        if (characterNum == this.state.characterList.length) {
+            this.setState({faceBase64})
+            // localStorage.setItem(socket.id, faceBase64) //!내 얼굴 로컬에 저장하기
+        }
     }
 
     render () {
@@ -178,6 +172,7 @@ class Mainpage extends Component {
                                 characterList={this.state.characterList}
                                 musicList={this.state.musicList}
                                 socket={socket}
+                                faceMode={this.state.faceBase64} 
                                 />
             }
         }

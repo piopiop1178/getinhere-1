@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import DeviceSelector from './deviceSelector';
 import VideoPreview from './videoPreview';
+import FaceMode from './faceMode/faceMode';
 import axios from 'axios';
 
 export class LoadingPage extends Component {
@@ -18,6 +19,9 @@ export class PresetPage extends Component {
         characterNum : 0,
         characterList: [],
         userName: "",
+        refresh: 0,
+        ctx: null,
+        photoCanvas: null
     }
 
     componentDidMount = () => {
@@ -26,18 +30,19 @@ export class PresetPage extends Component {
             this.setState({characterList: response.data.characterList});
             // console.log(this.state.characterList);
         });
+        this.state.photoCanvas = document.querySelector('.photo-canvas')
     }
 
     imageChangeLeft = () => {
         this.setState(state => ({characterNum: state.characterNum - 1}))
         if (this.state.characterNum === 0) {
-            this.setState(state=> ({characterNum: state.characterNum + state.characterList.length - 1}));
+            this.setState(state=> ({characterNum: state.characterList.length}));
         }
     }
     imageChangeRight = () => {
         this.setState(state => ({characterNum: state.characterNum + 1}))
-        if (this.state.characterNum+1 === this.state.characterList.length) {
-            this.setState(state => ({characterNum: state.characterNum - state.characterNum}));
+        if (this.state.characterNum+1 === this.state.characterList.length + 1) {
+            this.setState(state => ({characterNum: 0}));
         }
     }
 
@@ -61,7 +66,8 @@ export class PresetPage extends Component {
             return;
         }
 
-        this.props.finishPreset(this.state.userName, this.state.characterNum);
+        this.props.finishPreset(this.state.userName, this.state.characterNum, this.state.photoCanvas.toDataURL());
+
     }
 
     inputChange = e =>{
@@ -70,6 +76,18 @@ export class PresetPage extends Component {
     }
 
     render() {
+        let characterImage = null;
+        let faceModeCanvasStyle = {
+            "transform": "rotateY(180deg)",
+            "WebkitTransform": "rotateY(180deg)",
+            "position": "relative",
+        }
+        if (this.state.characterNum < this.state.characterList.length) {
+            characterImage = <img alt="character" src={this.state.characterList[this.state.characterNum]}></img>                      
+        } else {
+            // characterImage = <canvas ref={this.canvasRef} className="photo-canvas" style={faceModeCanvasStyle}> </canvas>
+            characterImage = <FaceMode/>
+        }
         return (
             <div id="preset">
             <div className="container">
@@ -87,7 +105,7 @@ export class PresetPage extends Component {
                     <div className="character-box"> 
                         CHARACTER
                         <div className="character-image">
-                            <img alt="character" src={this.state.characterList[this.state.characterNum]}></img>                      
+                            {characterImage}
                         </div>
                     </div>
                 </div>

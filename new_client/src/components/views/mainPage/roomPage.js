@@ -152,16 +152,33 @@ class Room extends Component {
         users: {},
         contextCharacter: document.getElementById("character-layer").getContext("2d"),
         objects: 0, // 0: 기본상태, 1: 동영상 검색창, 2: 동영상 같이보기, 3: 게임하기, 4. 노래
+        faceList: [], //
     }
     componentDidMount = async () => {
-        console.log(this.state.users)
+        // console.log(this.state.users)
         socket = this.props.socket;
+
+        //! 내 얼굴 넣기
+        if (this.props.faceMode) {
+            let characterImage = new Image();
+            characterImage.onload = () => {
+                // this.state.contextHide.drawImage(characterImage, 0, 0, 60, 60)
+            }
+            characterImage.src = this.props.faceMode //! 그리기
+            this.state.faceList[socket.id] = characterImage; //! 리스트에 넣기
+            this.state.faceListNum =this.state.faceListNum + 1
+        }
+        //! 내 얼굴 넣기 끝
 
         /* Room 에서 사용할 socket on 정의 */
         await this.initSocket();
 
         /* 연결 준비가 되었음을 알림 */
-        socket.emit('ready', this.props.roomName, this.props.userName, this.props.characterNum);
+        if(this.props.faceMode) {
+            socket.emit('ready', this.props.roomName, this.props.userName, this.props.faceMode);    
+        } else {
+            socket.emit('ready', this.props.roomName, this.props.userName, this.props.characterNum);
+        }
         
         document.getElementById("chat-message").addEventListener("keyup", (e) => {
             if(e.code === "Enter"){
@@ -276,13 +293,19 @@ class Room extends Component {
                 return;
             }
 
+            let drawImageSrc = statuses[id].characterNum != -1 ? this.props.characterList[statuses[id].characterNum] : this.state.faceList[statuses[id].id]
+            if (!drawImageSrc) {return;}
+
+
             // 캐릭터 삽입 코드
-            contextCharacter.drawImage(this.props.characterList[statuses[id].characterNum], 
+            contextCharacter.drawImage(
+                drawImageSrc, 
                 statuses[id].status.x,
                 statuses[id].status.y,
                 statuses[id].status.width,
-                statuses[id].status.height
-                );
+                statuses[id].status.height,
+            );
+
             // 술 이모티콘 삽입 코드
             if (statuses[id].status.alchol) {
                 let alchol;
@@ -347,13 +370,18 @@ class Room extends Component {
             for (let socketId in users){
                 this.state.users[socketId] = users[socketId];
                 this.addPeer(socketId);
+                await this.addFace(socketId, users[socketId].characterNum)
             }
             let socketId = socket.id
             this.state.users[socketId] = {userName: this.props.userName, characterNum: this.props.characterNum};
             // console.log(this.state.users);
 
             /* 시작 알림 */
-            socket.emit('start', this.props.roomName, this.props.userName, this.props.characterNum);
+            if(this.props.faceMode) {
+                socket.emit('start', this.props.roomName, this.props.userName, this.props.faceMode);    
+            } else {
+                socket.emit('start', this.props.roomName, this.props.userName, this.props.characterNum);
+            }
         });
 
         socket.on('music_on', (video_id) => {
@@ -412,10 +440,14 @@ class Room extends Component {
         // socket.on("update", (statuses, idArray) => {this.updatePosition(statuses, idArray)} );
         socket.on("update", this.updatePosition );
 
-        socket.on('addUser', (socketId, userName, characterNum) => {
+        socket.on('addUser', async (socketId, userName, characterNum) => {
             this.state.users[socketId] = {userName: userName, characterNum: characterNum};
             this.addPeer(socketId);
+<<<<<<< HEAD
             // console.log('addUser', this.state.users[socketId].userName);
+=======
+            await this.addFace(socketId, characterNum)
+>>>>>>> 08d19a07cc8f38aa5bec90e41d0563a4da1702f5
         });
 
         socket.on('removeUser', (socketId) => {
@@ -457,6 +489,15 @@ class Room extends Component {
     }
 
     /* ---------------- 중요 ------------------- */
+
+    /* 얼굴모드: 다른 유저들의 얼굴데이터를 내 로컬스토리지에 저장하는 함수 */
+    addFace = async (socketId, characterNum) => {
+        if (characterNum < 30) { return; }
+        let characterImage = new Image();
+        characterImage.src = characterNum;
+        this.state.faceList[socketId] = characterImage;
+        this.state.faceListNum =this.state.faceListNum + 1
+    }
 
     addPeer = async (socket_id) => {
         let newStream = await this.createConsumer(socket_id);
