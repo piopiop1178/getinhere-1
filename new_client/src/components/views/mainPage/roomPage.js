@@ -214,7 +214,7 @@ class Room extends Component {
             }
     
             /* 동영상, 게임하기, 노래 등 */
-            if (curr_x <= 60 && 1200 - curr_y <= 120 && e.code === "KeyX"){
+            if (e.code === "KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 2){
                 if (this.state.objects ===0) this.setState({objects : 3})
                 else {
                     this.setState({objects : 0})    
@@ -222,7 +222,7 @@ class Room extends Component {
                 }
             }
 
-            if (e.code ==="KeyA" && document.activeElement.tagName ==='BODY'){            
+            if (e.code ==="KeyA" && document.activeElement.tagName ==='BODY' && curr_space === 3){            
                 // socket.emit('youtube');
                 if (this.state.objects ===0) this.setState({objects : 1})
                 else {
@@ -410,6 +410,9 @@ class Room extends Component {
         // })
         
         socket.on('video_on', (video_id)=>{
+            if (curr_space!==3){
+                return;
+            }
             this.setState({objects:2})
             onYouTubeIframeAPIReady1(video_id)
         })
