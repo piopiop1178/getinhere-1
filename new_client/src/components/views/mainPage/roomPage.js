@@ -1076,7 +1076,7 @@ class Room extends Component {
           
             <div className="room" id="room">
                 {iframeRender}
-                <div className="youtubePage">{videoPage}</div>
+                <div className="youtubePage">{youtubePage}</div>
                 {youtubeVideo}
                 {youtubeMusic}
                 <div className="video-box">
