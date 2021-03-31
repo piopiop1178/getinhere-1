@@ -84,7 +84,7 @@ canvas {
   width: 13vw;
   height: 400px;
   padding: 5px;
-  opacity: 50%;
+  opacity: 0.5;
 }
 
 .chat-box button {
