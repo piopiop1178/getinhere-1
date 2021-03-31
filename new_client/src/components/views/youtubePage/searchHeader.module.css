@@ -1,8 +1,10 @@
 .header {
   font-family: Gaegu;
   display: flex;
+  flex-flow: nowrap row;
+  justify-content: space-between;
   height: 3vh;
-  padding: 0.8em 1em;
+  padding: 0.8em 0 0.8em 1em;
   background: black;
   color: white;
   z-index: 10;
@@ -11,26 +13,31 @@
 .logo {
   display: flex;
   align-items: center;
-  margin-right: 1em;
+  margin-right: 0.5em;
   z-index: 10;
 }
 
 .input {
+  display: flex;
   font-family: Gaegu;
-  flex-basis: 80%;
+  width: 40vw;
+  height: 3.7vh;
   font-size: 1.5rem;
   outline: 0;
   z-index: 10;
 }
 
 .button {
+  display: flex;
   font-family: Gaegu;
   background-color: darkgrey;
+  height: 3.7vh;
   outline: 0;
   z-index: 10;
 }
 
 .buttonImg {
+  display: flex;
   height: 70%;
   padding: 0.5em 0.2em;
   width: 1vw;
@@ -40,8 +47,7 @@
 .closeButton {
   font-family: Gaegu;
   font-size: 1.5rem;
-  position: fixed;
-  right: 13vw;
+
   border-radius: 5%;
   background-color: goldenrod;
 }

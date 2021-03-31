@@ -226,29 +226,41 @@ class Room extends Component {
             /* 동영상, 게임하기, 노래 등 */
             // 게임하는 2번 방
             if (e.code === "KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 2){
-                if (this.state.objects ===0) this.setState({objects : 3})
+                if (this.state.objects ===0) {
+                    this.setState({objects : 3})
+                    document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,0)';
+                }
                 else {
                     this.setState({objects : 0})    
                     this.updatePositionSocketOn()
+                    document.getElementById("character-layer").style.removeProperty("background-color");
                 }
             }
             
             // 영상보는 3번 방
             if (e.code ==="KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 3){            
                 // socket.emit('youtube');
-                if (this.state.objects ===0) this.setState({objects : 1})
+                if (this.state.objects ===0) {
+                    this.setState({objects : 1})
+                    document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,0)';
+                }
                 else {
                     this.setState({objects : 0})      
                     this.updatePositionSocketOn()
+                    document.getElementById("character-layer").style.removeProperty("background-color");
                 }
             }
 
             // 음악듣는 1번 방
             if (e.code ==="KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 1){            
-                if (this.state.objects ===0) this.setState({objects : 4})
+                if (this.state.objects ===0) {
+                    this.setState({objects : 4})
+                    document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,0)';
+                }
                 else {
                     this.setState({objects : 0})      
                     this.updatePositionSocketOn()
+                    document.getElementById("character-layer").style.removeProperty("background-color");
                 }
             }
 
@@ -1055,11 +1067,13 @@ class Room extends Component {
 
     closeIframe = () => {
         this.setState({objects : 0});
+        document.getElementById("character-layer").style.removeProperty("background-color");
     }
 
     youtubeClose = () => {
         this.setState({objects : 0})
         this.updatePositionSocketOn()
+        document.getElementById("character-layer").style.removeProperty("background-color");
     }
 
     // toggleChat = () => { //! 기존에 있던 toggleChat은  toggleButton/toggleButton.js로 갔어요
