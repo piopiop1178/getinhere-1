@@ -22,7 +22,7 @@ canvas {
   top: 0px;
   left: 0px;
   display: block;
-  border: black 1px solid;
+  border: none;
   margin: 0 auto;
 }
 #background-layer {

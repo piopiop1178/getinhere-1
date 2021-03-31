@@ -130,7 +130,6 @@ export class PresetPage extends Component {
                             <i className="far fa-hand-point-right"></i></button>
                     </div>
                     <div className="character-box"> 
-                        CHARACTER
                         <div className="character-image">
                             {characterImage}
                         </div>
