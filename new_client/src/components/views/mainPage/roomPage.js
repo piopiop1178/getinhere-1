@@ -185,7 +185,7 @@ class Room extends Component {
         });
         window.addEventListener('keydown' ,(e)=> {
             if(e.path[0]===document.getElementById("chat-message")){
-                e.preventDefault();
+                // e.preventDefault();
                 return;
             }
 
