@@ -25,7 +25,7 @@ class IframePage extends Component {
               <input type="text" className="invite-code-input" placeholder="   초대 코드를 입력해주세요  Input your Invite Code"/> 
               <button className="invite-code-button" onClick={this.inviteCodeButton}> JOIN </button>
               <span className="iframe-game-guide"> 초대 코드 입력 후 Play 버튼을 눌러주세요! </span>
-              <button className='iframe-close-button' onClick={this.closeIframe}>❌</button>
+              <button className='iframe-close-button' onClick={this.closeIframe}>돌아가기</button>
           </div>
           <iframe id='iframe-game' src="https://skribbl.io" ></iframe>
       </div>

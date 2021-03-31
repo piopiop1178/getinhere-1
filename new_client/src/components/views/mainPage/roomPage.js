@@ -195,7 +195,6 @@ class Room extends Component {
 
             // if during event except music prevent move
             if (this.state.objects !== 0 && this.state.objects !== 5){
-                e.preventDefault();
                 return;
             }
 
