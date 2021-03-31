@@ -8,4 +8,6 @@
 .closeButton {
   position: fixed;
   right: 13vw;
+  border-radius: 5%;
+  background-color: goldenrod;
 }

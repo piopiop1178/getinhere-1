@@ -8,8 +8,29 @@
 }
 
 .map-image {
-  /* display: none; */
+  top: 20vh;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  height: 30vh;
+  width: 25vw;
   position: absolute;
-  opacity: 0.8;
-  clip: rect(10vh,100vw,37vh,0vw)
+  margin: auto;
+  opacity: 0.7;
+}
+
+.map-setting {
+  font-size: 200%;
+  font-family: "Gaegu", cursive;
+  margin: auto;
+  text-align: center;
+  align-content: center;
+}
+
+.map-select-button {
+  background-color: transparent;
+  font-size: 100%;
+  padding-left: 1vw;
+  padding-right: 1vw;
 }

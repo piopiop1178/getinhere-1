@@ -362,7 +362,7 @@ class Room extends Component {
                     statuses[id].status.y,
                     );
                 }
-            contextCharacter.font = '40px Bangers';
+            contextCharacter.font = '40px Gaegu';
             contextCharacter.shadowColor = 'white' // string
                 //Color of the shadow;  RGB, RGBA, HSL, HEX, and other inputs are valid.
             contextCharacter.shadowOffsetX = 0; // integer

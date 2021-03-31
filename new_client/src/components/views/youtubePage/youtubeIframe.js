@@ -14,7 +14,7 @@ class YoutubeIframe extends Component {
     render() {
         return (
             <div className="youtubeIframe">
-                <button className="closeButton" onClick={this.closeButton}>❌</button>
+                <button className="closeButton" onClick={this.closeButton}>그만보기</button>
                 <div id="player1" className="player1"></div>
             </div>
         );
