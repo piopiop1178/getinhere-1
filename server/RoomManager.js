@@ -73,18 +73,25 @@ class RoomManager {   // Room 함수 실행
     }
 
     /* Room에서 User를 제거 */
-    static removeSocketFromRoom(socket){
+    static removeSocketFromRoom(socket, roomName){
 
-        const room = this.roomByUser[socket.id];
+        let room = this.roomByUser[socket.id];
         if (room === undefined){
-            console.log("ERROR : removeUserFromRoom, roomName === undefined");
+            room = this.roomByName[roomName]
+            if(room.isEmpty()){
+                this.deleteRoom(room);
+            }
+
+            // console.log("ERROR : removeUserFromRoom, roomName === undefined");
             return;
         }
         room.removeUser(socket);
         delete this.roomByUser[socket.id];
 
         if(room.isEmpty()){
+            //!---------------DEBUG----------------
             // setTimeout(this.deleteRoom(room), 10000);
+            //!---------------DEBUG----------------
             this.deleteRoom(room);
         }
     }
@@ -94,6 +101,7 @@ class RoomManager {   // Room 함수 실행
         // if(this.roomByName[room.name] !== undefined){
         //     delete this.roomByName[room.name];
         // }
+        return;
     }
 
     static getSocketsByRoomName(roomName){
