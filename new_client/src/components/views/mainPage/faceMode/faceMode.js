@@ -39,6 +39,7 @@ class faceMode extends Component {
       "transform": "rotateY(180deg)",
       "WebkitTransform": "rotateY(180deg)",
       "position": "relative",
+      "border": "none",
     }
     return (
       <canvas className="photo-canvas" style={faceModeCanvasStyle}> </canvas>

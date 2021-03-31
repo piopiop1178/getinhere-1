@@ -20,7 +20,7 @@ import IframePage from './iframePage/iframe.js'; // 0329 승민
 import YoutubeMain from '../youtubePage/youtubeMain';
 import Youtube from '../youtubePage/youtube-fetch';
 import YoutubeIframe from '../youtubePage/youtubeIframe';
-
+import ToggleButton from './toggleButton/toggleButton';
 import { Spring, animated } from 'react-spring'
 
 const uuuuu = new Youtube();
@@ -78,6 +78,8 @@ let keyDownUpOnceFlag;
 let keyUpBuffer = {};
 let curr_space
 let changeSpace = true
+let isAlreadyArrowKeyPressed = false;        /* 대각선 이동 방지-> 첫번째 화살표 입력만 받고 나머지는 무시하기, keyup일때만 다시 false로 바꿔줌 -> 키 입력에 대한 전역변수 설정 */
+
 
 // youtube synchro play
 var tag = document.createElement('script');
@@ -183,9 +185,11 @@ class Room extends Component {
                 this.sendChat();
             }
         });
+
+        
         window.addEventListener('keydown' ,(e)=> {
             if(e.path[0]===document.getElementById("chat-message")){
-                e.preventDefault();
+                // e.preventDefault();
                 return;
             }
 
@@ -248,17 +252,19 @@ class Room extends Component {
                 }
             }
 
-            socket.emit('keydown', e.code);
-            if(e.code === UP)    {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
-            if(e.code === RIGHT) {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
-            if(e.code === DOWN)  {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
-            if(e.code === LEFT)  {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+            e.preventDefault()
+
+            if(e.code === UP    )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+            if(e.code === RIGHT )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+            if(e.code === DOWN  )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+            if(e.code === LEFT  )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+
         })
         window.addEventListener("keyup", function (e) {
-            // console.log("keyup2", e.path[0]===document.getElementById("chat-message"));
             if(e.path[0]===document.getElementById("chat-message")){
                 return;
             }
+
             if (keyDownUpOnceFlag) {
                 keyUpBuffer[e.code] = true;
               } else {
@@ -1056,12 +1062,11 @@ class Room extends Component {
         this.updatePositionSocketOn()
     }
 
-    toggleChat = () => {
-        const chatBox = document.getElementById("chat-box");
-        // if 
-        // chatBox.setAttribute("display", "none");
-
-    }
+    // toggleChat = () => { //! 기존에 있던 toggleChat은  toggleButton/toggleButton.js로 갔어요
+    //     const chatBox = document.getElementById("chat-box");
+    //     // if 
+    //     // chatBox.setAttribute("display", "none");
+    // }
 
     render() {
         let youtubePage;
@@ -1116,12 +1121,7 @@ class Room extends Component {
                     <div id="videos" className="video-container"></div>
                 </div>
                 <div className="local-video-box">
-                    <div className="toggles">
-                        <div className="chat-toggle" onClick={this.toggleChat}>📢</div>
-                        <div className="invite-toggle">👨‍👩‍👦</div>
-                        <div className="invite-toggle-notice"> Invite Link Copied! </div>
-                        <div className="etc-toggle">🔧</div>
-                    </div>
+                    <ToggleButton />
                     <video id="localVideo" autoPlay muted></video>
                     <div className="setting-container">
                         {/* <button id="muteButton" className="settings" onClick={this.toggleMute}>Unmuted</button>
