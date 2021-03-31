@@ -107,7 +107,7 @@ class Mainpage extends Component {
             this.setState({
                 isLoadingMain: false,
             })
-        }, 2000);
+        }, 3000);
     }
 
 
