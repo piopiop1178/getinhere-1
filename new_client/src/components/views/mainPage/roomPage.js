@@ -19,6 +19,7 @@ import glassBreakSource from './sounds/glassbreak.mp3'
 import IframePage from './iframePage/iframe.js'; // 0329 승민
 import YoutubeMain from '../youtubePage/youtubeMain';
 import Youtube from '../youtubePage/youtube-fetch';
+import { Spring, animated } from 'react-spring'
 
 const uuuuu = new Youtube();
 
@@ -880,6 +881,13 @@ class Room extends Component {
       this.setState({isIframeOn: false});
     }
 
+    toggleChat = () => {
+        const chatBox = document.getElementById("chat-box");
+        // if 
+        // chatBox.setAttribute("display", "none");
+
+    }
+
     render() {
         let iframeRender;
         if (this.state.isIframeOn) {
@@ -901,8 +909,8 @@ class Room extends Component {
         }
         return (
           
-          <div className="room" id="room">
-            {iframeRender}
+            <div className="room" id="room">
+                {iframeRender}
                 <div className="youtubePage">{videoPage}</div>
                 {youtubeVideo}
                 <div className="video-box">
@@ -910,7 +918,7 @@ class Room extends Component {
                 </div>
                 <div className="local-video-box">
                     <div className="toggles">
-                        <div className="chat-toggle">📢</div>
+                        <div className="chat-toggle" onClick={this.toggleChat}>📢</div>
                         <div className="invite-toggle">👨‍👩‍👦</div>
                         <div className="invite-toggle-notice"> Invite Link Copied! </div>
                         <div className="etc-toggle">🔧</div>
@@ -921,8 +929,7 @@ class Room extends Component {
                         <button id="vidButton" className="settings" onClick={this.toggleVid}>Video Enabled</button> */}
                     </div>
                 </div>
-
-                <div className="chat-box">
+                <div className="chat-box" id="chat-box">
                     <div className="message-box" id="message-box">
                         <div className="message-other">
                             <div className="message-name"> other </div>
@@ -933,7 +940,7 @@ class Room extends Component {
                         </div>
                     </div>
                     <div className="input-bar">
-                        <input type="text" id="chat-message"/>
+                        <input type="text" id="chat-message" maxlength='140'/>
                         <button onClick={this.sendChat}>✉</button>
                     </div>
                 </div>
@@ -941,5 +948,9 @@ class Room extends Component {
         );
     }
 }
+
+// const chatBox = () => {
+    
+// }
 
 export default Room;
