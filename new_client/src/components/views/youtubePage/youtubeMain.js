@@ -4,7 +4,7 @@ import VideoList from './videoList';
 import SearchHeader from './searchHeader';
 import VideoDetail from './videoDetail';
 
-const YoutubeMain = ({ close, updatePositionSocketOn, updatePositionSocketOff, socket, youtube }) => {
+const YoutubeMain = ({ close, updatePositionSocketOn, updatePositionSocketOff, socket, youtube, curr_space }) => {
     const [videos, setVideos] = useState([]);
     const [selectedVideo, setSelectedVideo] = useState(null);
 
@@ -38,7 +38,7 @@ const YoutubeMain = ({ close, updatePositionSocketOn, updatePositionSocketOff, s
         <div className={styles.content}>
           {selectedVideo && (
             <div className={styles.detail}>
-              <VideoDetail socket={socket} video={selectedVideo} />
+              <VideoDetail curr_space={curr_space} socket={socket} video={selectedVideo} />
             </div>
           )}
           <div className={styles.list}>

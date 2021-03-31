@@ -231,6 +231,14 @@ class Room extends Component {
                 }
             }
 
+            if (e.code ==="KeyA" && document.activeElement.tagName ==='BODY' && curr_space === 1){            
+                if (this.state.objects ===0) this.setState({objects : 4})
+                else {
+                    this.setState({objects : 0})      
+                    this.updatePositionSocketOn()
+                }
+            }
+
             socket.emit('keydown', e.code);
             if(e.code === UP)    {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
             if(e.code === RIGHT) {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
@@ -387,7 +395,10 @@ class Room extends Component {
         });
 
         socket.on('music_on', (video_id) => {
-            this.setState({objects:4})
+            if (curr_space!==1){
+                return;
+            }
+            this.setState({objects:5})
             onYouTubeIframeAPIReady2(video_id)
             this.updatePositionSocketOn()
         })
@@ -1021,6 +1032,7 @@ class Room extends Component {
         if (this.state.objects === 1){
             videoPage = <YoutubeMain 
                 socket={this.props.socket}
+                curr_space={curr_space}
                 youtube={uuuuu} 
                 updatePositionSocketOn={this.updatePositionSocketOn}
                 updatePositionSocketOff={this.updatePositionSocketOff}
@@ -1041,10 +1053,22 @@ class Room extends Component {
             updatePositionSocketOff={this.updatePositionSocketOff}
           />
         } 
+        
+        if (this.state.objects === 4) {
+            youtubePage = <YoutubeMain 
+                socket={this.props.socket}
+                curr_space={curr_space}
+                youtube={uuuuu} 
+                updatePositionSocketOn={this.updatePositionSocketOn}
+                updatePositionSocketOff={this.updatePositionSocketOff}
+                close={this.closeIframe}
+                />
+        }
         let youtubeMusic;
-        if (this.state.objects === 4){
+        if (this.state.objects === 5){
             youtubeMusic = <div><div className="player2" id="player2"></div></div>
         }
+        
         return (
           
             <div className="room" id="room">
