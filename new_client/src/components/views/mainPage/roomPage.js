@@ -443,11 +443,7 @@ class Room extends Component {
         socket.on('addUser', async (socketId, userName, characterNum) => {
             this.state.users[socketId] = {userName: userName, characterNum: characterNum};
             this.addPeer(socketId);
-<<<<<<< HEAD
-            // console.log('addUser', this.state.users[socketId].userName);
-=======
             await this.addFace(socketId, characterNum)
->>>>>>> 08d19a07cc8f38aa5bec90e41d0563a4da1702f5
         });
 
         socket.on('removeUser', (socketId) => {
