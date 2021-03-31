@@ -195,15 +195,15 @@ class Room extends Component {
             let curr_y = parsed_status.y;
     
             /* 캐릭터 술 캔버스 설정 */
-            if (e.code === "KeyB") {
+            if (e.code === "KeyB" && document.activeElement.tagName ==='BODY') {
                 alcholSoundOnceFlag = true
                 socket.emit('alchol-icon', 'beer');
             }
-            if (e.code === "KeyC") {
+            if (e.code === "KeyC" && document.activeElement.tagName ==='BODY') {
                 alcholSoundOnceFlag = true
                 socket.emit('alchol-icon', 'cocktail');
             }
-            if (e.code === "KeyW") {
+            if (e.code === "KeyW" && document.activeElement.tagName ==='BODY') {
                 alcholSoundOnceFlag = true
                 socket.emit('alchol-icon', 'wine');
             }
@@ -214,6 +214,7 @@ class Room extends Component {
             }
     
             /* 동영상, 게임하기, 노래 등 */
+            // 게임하는 2번 방
             if (e.code === "KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 2){
                 if (this.state.objects ===0) this.setState({objects : 3})
                 else {
@@ -221,8 +222,9 @@ class Room extends Component {
                     this.updatePositionSocketOn()
                 }
             }
-
-            if (e.code ==="KeyA" && document.activeElement.tagName ==='BODY' && curr_space === 3){            
+            
+            // 영상보는 3번 방
+            if (e.code ==="KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 3){            
                 // socket.emit('youtube');
                 if (this.state.objects ===0) this.setState({objects : 1})
                 else {
@@ -231,7 +233,8 @@ class Room extends Component {
                 }
             }
 
-            if (e.code ==="KeyA" && document.activeElement.tagName ==='BODY' && curr_space === 1){            
+            // 음악듣는 1번 방
+            if (e.code ==="KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 1){            
                 if (this.state.objects ===0) this.setState({objects : 4})
                 else {
                     this.setState({objects : 0})      
@@ -1068,7 +1071,7 @@ class Room extends Component {
         if (this.state.objects === 5){
             youtubeMusic = <div><div className="player2" id="player2"></div></div>
         }
-        
+
         return (
           
             <div className="room" id="room">
