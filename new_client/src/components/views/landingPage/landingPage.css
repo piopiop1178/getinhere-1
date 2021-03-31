@@ -4,12 +4,12 @@
   position: fixed;
   top: 0px;
   z-index: -1;
-  opacity: 50%;
+  opacity: 0.5;
 }
 
 .map-image {
   /* display: none; */
   position: absolute;
-  opacity: 80%;
+  opacity: 0.8;
   clip: rect(10vh,100vw,37vh,0vw)
 }
