@@ -91,15 +91,16 @@ class Mainpage extends Component {
 
                 for(let index in characterList){
                     const characterImage = new Image();
-                    characterImage.onload = () => {
-                        // contextHide.drawImage(characterImage, map._CHAR_SIZE*index, 0, map._CHAR_SIZE, map._CHAR_SIZE);
-                    }
+                    // characterImage.onload = () => {
+                    //     // contextHide.drawImage(characterImage, map._CHAR_SIZE*index, 0, map._CHAR_SIZE, map._CHAR_SIZE);
+                    // }
                     characterImage.src = characterList[index];
                     this.state.characterList[index] = characterImage;
                 }
 
                 canvasHide.setAttribute("width", width);
                 canvasHide.setAttribute("height", height);
+                canvasHide.style.zIndex = '-1';
                 document.getElementById("main").appendChild(canvasHide);
             });
         })
@@ -151,7 +152,11 @@ class Mainpage extends Component {
     finishPreset = (userName, characterNum, faceBase64) => {
         this.setState({userName, characterNum});
         this.setState({isFinishedPreset: true});
-        this.setState({faceBase64})
+        if (characterNum == this.state.characterList.length) {
+            this.setState({faceBase64})
+            // localStorage.setItem(socket.id, faceBase64) //!내 얼굴 로컬에 저장하기
+        }
+        console.log('finishPreset -------------', this.state.faceBase64);
     }
 
     render () {

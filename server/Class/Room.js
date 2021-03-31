@@ -174,11 +174,13 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
                 //       user.status.x = x - TILE_LENGTH < 0 ? x : x - TILE_LENGTH;
                 //   }
                 // }
+                
                 let status_pair = {
                     status: user.status,
                     id: user.socket.id,
                     userName: user.userName,
-                    characterNum: user.characterNum,
+                    // characterNum: user.characterNum,
+                    characterNum: user.characterNum.length >=3 ? -1: user.characterNum, //!얼굴모드일 경우에는 -1를 보내준다
                 };
                 idArray.push(user.socket.id);
                 statuses[user.socket.id] = status_pair;

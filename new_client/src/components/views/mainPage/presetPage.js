@@ -11,8 +11,8 @@ class PresetPage extends Component {
         userName: "이름을 입력해주세요",
         refresh: 0,
         ctx: null,
+        photoCanvas: null //? !
     }
-
 
 
     componentDidMount = () => {
@@ -20,6 +20,7 @@ class PresetPage extends Component {
         .then(response => {
             this.setState({characterList: response.data.characterList});
         });
+        this.state.photoCanvas = document.querySelector('.photo-canvas')
     }
 
     imageChangeLeft = () => {
@@ -55,7 +56,8 @@ class PresetPage extends Component {
             return;
         }
 
-        this.props.finishPreset(this.state.userName, this.state.characterNum);
+        this.props.finishPreset(this.state.userName, this.state.characterNum, this.state.photoCanvas.toDataURL());
+
     }
 
     inputChange = e =>{

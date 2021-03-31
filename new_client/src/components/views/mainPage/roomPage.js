@@ -124,18 +124,43 @@ class Room extends Component {
         characterList: [],
         users: {},
         contextCharacter: document.getElementById("character-layer").getContext("2d"),
+        contextHide: document.getElementById("hide-layer").getContext("2d"),
+        canvasHide: document.getElementById("hide-layer"),
         isIframeOn: false, // 0329 
         objects: 0,
+        faceList: [], //! 얼굴모드 사진 리스트 {socketid, offcanvas에서 n번 째}
+        faceListNum: 0,
     }
+
+    faceWidth = 60;
+    faceHeight = 60;
+    
     componentDidMount = async () => {
         socket = this.props.socket;
+
+        //! 내 얼굴 넣기
+        if (this.props.faceMode) {
+            let characterImage = new Image();
+            characterImage.onload = () => {
+                // this.state.contextHide.drawImage(characterImage, 0, 0, 60, 60)
+            }
+            characterImage.src = this.props.faceMode //! 그리기
+            this.state.faceList[socket.id] = characterImage; //! 리스트에 넣기
+            // this.state.faceList[socket.id] = this.state.faceListNum; //! 리스트에 넣기
+            // this.setState({faceListNum: this.state.faceListNum + 1})
+            this.state.faceListNum =this.state.faceListNum + 1
+        }
+        //! 내 얼굴 넣기 끝
 
         /* Room 에서 사용할 socket on 정의 */
         await this.initSocket();
 
         /* 연결 준비가 되었음을 알림 */
-        socket.emit('ready', this.props.roomName, this.props.userName, this.props.characterNum);
-        // socket.emit('ready', this.props.roomName, this.props.userName, this.props.faceMode);
+        if(this.props.faceMode) {
+            socket.emit('ready', this.props.roomName, this.props.userName, this.props.faceMode);    
+        } else {
+            socket.emit('ready', this.props.roomName, this.props.userName, this.props.characterNum);
+        }
         
         document.getElementById("chat-message").addEventListener("keyup", (e) => {
             // console.log(e.code);
@@ -206,6 +231,13 @@ class Room extends Component {
         });        
     }
 
+    onload2promise = (obj) => {
+        return new Promise((resolve, reject) => {
+            obj.onload = () => resolve(obj);
+            obj.onerror = reject;
+        });
+    }
+
     updatePosition = (statuses, idArray) => {
       keyDownUpOnceFlag = false;
       if (keyUpBuffer[UP]) { socket.emit("keyup", UP); keyUpBuffer[UP] = false;} 
@@ -236,45 +268,76 @@ class Room extends Component {
           }
 
           // 캐릭터 삽입 코드
-          contextCharacter.drawImage(this.props.characterList[statuses[id].characterNum], 
-              statuses[id].status.x,
-              statuses[id].status.y,
-              statuses[id].status.width,
-              statuses[id].status.height
-              );
-          // 술 이모티콘 삽입 코드
-          if (statuses[id].status.alchol) {
-              let alchol;
+        //   let drawImageSrc = statuses[id].characterNum != -1 ? this.props.characterList[statuses[id].characterNum] : this.state.characterList[statuses[id]]
+          
+        let drawImageSrc = statuses[id].characterNum != -1 ? this.props.characterList[statuses[id].characterNum] : this.state.faceList[statuses[id].id]
+        
+        if (!drawImageSrc) {
+            return;
+        }
 
-              if (statuses[id].status.alchol === 'beer') {
-                if (alcholSoundOnceFlag) {
-                  beer.play()
-                  alcholSoundOnceFlag = false
-                }
-                alchol = "🍺"
-              } else if (statuses[id].status.alchol === 'cocktail') {
-                if (alcholSoundOnceFlag) {
-                  cocktail.play()
-                  alcholSoundOnceFlag = false
-                }
-                alchol = "🍸"
-              } else if (statuses[id].status.alchol === 'wine') {
-                if (alcholSoundOnceFlag) {
-                  wine.play()
-                  alcholSoundOnceFlag = false
-                }
-                alchol = "🍷"
+        //   contextCharacter.drawImage(this.props.characterList[1], 
+        //   contextCharacter.drawImage(this.props.characterList[statuses[id].characterNum], 
+
+        if (statuses[id].characterNum == -1) {
+            contextCharacter.drawImage(
+                drawImageSrc, 
+                // this.state.canvasHide, 
+                // this.state.faceList[statuses[id].id] * this.faceWidth,
+                // 0,
+                // this.faceWidth,
+                // this.faceHeight,
+                statuses[id].status.x,
+                statuses[id].status.y,
+                statuses[id].status.width,
+                statuses[id].status.height,
+            );
+        } else {
+            contextCharacter.drawImage(
+                drawImageSrc, 
+                statuses[id].status.x,
+                statuses[id].status.y,
+                statuses[id].status.width,
+                statuses[id].status.height,
+            );
+        }
+        
+
+          
+
+
+        // 술 이모티콘 삽입 코드
+        if (statuses[id].status.alchol) {
+            let alchol;
+            if (statuses[id].status.alchol === 'beer') {
+              if (alcholSoundOnceFlag) {
+                beer.play()
+                alcholSoundOnceFlag = false
               }
-              contextCharacter.fillText(alchol,
-                  statuses[id].status.x + 5,
-                  statuses[id].status.y,
-                  );
+              alchol = "🍺"
+            } else if (statuses[id].status.alchol === 'cocktail') {
+              if (alcholSoundOnceFlag) {
+                cocktail.play()
+                alcholSoundOnceFlag = false
+              }
+              alchol = "🍸"
+            } else if (statuses[id].status.alchol === 'wine') {
+              if (alcholSoundOnceFlag) {
+                wine.play()
+                alcholSoundOnceFlag = false
+              }
+              alchol = "🍷"
             }
-          contextCharacter.font = '48px serif';
-          contextCharacter.fillText(statuses[id].userName,
-              statuses[id].status.x,
-              statuses[id].status.y,
-          );
+            contextCharacter.fillText(alchol,
+                statuses[id].status.x + 5,
+                statuses[id].status.y,
+                );
+        }
+        contextCharacter.font = '48px serif';
+        contextCharacter.fillText(statuses[id].userName,
+            statuses[id].status.x,
+            statuses[id].status.y,
+        );
       });
     }
 
@@ -301,17 +364,25 @@ class Room extends Component {
     
             await this.clientLoadDevice();
             await this.createProducer();
-            console.log(users);
+            // console.log(users);
+            console.log(' --- sendUsers --- ')
             for (let socketId in users){
                 this.state.users[socketId] = users[socketId];
                 this.addPeer(socketId);
+                await this.addFace(socketId, users[socketId].characterNum) //! 얼굴모드 데이터 추가
             }
             let socketId = socket.id
             this.state.users[socketId] = {userName: this.props.userName, characterNum: this.props.characterNum};
             console.log(this.state.users);
 
             /* 시작 알림 */
-            socket.emit('start', this.props.roomName, this.props.userName, this.props.characterNum);
+            // socket.emit('start', this.props.roomName, this.props.userName, this.props.characterNum);
+            if(this.props.faceMode) {
+                console.log('this.props.faceMode', this.props.faceMode)
+                socket.emit('start', this.props.roomName, this.props.userName, this.props.faceMode);    
+            } else {
+                socket.emit('start', this.props.roomName, this.props.userName, this.props.characterNum);
+            }
         });
 
         socket.on('music_on', () => {
@@ -364,10 +435,11 @@ class Room extends Component {
         // socket.on("update", (statuses, idArray) => {this.updatePosition(statuses, idArray)} );
         socket.on("update", this.updatePosition );
 
-        socket.on('addUser', (socketId, userName, characterNum) => {
+        socket.on('addUser', async (socketId, userName, characterNum) => {
             this.state.users[socketId] = {userName: userName, characterNum: characterNum};
+            console.log('--- addUser --- ', socketId, characterNum);
             this.addPeer(socketId);
-            console.log('addUser', this.state.users[socketId].userName);
+            await this.addFace(socketId, characterNum) //! 얼굴모드 데이터 추가
         });
 
         socket.on('removeUser', (socketId) => {
@@ -423,6 +495,28 @@ class Room extends Component {
         
         peers[socket_id] = null;
     }    
+
+    /* 얼굴모드: 다른 유저들의 얼굴데이터를 내 로컬스토리지에 저장하는 함수 */
+    addFace = async (socketId, characterNum) => {
+        if (characterNum < 20) {
+            console.log('숫자임니다 리턴', socketId, characterNum); //! 얼굴이 아니면 return해주기
+            return;
+        }
+        console.log('addface  번호:', this.state.faceListNum, '소켓', socketId)
+        console.log(characterNum)
+        //! 기존코드
+        let characterImage = new Image();
+        characterImage.onload = () => {
+            // this.state.contextHide.drawImage(characterImage, this.state.faceListNum*this.faceWidth, 0, this.faceWidth, this.faceHeight)
+            // this.state.contextHide.drawImage(characterImage, (this.state.faceListNum-1)*this.faceWidth, 0, this.faceWidth, this.faceHeight)
+        }
+        characterImage.src = characterNum;
+
+        // this.state.faceList[socketId] = this.state.faceListNum;
+        this.state.faceList[socketId] = characterImage;
+        // this.setState({faceListNum: this.state.faceListNum + 1})
+        this.state.faceListNum =this.state.faceListNum + 1
+    }
 
     removePeer = async (socket_id) => {
         console.log('removePeer!!')

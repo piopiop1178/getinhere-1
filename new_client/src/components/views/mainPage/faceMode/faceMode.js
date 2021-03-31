@@ -26,25 +26,31 @@ class faceMode extends Component {
       let ph = photoBooth.clientHeight;
       let pw = photoBooth.clientWidth;
       photoCanvas.style.height = `${ph}px`; // 세미콜론 필수다
-      photoCanvas.style.width = `${pw}px`;
+      photoCanvas.style.width = `${pw/2}px`;
+      photoCanvas.style.borderRadius = `30%`;
+      // photoCanvas.height = `${ph}px`;
+      // photoCanvas.width  = `${pw/2}px`;
+      // photoCanvas.style.height = `${ph}px`; // 세미콜론 필수다
+      // photoCanvas.style.width = `${pw}px`;
 
       (function drawHeadZone() {
-        ctx.beginPath()
-        let x = cw / 2; // center x of circle
-        let y = ch / 2; // center y of circle
-        let r = 50; // radius
-        let angle = 140;
-        let neck_thickness = -5;
-        let neck_length = 50
-        ctx.arc(x, y, r, (angle) * (Math.PI / 180), (180 - angle) * (Math.PI / 180));
-        ctx.lineTo(x + r * Math.sin(angle * Math.PI / 180) + neck_thickness, y + neck_length)
-        ctx.lineTo(x - r * Math.sin(angle * Math.PI / 180) - neck_thickness, y + neck_length)
-        ctx.closePath()
-        ctx.strokeStyle = 'white'
-        ctx.lineWidth = 5;
-        ctx.stroke();
-        ctx.clip()
-        ctx.drawImage(photoBooth, 0, 0, cw, ch); // 이렇게해야 꽉 차게 나온다
+        // ctx.beginPath()
+        // let x = cw / 2; // center x of circle
+        // let y = ch / 2-10 ; // center y of circle
+        // let r = 70; // radius
+        // let angle = 150;
+        // let neck_thickness = -1;
+        // let neck_length = 80
+        // ctx.arc(x, y, r, 0,  2*Math.PI );
+        // ctx.arc(x, y, r, (angle) * (Math.PI / 180), (180 - angle) * (Math.PI / 180));
+        // ctx.lineTo(x + r * Math.sin(angle * Math.PI / 180) + neck_thickness, y + neck_length)
+        // ctx.lineTo(x - r * Math.sin(angle * Math.PI / 180) - neck_thickness, y + neck_length)
+        // ctx.closePath()
+        // ctx.strokeStyle = 'white'
+        // ctx.lineWidth = 5;
+        // ctx.stroke();
+        // ctx.clip()
+        ctx.drawImage(photoBooth,pw*1.3,ph/5,cw*1.6,ch*3, 0, 0, cw, ch); // 이렇게해야 꽉 차게 나온다
         requestAnimationFrame(drawHeadZone);
       })()
   
@@ -68,20 +74,3 @@ class faceMode extends Component {
 }
 
 export default faceMode;
-
-
-
-// 버튼 눌렀을 때 실행할 것
-// () => {
-//   let profileImgBase64 = photoCanvas.toDataURL();
-//   socket.emit('profileImg', profileImgBase64, socket.id);
-// }
-
-
-
-/* <button class="take-photo-button" onclick="">📷📸</button>
-  <canvas class="photo-canvas" style=  
-  "
-  transform: rotateY(180deg);         
-  -webkit-transform:rotateY(180deg);
-  " ></canvas> */
