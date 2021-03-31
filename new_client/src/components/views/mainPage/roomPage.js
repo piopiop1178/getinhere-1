@@ -78,6 +78,8 @@ let keyDownUpOnceFlag;
 let keyUpBuffer = {};
 let curr_space
 let changeSpace = true
+let isAlreadyArrowKeyPressed = false;        /* 대각선 이동 방지-> 첫번째 화살표 입력만 받고 나머지는 무시하기, keyup일때만 다시 false로 바꿔줌 -> 키 입력에 대한 전역변수 설정 */
+
 
 // youtube synchro play
 var tag = document.createElement('script');
@@ -183,6 +185,8 @@ class Room extends Component {
                 this.sendChat();
             }
         });
+
+        
         window.addEventListener('keydown' ,(e)=> {
             if(e.path[0]===document.getElementById("chat-message")){
                 e.preventDefault();
@@ -248,17 +252,19 @@ class Room extends Component {
                 }
             }
 
-            socket.emit('keydown', e.code);
-            if(e.code === UP)    {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
-            if(e.code === RIGHT) {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
-            if(e.code === DOWN)  {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
-            if(e.code === LEFT)  {e.preventDefault(); socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+            e.preventDefault()
+
+            if(e.code === UP    )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+            if(e.code === RIGHT )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+            if(e.code === DOWN  )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+            if(e.code === LEFT  )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+
         })
         window.addEventListener("keyup", function (e) {
-            // console.log("keyup2", e.path[0]===document.getElementById("chat-message"));
             if(e.path[0]===document.getElementById("chat-message")){
                 return;
             }
+
             if (keyDownUpOnceFlag) {
                 keyUpBuffer[e.code] = true;
               } else {
