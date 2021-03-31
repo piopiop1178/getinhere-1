@@ -27,6 +27,10 @@ class VideoPreview extends Component {
             // console.log('Received local stream');
             video.srcObject = stream;
         }).catch(e => alert(`getusermedia error ${e.name}`))
+
+        video.addEventListener('play', () => {
+            setTimeout(() => this.props.loadingFinished(), 1500);
+        }) // mainPage->presetPage->videoPage로 함수 전달됨
     }
     
     render() {

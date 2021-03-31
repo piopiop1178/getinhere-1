@@ -32,6 +32,8 @@ class Mainpage extends Component {
         faceBase64: null,
     }
 
+    mainRef = React.createRef();
+
     componentDidMount = async () => {
         this.setState({roomName: this.props.match.params.roomName});
         socket.emit("initSocket", this.props.match.params.roomName);
@@ -59,7 +61,7 @@ class Mainpage extends Component {
             canvasCharacter.id = "character-layer";
 
             /* canvas 속성 설정 및 main에 추가 */
-            const main = document.getElementById("main");
+            const main = this.mainRef.current; // 이렇게 main에 접근
             
             canvasBackground.setAttribute("width", width);
             canvasBackground.setAttribute("height", height);
@@ -71,7 +73,8 @@ class Mainpage extends Component {
             
             canvasCharacter.setAttribute("width", width);
             canvasCharacter.setAttribute("height", height);
-            document.getElementById("main").appendChild(canvasCharacter);
+            // document.getElementById("main").appendChild(canvasCharacter);
+            main.appendChild(canvasCharacter);
             
             this.drawBackground(contextBackground, map, width, height);
             // this.drawBlockZone(contextObject, map._BLOCKED_AREA, map._TILE_LENGTH, map._TILE_WIDTH);
@@ -94,13 +97,7 @@ class Mainpage extends Component {
                 }
             });
         })
-        setTimeout(() => {
-            this.setState({
-                isLoadingMain: false,
-            })
-        }, 3000);
     }
-
 
     drawMusicObject(contextObject, musics, TILE_LENGTH, TILE_WIDTH){
         for(let i = 0; i < musics.POSITION_LIST.length; i++) {
@@ -155,29 +152,34 @@ class Mainpage extends Component {
         }
     }
 
+    loadingFinished = () => {this.setState({isLoadingMain: false})} // mainPage->presetPage->videoPage로 함수 전달됨
+
     render () {
         let contentPage;
+        let loadingPage;
         if (this.state.isLoadingMain){
-            contentPage = <LoadingPage/>
+            loadingPage = <LoadingPage/>
+        } else {
+            loadingPage = <div></div>
         }
-        else{
-            if (this.state.isFinishedPreset === false) {
-                contentPage = <PresetPage finishPreset={this.finishPreset}/>
-            } else {
-                contentPage = <RoomPage
-                                roomName={this.state.roomName}
-                                userName={this.state.userName}
-                                characterNum={this.state.characterNum}
-                                map={this.state.map}
-                                characterList={this.state.characterList}
-                                musicList={this.state.musicList}
-                                socket={socket}
-                                faceMode={this.state.faceBase64} 
-                                />
-            }
+
+        if (this.state.isFinishedPreset === false) {
+            contentPage = <PresetPage finishPreset={this.finishPreset} loadingFinished={this.loadingFinished}/>
+        } else {
+            contentPage = <RoomPage
+                            roomName={this.state.roomName}
+                            userName={this.state.userName}
+                            characterNum={this.state.characterNum}
+                            map={this.state.map}
+                            characterList={this.state.characterList}
+                            musicList={this.state.musicList}
+                            socket={socket}
+                            faceMode={this.state.faceBase64} 
+                            />
         }
         return (
-            <div id="main">
+            <div id="main" ref={this.mainRef}> 
+                {loadingPage}
                 {contentPage}
             </div>
         );

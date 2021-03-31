@@ -3,11 +3,25 @@ import DeviceSelector from './deviceSelector';
 import VideoPreview from './videoPreview';
 import FaceMode from './faceMode/faceMode';
 import axios from 'axios';
+import LandingPage from '../landingPage/landingPage';
 
 export class LoadingPage extends Component {
     render() {
+        const landingPageStyle = {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            position: "fixed",
+            top: "0px",
+            left: "0px",
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "white",
+            zIndex: "10",
+        }
+
         return (
-            <div className="loading" id="loading">
+            <div className="loading" id="loading" style={landingPageStyle}>
                 <img src="/images/Spinner.gif"></img>
             </div>
         );
@@ -79,6 +93,8 @@ export class PresetPage extends Component {
         this.setState({userName : target.value})
     }
 
+    loadingFinished = () => {this.props.loadingFinished()} // mainPage->presetPage->videoPage로 함수 전달됨
+
     render() {
         let characterImage = null;
         if (this.state.characterNum < this.state.characterList.length) {
@@ -111,7 +127,7 @@ export class PresetPage extends Component {
                 <div className="between"></div>
 
                 <div className="item2">
-                    <VideoPreview />
+                    <VideoPreview loadingFinished={this.loadingFinished} />
                     <DeviceSelector/>
                 </div>
             </div>
