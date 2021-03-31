@@ -4,7 +4,7 @@ import './iframe.css'
 class IframePage extends Component {
 
   componentDidMount = () => {
-      console.log('iframe.js is on')
+      // console.log('iframe.js is on')
       this.props.updatePositionSocketOff()
   }
 

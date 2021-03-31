@@ -13,8 +13,8 @@ dotenv.config();
 // require('dotenv').config();
 const backUrl = process.env.REACT_APP_PROXY_TARGET;
 
-console.log(process.env.HTTPS);
-console.log(backUrl);
+// console.log(process.env.HTTPS);
+// console.log(backUrl);
 // const backUrl = 'https://localhost:5000';
 const socket = io(`${backUrl}`, {transport: ['websocket']}) //! 얘는 뭔가요
 socket.request = socketPromise.promise(socket);

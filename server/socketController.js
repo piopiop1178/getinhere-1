@@ -336,7 +336,7 @@ async function createConsumer(router, transport, roomState, producer, rtpCapabil
 
 async function closeConsumer(roomState, consumer) {
   // console.log('closing consumer', consumer.id, consumer.appData);
-  console.log(`close Consumer!!! ${consumer.id}`)
+  // console.log(`close Consumer!!! ${consumer.id}`)
   await consumer.close();
 
   // remove this consumer from our roomState.consumers list
