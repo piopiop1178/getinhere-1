@@ -1,0 +1,11 @@
+.youtubeIframe {
+  position: fixed;
+  width: 87vw;
+  height: 80%;
+  bottom: 0px;
+}
+
+.closeButton {
+  position: fixed;
+  right: 13vw;
+}

@@ -8,7 +8,7 @@ class Youtube {
   
     async mostPopular() {
       const response = await fetch(
-        `https://www.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&regionCode=kr&&maxResults=25&key=AIzaSyC1yQj217JD16u2lhsDBxvwTWA9UlglySs`,
+        `https://www.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&regionCode=kr&&maxResults=45&key=AIzaSyC1yQj217JD16u2lhsDBxvwTWA9UlglySs`,
         this.getRequestOptions
       );
       const result = await response.json();
