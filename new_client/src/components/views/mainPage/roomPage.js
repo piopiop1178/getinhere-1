@@ -1031,9 +1031,9 @@ class Room extends Component {
     }
 
     render() {
-        let videoPage;
+        let youtubePage;
         if (this.state.objects === 1){
-            videoPage = <YoutubeMain 
+            youtubePage = <YoutubeMain 
                 socket={this.props.socket}
                 curr_space={curr_space}
                 youtube={uuuuu} 
