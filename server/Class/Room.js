@@ -148,7 +148,7 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
                 statuses[user.socket.id] = status_pair;
             }
             io.to(this.name).emit('update', statuses, idArray);
-            }, 100);    // 원래 50
+            }, 150);    // 원래 50
     }
 
     pixelToTile(pixel){

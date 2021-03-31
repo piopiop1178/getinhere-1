@@ -195,15 +195,15 @@ class Room extends Component {
             let curr_y = parsed_status.y;
     
             /* 캐릭터 술 캔버스 설정 */
-            if (e.code === "KeyB") {
+            if (e.code === "KeyB" && document.activeElement.tagName ==='BODY') {
                 alcholSoundOnceFlag = true
                 socket.emit('alchol-icon', 'beer');
             }
-            if (e.code === "KeyC") {
+            if (e.code === "KeyC" && document.activeElement.tagName ==='BODY') {
                 alcholSoundOnceFlag = true
                 socket.emit('alchol-icon', 'cocktail');
             }
-            if (e.code === "KeyW") {
+            if (e.code === "KeyW" && document.activeElement.tagName ==='BODY') {
                 alcholSoundOnceFlag = true
                 socket.emit('alchol-icon', 'wine');
             }
@@ -214,17 +214,28 @@ class Room extends Component {
             }
     
             /* 동영상, 게임하기, 노래 등 */
-            if (curr_x <= 60 && 1200 - curr_y <= 120 && e.code === "KeyX"){
+            // 게임하는 2번 방
+            if (e.code === "KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 2){
                 if (this.state.objects ===0) this.setState({objects : 3})
                 else {
                     this.setState({objects : 0})    
                     this.updatePositionSocketOn()
                 }
             }
-
-            if (e.code ==="KeyA" && document.activeElement.tagName ==='BODY'){            
+            
+            // 영상보는 3번 방
+            if (e.code ==="KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 3){            
                 // socket.emit('youtube');
                 if (this.state.objects ===0) this.setState({objects : 1})
+                else {
+                    this.setState({objects : 0})      
+                    this.updatePositionSocketOn()
+                }
+            }
+
+            // 음악듣는 1번 방
+            if (e.code ==="KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 1){            
+                if (this.state.objects ===0) this.setState({objects : 4})
                 else {
                     this.setState({objects : 0})      
                     this.updatePositionSocketOn()
@@ -387,7 +398,10 @@ class Room extends Component {
         });
 
         socket.on('music_on', (video_id) => {
-            this.setState({objects:4})
+            if (curr_space!==1){
+                return;
+            }
+            this.setState({objects:5})
             onYouTubeIframeAPIReady2(video_id)
             this.updatePositionSocketOn()
         })
@@ -410,6 +424,9 @@ class Room extends Component {
         // })
         
         socket.on('video_on', (video_id)=>{
+            if (curr_space!==3){
+                return;
+            }
             this.setState({objects:2})
             onYouTubeIframeAPIReady1(video_id)
         })
@@ -1014,10 +1031,11 @@ class Room extends Component {
     }
 
     render() {
-        let videoPage;
+        let youtubePage;
         if (this.state.objects === 1){
-            videoPage = <YoutubeMain 
+            youtubePage = <YoutubeMain 
                 socket={this.props.socket}
+                curr_space={curr_space}
                 youtube={uuuuu} 
                 updatePositionSocketOn={this.updatePositionSocketOn}
                 updatePositionSocketOff={this.updatePositionSocketOff}
@@ -1038,10 +1056,22 @@ class Room extends Component {
             updatePositionSocketOff={this.updatePositionSocketOff}
           />
         } 
+        
+        if (this.state.objects === 4) {
+            youtubePage = <YoutubeMain 
+                socket={this.props.socket}
+                curr_space={curr_space}
+                youtube={uuuuu} 
+                updatePositionSocketOn={this.updatePositionSocketOn}
+                updatePositionSocketOff={this.updatePositionSocketOff}
+                close={this.closeIframe}
+                />
+        }
         let youtubeMusic;
-        if (this.state.objects === 4){
+        if (this.state.objects === 5){
             youtubeMusic = <div><div className="player2" id="player2"></div></div>
         }
+
         return (
           
             <div className="room" id="room">
