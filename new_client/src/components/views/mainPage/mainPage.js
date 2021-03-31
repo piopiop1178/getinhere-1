@@ -33,6 +33,8 @@ class Mainpage extends Component {
         isFull: false,
     }
 
+    mainRef = React.createRef();
+
     componentDidMount = async () => {
         await axios.get('/api/usersCount', {
             params: { 
@@ -41,7 +43,7 @@ class Mainpage extends Component {
         })
         .then((response) => {
             console.log(response.data.usersCount);
-            if(response.data.usersCount > 1){
+            if(response.data.usersCount > 8){
                 this.goBack();
             }
         })
@@ -108,14 +110,8 @@ class Mainpage extends Component {
                     }
                 });
             })
-            setTimeout(() => {
-                this.setState({
-                    isLoadingMain: false,
-                })
-            }, 3000);
         });
     }
-
 
     drawMusicObject(contextObject, musics, TILE_LENGTH, TILE_WIDTH){
         for(let i = 0; i < musics.POSITION_LIST.length; i++) {
@@ -179,34 +175,39 @@ class Mainpage extends Component {
             // });
     }
 
+    loadingFinished = () => {this.setState({isLoadingMain: false})} // mainPage->presetPage->videoPage로 함수 전달됨
+
     render () {
         let contentPage;
+        let loadingPage;
         if (this.state.isLoadingMain){
-            contentPage = <LoadingPage/>
+            loadingPage = <LoadingPage/>
+        } else {
+            loadingPage = <div></div>
         }
-        else{
-            if (this.state.isFinishedPreset === false) {
-                contentPage = <PresetPage 
-                                finishPreset={this.finishPreset}
-                                roomName={this.state.roomName}
-                                goBack={this.goBack}
-                                />
-            } else {
-                contentPage = <RoomPage
-                                roomName={this.state.roomName}
-                                userName={this.state.userName}
-                                characterNum={this.state.characterNum}
-                                map={this.state.map}
-                                characterList={this.state.characterList}
-                                musicList={this.state.musicList}
-                                socket={socket}
-                                faceMode={this.state.faceBase64}
-                                goBack={this.goBack}
-                                />
-            }
+        if (this.state.isFinishedPreset === false) {
+            contentPage = <PresetPage 
+                            finishPreset={this.finishPreset}
+                            loadingFinished={this.loadingFinished}
+                            roomName={this.state.roomName}
+                            goBack={this.goBack}
+                            />
+        } else {
+            contentPage = <RoomPage
+                            roomName={this.state.roomName}
+                            userName={this.state.userName}
+                            characterNum={this.state.characterNum}
+                            map={this.state.map}
+                            characterList={this.state.characterList}
+                            musicList={this.state.musicList}
+                            socket={socket}
+                            faceMode={this.state.faceBase64}
+                            goBack={this.goBack}
+                            />
         }
         return (
-            <div id="main">
+            <div id="main" ref={this.mainRef}> 
+                {loadingPage}
                 {contentPage}
             </div>
         );

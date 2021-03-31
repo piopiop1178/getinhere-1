@@ -166,6 +166,9 @@ canvas {
   height: 15vw;
   /* background-color: floralwhite; */
   margin-top: 2vw;
+  transform: rotateY(180deg); 
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
 }
 
 .device-selector {

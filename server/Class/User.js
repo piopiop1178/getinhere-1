@@ -50,20 +50,30 @@ class User{
     }
 
     createCharacter(map){
-        let color = '#';
-        for (let i = 0; i < 6; i++) {
-            color += (Math.floor(Math.random()*16)).toString(16);
-        }
         this.status.x = Math.floor(Math.random()*map.TILE_WIDTH)*map.TILE_LENGTH;
         this.status.y = Math.floor(Math.random()*map.TILE_HEIGHT)*map.TILE_LENGTH;
-        this.status.space = 0;
+        this.status.space = this.calcSpace(this.status.x, this.status.y);
         this.status.height = map.CHAR_SIZE;
         this.status.width = map.CHAR_SIZE;
-        this.status.color = color;
     }
 
     joinRoom(room){
         this.socket.join(room.name);
+    }
+
+    calcSpace = (x, y) => {
+        if (y > 360) {
+            return 1;
+        }
+        else if (x <= 780) {
+            return 2;
+        }
+        else if (x >= 1680) {
+            return 4;
+        }
+        else {
+            return 3;
+        }
     }
 }
 module.exports = User;
