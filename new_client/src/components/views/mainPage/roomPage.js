@@ -367,9 +367,11 @@ class Room extends Component {
             await this.clientLoadDevice();
             await this.createProducer();
             // console.log(users);
+            let sameSpace
             for (let socketId in users){
+                sameSpace = (users[socketId].space === curr_space) ? true : false
                 this.state.users[socketId] = users[socketId];
-                this.addPeer(socketId);
+                this.addPeer(socketId, sameSpace);
                 await this.addFace(socketId, users[socketId].characterNum)
             }
             let socketId = socket.id
@@ -378,9 +380,9 @@ class Room extends Component {
 
             /* 시작 알림 */
             if(this.props.faceMode) {
-                socket.emit('start', this.props.roomName, this.props.userName, this.props.faceMode);    
+                socket.emit('start', this.props.roomName, this.props.userName, this.props.faceMode, curr_space);    
             } else {
-                socket.emit('start', this.props.roomName, this.props.userName, this.props.characterNum);
+                socket.emit('start', this.props.roomName, this.props.userName, this.props.characterNum, curr_space);
             }
         });
 
@@ -440,9 +442,10 @@ class Room extends Component {
         // socket.on("update", (statuses, idArray) => {this.updatePosition(statuses, idArray)} );
         socket.on("update", this.updatePosition );
 
-        socket.on('addUser', async (socketId, userName, characterNum) => {
+        socket.on('addUser', async (socketId, userName, characterNum, space) => {
+            let sameSpace = (space === curr_space) ? true : false
             this.state.users[socketId] = {userName: userName, characterNum: characterNum};
-            this.addPeer(socketId);
+            this.addPeer(socketId, sameSpace);
             await this.addFace(socketId, characterNum)
         });
 
@@ -495,8 +498,8 @@ class Room extends Component {
         this.state.faceListNum =this.state.faceListNum + 1
     }
 
-    addPeer = async (socket_id) => {
-        let newStream = await this.createConsumer(socket_id);
+    addPeer = async (socket_id, sameSpace) => {
+        let newStream = await this.createConsumer(socket_id, sameSpace);
         let newVid = document.createElement('video')
         let videos = document.getElementById('videos')
         newVid.srcObject = newStream
@@ -506,7 +509,11 @@ class Room extends Component {
         newVid.className = "vid"
         videos.appendChild(newVid)
         
-        newVid.style.display = 'none'
+        if (sameSpace) {
+            newVid.style.display = 'block'
+        } else {
+            newVid.style.display = 'none'
+        }
         peers[socket_id] = null;
     }    
 
@@ -822,7 +829,7 @@ class Room extends Component {
         return new Promise(resolve => setTimeout(resolve, milliseconds))
     }
 
-    createConsumer = async (peerId) => {
+    createConsumer = async (peerId, sameSpace) => {
         // create a receive transport if we don't already have one
         //! On error fixing
         if (!recvTransport) {
@@ -843,8 +850,10 @@ class Room extends Component {
             await this.sleep(100);
         }
         // okay, we're ready. let's ask the peer to send us media
-        //! await this.resumeConsumer(videoConsumer);
-        //! await this.resumeConsumer(audioConsumer);
+        if (sameSpace) {
+            await this.resumeConsumer(videoConsumer);
+            await this.resumeConsumer(audioConsumer);
+        }
         // keep track of all our consumers
         // updatePeersDisplay();
     

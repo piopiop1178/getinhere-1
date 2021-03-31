@@ -34,17 +34,17 @@ module.exports = (io) => {
             console.log("ERROR : io.on('connect'), room === undefined");
             return;
           }
-          socket.emit('sendUsers', room.getUserDatasForDraw()); 
+          socket.emit('sendUsers', room.getUserDatasForDraw());
           await RoomManager.addSocketToRoom(socket, room, userName, characterNum);
         });
 
         /* 신규 user가 준비가 끝나고 시작하면 기존 user들에게 신규 user 추가 알림 */
-        socket.on('start', (roomName, userName, characterNum) => {
+        socket.on('start', (roomName, userName, characterNum, space) => {
           room = RoomManager.getRoomByRoomName(roomName)
           const users = room.users; 
           for(let socketId in users){
             if(socketId !== socket.id){
-              users[socketId].socket.emit('addUser', socket.id, userName, characterNum);
+              users[socketId].socket.emit('addUser', socket.id, userName, characterNum, space);
             } 
             // console.log(socketId);
             // let user = this.users[socketId];
