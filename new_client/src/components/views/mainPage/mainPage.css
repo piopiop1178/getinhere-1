@@ -83,10 +83,10 @@ canvas {
   position: fixed;
   right: 0px;
   top: 0px;
-  margin: 4px;
+  margin: 1px;
   width: 13vw;
   height: 400px;
-  padding: 5px;
+  padding: 0px;
   opacity: 0.5;
 }
 

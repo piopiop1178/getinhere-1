@@ -1,5 +1,5 @@
 /* @import url("https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans&family=Roboto&display=swap"); */
-@import url("https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans&family=Roboto&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Gaegu:wght@700&display=swap");
 
 /* common */
 button {
@@ -16,7 +16,7 @@ button {
 
 /* landing.jsx */
 .main-message {
-  font-family: "Bangers";
+  font-family: "Gaegu";
   font-size: 800%;
   text-align: center;
   margin-left: auto;
@@ -26,7 +26,7 @@ button {
 }
 
 .start-button {
-  font-family: "Bangers", cursive;
+  font-family: "Gaegu", cursive;
   border-radius: 7%;
   display: block;
   align-content: center;
@@ -51,34 +51,6 @@ button {
   opacity: 0.7;
 }
 
-.map-image {
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: -1;
-  height: 70vh;
-  width: 55vw;
-  position: absolute;
-  margin: auto;
-  opacity: 0.7;
-}
-
-.map-setting {
-  font-size: 160%;
-  font-family: "Bangers", cursive;
-  margin: auto;
-  text-align: center;
-  align-content: center;
-}
-
-.map-select-button {
-  background-color: transparent;
-  font-size: 100%;
-  padding-left: 1vw;
-  padding-right: 1vw;
-}
-
 /* create.jsx */
 .container {
   height: 72vh;
@@ -87,7 +59,7 @@ button {
   justify-content: center; /* main align*/
   align-items: flex-end; /* */
   text-align: center;
-  font-family: "Bangers";
+  font-family: "Gaegu";
 }
 
 .item1 {
@@ -124,7 +96,7 @@ button {
   text-align: center;
   width: 40%;
   font-size: 3vw;
-  font-family: "Bangers";
+  font-family: "Gaegu";
 }
 .name-input2 {
   width: 50%;
@@ -166,7 +138,7 @@ canvas {
   height: 15vw;
   /* background-color: floralwhite; */
   margin-top: 2vw;
-  transform: rotateY(180deg); 
+  transform: rotateY(180deg);
   -webkit-transform: rotateY(180deg);
   -moz-transform: rotateY(180deg);
 }
@@ -187,13 +159,13 @@ canvas {
 select {
   background-color: floralwhite;
   /* text align center gogo */
-  font-family: "Bangers";
+  font-family: "Gaegu";
   font-size: 2vw;
   width: 20vw;
 }
 
 .getin-button {
-  font-family: "Bangers", cursive;
+  font-family: "Gaegu", cursive;
   border-radius: 7%;
   display: block;
   align-content: center;
@@ -214,5 +186,3 @@ select {
   text-decoration: none;
   color: floralwhite;
 }
-
-

@@ -53,18 +53,18 @@ class LandingPage extends Component {
             </video>
             <img className="map-image" alt="maps" src={this.state.maps[this.state.map_index]}></img>
             <div className="main-message">
-                Get In Here 🍻
+                GET IN HERE 🍻
             </div>
             <div className="map-setting">
                 <button className="map-select-button" onClick={this.MapLeft}>
                     <i className="far fa-hand-point-left"></i>
                 </button>
-                Choose map
+                CHOOSE MAP
                 <button className="map-select-button" onClick={this.MapRight}>
                     <i className="far fa-hand-point-right"></i>
                 </button>
             </div>
-            <button className="start-button" onClick={this.mapIndexSend}>Start !</button>
+            <button className="start-button" onClick={this.mapIndexSend}>START !</button>
             </>
         )
     }

@@ -310,19 +310,29 @@ class Room extends Component {
                 return;
             }
 
-            let drawImageSrc = statuses[id].characterNum != -1 ? this.props.characterList[statuses[id].characterNum] : this.state.faceList[statuses[id].id]
-            if (!drawImageSrc) {return;}
+            // let drawImageSrc = statuses[id].characterNum != -1 ? this.props.characterList[statuses[id].characterNum] : this.state.faceList[statuses[id].id]
+            // if (!drawImageSrc) {return;}
 
-            console.log('-------------------------------', drawImageSrc);
+            if(statuses[id].characterNum == -1) {
+                if(!this.state.faceList[statuses[id].id]) {return;}
+                contextCharacter.drawImage(
+                    this.state.faceList[statuses[id].id], 
+                    statuses[id].status.x - 13,
+                    statuses[id].status.y - 13,
+                    86,
+                    86,
+                );
+            } else {
+                // 캐릭터 삽입 코드
+                contextCharacter.drawImage(
+                    this.props.characterList[statuses[id].characterNum], 
+                    statuses[id].status.x - 3,
+                    statuses[id].status.y - 3,
+                    statuses[id].status.width + 6,
+                    statuses[id].status.height + 6,
+                );
+            }
 
-            // 캐릭터 삽입 코드
-            contextCharacter.drawImage(
-                drawImageSrc, 
-                statuses[id].status.x,
-                statuses[id].status.y,
-                statuses[id].status.width,
-                statuses[id].status.height,
-            );
 
             // 술 이모티콘 삽입 코드
             if (statuses[id].status.alchol) {
@@ -352,7 +362,7 @@ class Room extends Component {
                     statuses[id].status.y,
                     );
                 }
-            contextCharacter.font = '40px Bangers';
+            contextCharacter.font = '40px Gaegu';
             contextCharacter.shadowColor = 'white' // string
                 //Color of the shadow;  RGB, RGBA, HSL, HEX, and other inputs are valid.
             contextCharacter.shadowOffsetX = 0; // integer

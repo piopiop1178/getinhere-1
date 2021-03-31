@@ -25,6 +25,9 @@ class faceMode extends Component {
     photoCanvas.style.width = `${photoBooth.clientHeight}px`;
 
     (function drawHeadZone() {
+      ctx.beginPath();
+      ctx.arc(50, 50, 50, 0, Math.PI * 2);
+      ctx.clip();
       ctx.drawImage(photoBooth, videoWidth/3, videoHeight/5, videoWidth/3, videoWidth/3,  0, 0, 100, 100); 
       requestAnimationFrame(drawHeadZone);
     })()

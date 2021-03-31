@@ -52,7 +52,7 @@ const SerchHeader = memo(({ close, updatePositionSocketOff, updatePositionSocket
             alt="search"
           />
         </button>
-        <button className={styles.closeButton} onClick={closeButton}>❌</button>
+        <button className={styles.closeButton} onClick={closeButton}>돌아가기</button>
       </header>
     );
   });
