@@ -37,6 +37,7 @@ module.exports = (io) => {
           }
           socket.emit('sendUsers', room.getUserDatasForDraw());
           await RoomManager.addSocketToRoom(socket, room, userName, characterNum);
+          console.log('Im ready!!')
         });
 
         /* 신규 user가 준비가 끝나고 시작하면 기존 user들에게 신규 user 추가 알림 */
@@ -159,7 +160,7 @@ module.exports = (io) => {
           await closeTransport(room.roomState, target_transport) 
           // console.log('disconnect!');
           io.to(room.name).emit('removeUser', socket.id);
-          RoomManager.removeSocketFromRoom(socket);
+          RoomManager.removeSocketFromRoom(socket, room.name);
         });
         // console.log("initWebRTC End");
     }

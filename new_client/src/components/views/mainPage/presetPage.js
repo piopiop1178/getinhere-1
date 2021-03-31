@@ -5,6 +5,8 @@ import FaceMode from './faceMode/faceMode';
 import axios from 'axios';
 import LandingPage from '../landingPage/landingPage';
 
+
+
 export class LoadingPage extends Component {
     render() {
         const landingPageStyle = {

@@ -70,8 +70,8 @@ canvas {
 
 .room {
   z-index: 2;
-  justify-content: center;
-  display: flex;
+  /* justify-content: center;
+  display: flex; */
 }
 
 /* -----------------   ROOM END    ----------------- */

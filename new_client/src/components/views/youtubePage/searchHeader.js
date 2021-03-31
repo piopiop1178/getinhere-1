@@ -34,24 +34,26 @@ const SerchHeader = memo(({ close, updatePositionSocketOff, updatePositionSocket
     return (
       <header className={styles.header}>
         <div className={styles.logo}>
-          <img className={styles.img} src="/images/logo.png" alt="logo" />
-          <h1 className={styles.title}>Youtube</h1>
+            <img className={styles.img} src="/images/logo.png" alt="logo" />
+            <h1 className={styles.title}>Youtube</h1>
         </div>
-        <input
-          ref={inputRef}
-          className={styles.input}
-          type="search"
-          placeholder="Search"
-          onKeyPress={onKeyPress}
-          id="search"
-        />
-        <button className={styles.button} type="submit" onClick={onClick}>
-          <img
-            className={styles.buttonImg}
-            src="/images/search.png"
-            alt="search"
-          />
-        </button>
+        <div className={styles.input}>
+            <input
+            ref={inputRef}
+            className={styles.input}
+            type="search"
+            placeholder="Search"
+            onKeyPress={onKeyPress}
+            id="search"
+            />
+            <button className={styles.button} type="submit" onClick={onClick}>
+            <img
+                className={styles.buttonImg}
+                src="/images/search.png"
+                alt="search"
+            />
+            </button>
+        </div>
         <button className={styles.closeButton} onClick={closeButton}>돌아가기</button>
       </header>
     );
