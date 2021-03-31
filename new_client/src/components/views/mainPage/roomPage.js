@@ -184,8 +184,16 @@ class Room extends Component {
         });
         window.addEventListener('keydown' ,(e)=> {
             if(e.path[0]===document.getElementById("chat-message")){
+                e.preventDefault();
                 return;
             }
+
+            // if during event except music prevent move
+            if (this.state.objects !== 0 && this.state.objects !== 5){
+                e.preventDefault();
+                return;
+            }
+
             let st = localStorage.getItem('myStatus');
             let parsed_status = JSON.parse(st);
             let curr_x = parsed_status.x;
@@ -353,6 +361,14 @@ class Room extends Component {
 
     updatePositionSocketOff = () => {
         // console.log('remove update socket on ')
+        keyUpBuffer[UP] = false;
+        keyUpBuffer[DOWN] = false;
+        keyUpBuffer[LEFT] = false;
+        keyUpBuffer[RIGHT] = false;
+        socket.emit("keyup", UP);
+        socket.emit("keyup", DOWN);
+        socket.emit("keyup", LEFT);
+        socket.emit("keyup", RIGHT);
         socket.removeAllListeners("update");
     }
     
