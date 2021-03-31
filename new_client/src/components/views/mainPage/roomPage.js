@@ -227,7 +227,7 @@ class Room extends Component {
             if (e.code === "KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 2){
                 if (this.state.objects ===0) {
                     this.setState({objects : 3})
-                    document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,0)';
+                    document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,51)';
                 }
                 else {
                     this.setState({objects : 0})    
@@ -241,7 +241,7 @@ class Room extends Component {
                 // socket.emit('youtube');
                 if (this.state.objects ===0) {
                     this.setState({objects : 1})
-                    document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,0)';
+                    document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,51)';
                 }
                 else {
                     this.setState({objects : 0})      
@@ -254,7 +254,7 @@ class Room extends Component {
             if (e.code ==="KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 1){            
                 if (this.state.objects ===0) {
                     this.setState({objects : 4})
-                    document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,0)';
+                    document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,51)';
                 }
                 else {
                     this.setState({objects : 0})      

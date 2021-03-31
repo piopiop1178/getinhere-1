@@ -1,11 +1,19 @@
 import React, { Component } from 'react';
+import {LoadingPage} from '../presetPage';
 import './iframe.css'
 
 class IframePage extends Component {
+  state = {
+    iframeLoadingIsDone: false,
+  }
+
+  iframeRef = React.createRef();
 
   componentDidMount = () => {
       // console.log('iframe.js is on')
       this.props.updatePositionSocketOff()
+      const myIframe = this.iframeRef.current;
+      myIframe.onload = () => {this.setState({iframeLoadingIsDone: true})}
   }
 
   closeIframe = () => {
@@ -13,22 +21,37 @@ class IframePage extends Component {
     this.props.closeIframe();
   }
 
+  
+
   inviteCodeButton = () => {
     document.querySelector('#iframe-game').src = document.querySelector('.invite-code-input').value;
     document.querySelector('.invite-code-input').value = "";
   }
 
   render() {
-    return (
+    let loadingPage;
+    let renderPage;
+    if (!this.state.iframeLoadingIsDone){
+      loadingPage = <LoadingPage/>
+    } else {
+      loadingPage = <></>
+    }
+      renderPage = 
       <div className='iframe-wrapper'>
-          <div className="invite-code-wrapper">
-              <input type="text" className="invite-code-input" placeholder="   초대 코드를 입력해주세요  Input your Invite Code"/> 
-              <button className="invite-code-button" onClick={this.inviteCodeButton}> JOIN </button>
-              <span className="iframe-game-guide"> 초대 코드 입력 후 Play 버튼을 눌러주세요! </span>
-              <button className='iframe-close-button' onClick={this.closeIframe}>돌아가기</button>
-          </div>
-          <iframe id='iframe-game' src="https://skribbl.io" ></iframe>
+        <div className="invite-code-wrapper">
+          <input type="text" className="invite-code-input" placeholder="   초대 코드를 입력해주세요  Input your Invite Code"/> 
+          <button className="invite-code-button" onClick={this.inviteCodeButton}> JOIN </button>
+          <span className="iframe-game-guide"> 초대 코드 입력 후 Play 버튼을 눌러주세요! </span>
+          <button className='iframe-close-button' onClick={this.closeIframe}>돌아가기</button>
+        </div>
+        <iframe id='iframe-game' ref={this.iframeRef} src="https://skribbl.io" ></iframe>
       </div>
+    
+    return (
+      <>
+      {loadingPage}
+      {renderPage}
+      </>
     )
   }
 }
