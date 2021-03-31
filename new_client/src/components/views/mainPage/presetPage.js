@@ -30,7 +30,7 @@ export class PresetPage extends Component {
             this.setState({characterList: response.data.characterList});
             // console.log(this.state.characterList);
         });
-        this.state.photoCanvas = document.querySelector('.photo-canvas')
+        this.state.photoCanvas = document.querySelector('.photo-canvas');
     }
 
     imageChangeLeft = () => {
@@ -47,26 +47,39 @@ export class PresetPage extends Component {
     }
 
     finishPreset = (e) => {
-        if(this.state.userName == ""){
-            alert("이름을 입력해주세요");
-            return;
-        }
-        if(this.state.userName.length < 2){
-            alert("이름은 2자 이상 입니다");
-            return;
-        }
-        if(this.state.userName.length > 14){
-            alert("이름은 14자 이내 입니다");
-            return;
-        }
-        // const regex = /^[가-힣a-zA-z0-9]{2,15}$/;    // 특수문자 미포함
-        const regex = /^[ㄱ-ㅎ가-힣a-zA-z0-9\{\}\[\]\/?.,;:|\)*~`!^\-_+@\#$%&\\\=\(\'\"]{2,15}$/;
-        if(!regex.test(this.state.userName)){
-            alert("이름은 한글, 영문, 숫자, 일부 특수문자( (){}[]?.,;:|*~`!^-_+@#$%&\\='\" )만 가능합니다");
-            return;
-        }
+        axios.get('/api/usersCount', {
+            params: { 
+                roomName : this.props.roomName,
+            }
+        })
+        .then(response => {
+            // console.log(response.data.usersCount);
+            if(response.data.usersCount > 8) {
+                this.props.goBack();
+                return;
+            }
 
-        this.props.finishPreset(this.state.userName, this.state.characterNum, this.state.photoCanvas.toDataURL());
+            if(this.state.userName == ""){
+                alert("이름을 입력해주세요");
+                return;
+            }
+            if(this.state.userName.length < 2){
+                alert("이름은 2자 이상 입니다");
+                return;
+            }
+            if(this.state.userName.length > 14){
+                alert("이름은 14자 이내 입니다");
+                return;
+            }
+            // const regex = /^[가-힣a-zA-z0-9]{2,15}$/;    // 특수문자 미포함
+            const regex = /^[ㄱ-ㅎ가-힣a-zA-z0-9\{\}\[\]\/?.,;:|\)*~`!^\-_+@\#$%&\\\=\(\'\"]{2,15}$/;
+            if(!regex.test(this.state.userName)){
+                alert("이름은 한글, 영문, 숫자, 일부 특수문자( (){}[]?.,;:|*~`!^-_+@#$%&\\='\" )만 가능합니다");
+                return;
+            }
+    
+            this.props.finishPreset(this.state.userName, this.state.characterNum, this.state.photoCanvas.toDataURL());
+        });
 
     }
 

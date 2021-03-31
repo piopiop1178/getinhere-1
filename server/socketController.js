@@ -17,6 +17,7 @@ module.exports = (io) => {
         socket.on('initSocket', (roomName) => {
           // console.log('initSocket');
           room = RoomManager.getRoomByRoomName(roomName);
+
           /* 기능 별 socket on 설정 */
           initWebRTC(socket, room);
           initKeyEvent(socket, room);
