@@ -157,7 +157,6 @@ class Room extends Component {
     addMyFace = () => {
         //! 내 얼굴 넣기
         // if (this.props.faceMode) {
-            console.log('내 얼굴 넣기', this.props.faceMode)
             let characterImage = new Image();
             characterImage.onload = () => {
                 // this.state.contextHide.drawImage(characterImage, 0, 0, 60, 60)
@@ -169,7 +168,6 @@ class Room extends Component {
     }
 
     componentDidMount = async () => {
-        // console.log(this.state.users)
         socket = this.props.socket;
         
 
@@ -274,8 +272,6 @@ class Room extends Component {
             if(e.code === LEFT  )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
 
         })
-        window.addEventListener("keypress", (e)=> console.log(e.code))
-
 
         window.addEventListener("keyup", function (e) {
             if(e.path[0]===document.getElementById("chat-message")){
@@ -307,7 +303,6 @@ class Room extends Component {
 
         // const WIDTH = this.state.map._WIDTH;
         // const HEIGHT = this.state.map._HEIGHT;
-        // console.log(WIDTH, HEIGHT);
         const contextCharacter = this.state.contextCharacter;
         let myStatus = statuses[socket.id].status;
 
@@ -325,7 +320,6 @@ class Room extends Component {
             // Audio volume change
             // if (id !== socket.id && gains[id] != undefined) {
             //     dist = this.calcDistance(statuses[id].status, statuses[socket.id].status)
-            //     // console.log(dist)
             //     gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
             // }
 
@@ -405,7 +399,6 @@ class Room extends Component {
     }
 
     updatePositionSocketOff = () => {
-        // console.log('remove update socket on ')
         keyUpBuffer[UP] = false;
         keyUpBuffer[DOWN] = false;
         keyUpBuffer[LEFT] = false;
@@ -418,7 +411,6 @@ class Room extends Component {
     }
     
     updatePositionSocketOn = () => {
-        // console.log('add update socket on ')
         socket.on("update", this.updatePosition );
     }
 
@@ -435,7 +427,6 @@ class Room extends Component {
     
             await this.clientLoadDevice();
             await this.createProducer();
-            // console.log(users);
             let sameSpace
             for (let socketId in users){
                 sameSpace = (users[socketId].space === curr_space) ? true : false
@@ -445,7 +436,6 @@ class Room extends Component {
             }
             let socketId = socket.id
             this.state.users[socketId] = {userName: this.props.userName, characterNum: this.props.characterNum};
-            // console.log(this.state.users);
 
             /* 시작 알림 */
             if(this.props.faceMode) {
@@ -471,7 +461,6 @@ class Room extends Component {
         });
 
         socket.on('chat', (name, message) => {
-            // console.log(name, message);
             document.getElementById("message-box").appendChild(this.makeMessageOther(name, message));
             this.scrollBottom("message-box");
         });
@@ -527,13 +516,11 @@ class Room extends Component {
         });
 
         socket.on('removeUser', (socketId) => {
-            // console.log('removeUser', this.state.users[socketId].userName);
             this.removePeer(socketId);
             delete this.state.users[socketId]
         });
 
         socket.on('disconnect', async () => {
-            // console.log('got disconnected')
             for (let socket_id in this.state.users){
                 this.disconnectPeer(socket_id);
             }
@@ -550,7 +537,6 @@ class Room extends Component {
 
         socket.io.removeAllListeners("open")
         socket.io.on("open", async () => {
-            // console.log('"open" event of manager fired')
             if (reconnect_checker) {
                 Object.keys(socket._callbacks).forEach(function(eventname) {
                     socket.removeAllListeners(eventname.slice(1))
@@ -600,13 +586,10 @@ class Room extends Component {
     }    
 
     removePeer = async (socket_id) => {
-        // console.log('removePeer!!')
         let videoEl = document.getElementById(socket_id)
         if (videoEl) {
     
             const tracks = videoEl.srcObject.getTracks();
-            // console.log('Removing tracks')
-            // console.log(tracks)
     
             tracks.forEach(function (track) { 
                 track.stop()
@@ -622,7 +605,6 @@ class Room extends Component {
         await this.closeClientTrackConsumer(socket_id, 'cam-video'); 
         await this.closeClientTrackConsumer(socket_id, 'cam-audio');  
         //!----------------------DEBUG---------------------
-        // console.log(consumers);
         // if (peers[socket_id]) peers[socket_id].destroy() 
         // delete peers[socket_id]
     }
@@ -632,8 +614,6 @@ class Room extends Component {
         if (videoEl) {
     
             const tracks = videoEl.srcObject.getTracks();
-            // console.log('disconnecting tracks')
-            // console.log(tracks)
     
             tracks.forEach(function (track) { 
                 track.stop()
@@ -651,23 +631,15 @@ class Room extends Component {
 
     //tmp 승민
     clientLoadDevice = async () => {
-        // console.log(`Device! request: ${socket.request}`);
         const data = await socket.request('getRouterRtpCapabilities');
-        // console.log(`data._data: ${data._data}`); //왜 이거 못쓰는지?? 
-        // console.log('data', data);
         await this.loadDevice(data._data.rtpCapabilities);
         return;
     }
 
     loadDevice = async (routerRtpCapabilities) => {
-        // console.log('load device 입니다다아아ㅏ');
         try {
-            // console.log('load device try 입니다아아ㅏ');
             device = new mediasoup.Device();
-            // console.log('loadDevice function',device);
             await device.load({ routerRtpCapabilities });
-            // console.log('loadDevice function after',device);
-            // console.log(device);
         } catch (error) {
             if (error.name === 'UnsupportedError') {
             console.error('browser not supported');
@@ -700,7 +672,6 @@ class Room extends Component {
         const name = this.state.userName;
         const chatMessage = document.getElementById("chat-message");
         const message = chatMessage.value;
-        // console.log(message)
         if (message.replace(/^\s+|\s+$/g,"") === ""){
             chatMessage.value = null;
             return;
@@ -708,7 +679,6 @@ class Room extends Component {
         document.getElementById("message-box").appendChild(this.makeMessageOwn(message));
         this.scrollBottom("message-box");
         chatMessage.value = null;
-        // console.log(name, message);
         socket.emit('chat', name, message);
     }
 
@@ -803,14 +773,12 @@ class Room extends Component {
     }
 
     createTransport = async (direction) => {
-        // console.log('createTransport device', device);
         let transport,
             transportOptions = await socket.request('createTransport', {
                 forceTcp: false,
                 rtpCapabilities: device.rtpCapabilities,
             });
     
-        // console.log ('transport options', transportOptions);
     
         if (direction === 'recv') {
             transport = await device.createRecvTransport(transportOptions);
@@ -824,7 +792,6 @@ class Room extends Component {
               });
     
         } else if (direction === 'send') {
-            // console.log(transportOptions);
             transport = await device.createSendTransport(transportOptions);
             transport.on('connect', async ({ dtlsParameters }, callback, errback) => {
                 await socket.request('connectTransport', { 

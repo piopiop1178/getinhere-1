@@ -37,7 +37,6 @@ module.exports = (io) => {
           }
           socket.emit('sendUsers', room.getUserDatasForDraw());
           await RoomManager.addSocketToRoom(socket, room, userName, characterNum);
-          console.log('Im ready!!')
         });
 
         /* 신규 user가 준비가 끝나고 시작하면 기존 user들에게 신규 user 추가 알림 */
