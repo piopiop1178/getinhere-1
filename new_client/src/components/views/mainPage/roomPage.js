@@ -78,8 +78,11 @@ let keyDownUpOnceFlag;
 let keyUpBuffer = {};
 let curr_space
 let changeSpace = true
-let isAlreadyArrowKeyPressed = false;        /* 대각선 이동 방지-> 첫번째 화살표 입력만 받고 나머지는 무시하기, keyup일때만 다시 false로 바꿔줌 -> 키 입력에 대한 전역변수 설정 */
-let movementStack = []
+
+/* * 뒤로가기 시 그냥 리로드하기 */
+window.onpopstate = function(event) { 
+    window.location.reload();
+};
 
 // youtube synchro play
 var tag = document.createElement('script');
