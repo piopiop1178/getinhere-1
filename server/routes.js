@@ -68,9 +68,15 @@ module.exports = async (app) => {
     app.get('/api/usersCount', (req, res) => {
         const roomName = req.query.roomName;
         const room = RoomManager.getRoomByRoomName(roomName);
+        let usersCount = -1;
+        let success = false;
+        if(room !== undefined){
+            usersCount = Object.keys(room.users).length;
+            success = true;
+        }
         return res.status(200).json({
-            "usersCount": Object.keys(room.users).length,
-            "success": true,
+            "usersCount": usersCount,
+            "success": success,
         });
     });
 }
