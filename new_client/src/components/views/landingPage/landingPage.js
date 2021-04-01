@@ -31,6 +31,7 @@ class LandingPage extends Component {
     };
 
     MapLeft = () =>{
+        console.log(this.state.map_index - 1);
         this.setState( state => ({map_index: state.map_index -1}));
         if (this.state.map_index === 0) {
             this.setState( state => ({map_index: state.map_index + state.maps.length }));
@@ -38,6 +39,7 @@ class LandingPage extends Component {
     };
     
     MapRight = () =>{
+        console.log(this.state.map_index + 1);
         this.setState(state => ({map_index: state.map_index +1}));
         if (this.state.map_index+1 === this.state.maps.length) {
             this.setState(state => ({map_index: state.map_index - state.map_index}))

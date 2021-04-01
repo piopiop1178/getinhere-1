@@ -43,79 +43,111 @@ const MusicInfoList = [];
 // });
 // MusicInfoList.push(musicInfo00);
 
-// /* -------------------------------------------- */
-// const mapInfo01 = new MapInfo({
-//   NUMBER: 1,
-//   TILE_LENGTH: 60,
-//   TILE_WIDTH: 40,
-//   TILE_HEIGHT: 20,
-//   BACKGROUND_IMG_PATH: "/maps/map2.jpeg",
-// });
-// MapInfoList.push(mapInfo01);
+const mapInfo00 = new MapInfo({
+  NUMBER: 0,
+  TILE_LENGTH: 60,
+  TILE_WIDTH: 40,
+  TILE_HEIGHT: 20,
+  BACKGROUND_IMG_PATH: "/maps/map4.jpg",
+});
+MapInfoList.push(mapInfo00);
 
-// const blockInfo01 = new BlockInfo({
-//   NUMBER: 1,
-//   POSITION_LIST: [9, 11, 20, 25, 31, 50, 100, 150, 170, 350, 380, 388, 500, 512, 513, 514, 550, 600, 650, 670, 677, 680],
-// });
-// BlockInfoList.push(blockInfo01);
+const blockInfo00 = new BlockInfo({
+  NUMBER: 0,
+  POSITION_LIST : ["15", "28", "55", "68", "95", "108", "135", "148", "175", "188", "215", "228", "255", "268", 
+  "281", "282", "283", "292", "293", "294", "295", "296", "297", "306", "307", "308", "309", "310", "319", "320",
+  "415", "455", "426", "427", "466", "467", "537", "538", "539", "540", "541", "542", "543", "577", "578", "579",
+  "580", "581", "582", "583", "617", "618", "619", "620", "621", "622", "623", ],
+});
+BlockInfoList.push(blockInfo00);
 
-// const musicInfo01 = new MusicInfo({
-//   NUMBER: 1,
-//   POSITION_LIST: [761],
-//   SOURCE_LIST: ["../music/all_falls_down.mp3"],
-//   IMAGE_LIST: ["/images/1.jpg"],
-// });
-// MusicInfoList.push(musicInfo01);
+const musicInfo00 = new MusicInfo({
+  NUMBER: 0,
+  POSITION_LIST: [761],
+  SOURCE_LIST: ["../music/all_falls_down.mp3"],
+  IMAGE_LIST: ["/images/1.jpg"],
+});
+MusicInfoList.push(musicInfo00);
+
+const mapInfo01 = new MapInfo({
+  NUMBER: 1,
+  TILE_LENGTH: 60,
+  TILE_WIDTH: 40,
+  TILE_HEIGHT: 20,
+  BACKGROUND_IMG_PATH: "/maps/map4.jpg",
+});
+MapInfoList.push(mapInfo01);
+
+const blockInfo01 = new BlockInfo({
+  NUMBER: 1,
+  POSITION_LIST : ["15", "28", "55", "68", "95", "108", "135", "148", "175", "188", "215", "228", "255", "268", 
+  "281", "282", "283", "292", "293", "294", "295", "296", "297", "306", "307", "308", "309", "310", "319", "320",
+  "415", "455", "426", "427", "466", "467", "537", "538", "539", "540", "541", "542", "543", "577", "578", "579",
+  "580", "581", "582", "583", "617", "618", "619", "620", "621", "622", "623", ],
+});
+BlockInfoList.push(blockInfo01);
+
+const musicInfo01 = new MusicInfo({
+  NUMBER: 1,
+  POSITION_LIST: [761],
+  SOURCE_LIST: ["../music/all_falls_down.mp3"],
+  IMAGE_LIST: ["/images/1.jpg"],
+});
+MusicInfoList.push(musicInfo01);
+
+const mapInfo02 = new MapInfo({
+  NUMBER: 2,
+  TILE_LENGTH: 60,
+  TILE_WIDTH: 40,
+  TILE_HEIGHT: 20,
+  BACKGROUND_IMG_PATH: "/maps/map4.jpg",
+});
+MapInfoList.push(mapInfo02);
+
+const blockInfo02 = new BlockInfo({
+  NUMBER: 2,
+  POSITION_LIST : ["15", "28", "55", "68", "95", "108", "135", "148", "175", "188", "215", "228", "255", "268", 
+  "281", "282", "283", "292", "293", "294", "295", "296", "297", "306", "307", "308", "309", "310", "319", "320",
+  "415", "455", "426", "427", "466", "467", "537", "538", "539", "540", "541", "542", "543", "577", "578", "579",
+  "580", "581", "582", "583", "617", "618", "619", "620", "621", "622", "623", ],
+});
+BlockInfoList.push(blockInfo02);
+
+const musicInfo02 = new MusicInfo({
+  NUMBER: 2,
+  POSITION_LIST: [761],
+  SOURCE_LIST: ["../music/all_falls_down.mp3"],
+  IMAGE_LIST: ["/images/1.jpg"],
+});
+MusicInfoList.push(musicInfo02);
 
 
-// /* -------------------------------------------- */
-// const mapInfo02 = new MapInfo({
-//   NUMBER: 2,
-//   TILE_LENGTH: 60,
-//   TILE_WIDTH: 40,
-//   TILE_HEIGHT: 20,
-//   BACKGROUND_IMG_PATH: "/maps/map3.png",
-// });
-// MapInfoList.push(mapInfo02);
 
-// const blockInfo02 = new BlockInfo({
-//   NUMBER: 2,
-//   POSITION_LIST: [9, 11, 20, 25, 31, 50, 100, 150, 170, 350, 380, 388, 500, 512, 513, 514, 550, 600, 650, 670, 677, 680],
-// });
-// BlockInfoList.push(blockInfo02);
-
-// const musicInfo02 = new MusicInfo({
-//   NUMBER: 2,
-//   POSITION_LIST: [761],
-//   SOURCE_LIST: ["../music/all_falls_down.mp3"],
-//   IMAGE_LIST: ["/images/1.jpg"],
-// });
-// MusicInfoList.push(musicInfo02);
-// /* -------------------------------------------- */
-
-
-const mapInfo03 = new MapInfo({
-    NUMBER: 3,
-    TILE_LENGTH: 60,
-    TILE_WIDTH: 40,
-    TILE_HEIGHT: 20,
-    BACKGROUND_IMG_PATH: "/maps/map4.jpg",
-  });
-  MapInfoList.push(mapInfo03);
+// const mapInfo04 = new MapInfo({
+//     NUMBER: 4,
+//     TILE_LENGTH: 60,
+//     TILE_WIDTH: 40,
+//     TILE_HEIGHT: 20,
+//     BACKGROUND_IMG_PATH: "/maps/map4.jpg",
+//   });
+//   MapInfoList.push(mapInfo04);
   
-  const blockInfo03 = new BlockInfo({
-    NUMBER: 3,
-    POSITION_LIST: [],
-  });
-  BlockInfoList.push(blockInfo03);
+//   const blockInfo04 = new BlockInfo({
+//     NUMBER: 4,
+//     POSITION_LIST : ["15", "28", "55", "68", "95", "108", "135", "148", "175", "188", "215", "228", "255", "268", 
+//     "281", "282", "283", "292", "293", "294", "295", "296", "297", "306", "307", "308", "309", "310", "319", "320",
+//     "415", "455", "426", "427", "466", "467", "537", "538", "539", "540", "541", "542", "543", "577", "578", "579",
+//     "580", "581", "582", "583", "617", "618", "619", "620", "621", "622", "623", ],
+//   });
+//   BlockInfoList.push(blockInfo04);
   
-  const musicInfo03 = new MusicInfo({
-    NUMBER: 3,
-    POSITION_LIST: [761],
-    SOURCE_LIST: ["../music/all_falls_down.mp3"],
-    IMAGE_LIST: ["/images/1.jpg"],
-  });
-  MusicInfoList.push(musicInfo03);
+//   const musicInfo04 = new MusicInfo({
+//     NUMBER: 4,
+//     POSITION_LIST: [761],
+//     SOURCE_LIST: ["../music/all_falls_down.mp3"],
+//     IMAGE_LIST: ["/images/1.jpg"],
+//   });
+//   MusicInfoList.push(musicInfo04);
 
 
 /* 그동안 생성한 데이터를 한번에 저장 */
