@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const app = express();
+const redisAdapter = require('socket.io-redis');
 // const app2 = express();
 
 require('dotenv').config();
@@ -40,7 +41,9 @@ const httpsServer = https.createServer(options, app).listen(process.env.NODE_POR
 const io = require('socket.io')(httpsServer , {
     cors: {
         origin: "*",
-        method: ["GET", "POST"]
+        method: ["GET", "POST"],
+        transports : ['websocket'],
+        credentials: true
     },
     // extraHeaders: {
     //     "Access-Control-Allow-Origin": "*",
@@ -48,6 +51,6 @@ const io = require('socket.io')(httpsServer , {
     //     "Accept": "application/json"
     // }
 });
-
+io.adapter(redisAdapter({ host: '127.0.0.1', port: 6555}))
 /* https 서버로 오는 요청에 대해 소켓이 처리할 내용을 설정 */
 require('./socketController')(io);

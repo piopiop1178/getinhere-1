@@ -10,3 +10,5 @@ privkey.pem
 
 # 뻐킹 congif
 config.js
+
+ecosystem.config.js

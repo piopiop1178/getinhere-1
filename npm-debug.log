@@ -3,46 +3,46 @@
 1 verbose cli   '/home/ubuntu/.nvm/versions/node/v14.16.0/bin/node',
 1 verbose cli   '/usr/bin/npm',
 1 verbose cli   'run',
-1 verbose cli   'start'
+1 verbose cli   'pm2'
 1 verbose cli ]
 2 info using npm@3.5.2
 3 info using node@v14.16.0
-4 verbose run-script [ 'prestart', 'start', 'poststart' ]
-5 info lifecycle getinhere@1.0.0~prestart: getinhere@1.0.0
-6 silly lifecycle getinhere@1.0.0~prestart: no script for prestart, continuing
-7 info lifecycle getinhere@1.0.0~start: getinhere@1.0.0
-8 verbose lifecycle getinhere@1.0.0~start: unsafe-perm in lifecycle true
-9 verbose lifecycle getinhere@1.0.0~start: PATH: /usr/share/npm/bin/node-gyp-bin:/home/ubuntu/getinhere-1/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
-10 verbose lifecycle getinhere@1.0.0~start: CWD: /home/ubuntu/getinhere-1
-11 silly lifecycle getinhere@1.0.0~start: Args: [ '-c', 'sudo $(which node) server/index.js' ]
-12 silly lifecycle getinhere@1.0.0~start: Returned: code: 1  signal: null
-13 info lifecycle getinhere@1.0.0~start: Failed to exec start script
-14 verbose stack Error: getinhere@1.0.0 start: `sudo $(which node) server/index.js`
-14 verbose stack Exit status 1
-14 verbose stack     at EventEmitter.<anonymous> (/usr/share/npm/lib/utils/lifecycle.js:232:16)
-14 verbose stack     at EventEmitter.emit (events.js:315:20)
-14 verbose stack     at ChildProcess.<anonymous> (/usr/share/npm/lib/utils/spawn.js:24:14)
-14 verbose stack     at ChildProcess.emit (events.js:315:20)
-14 verbose stack     at maybeClose (internal/child_process.js:1048:16)
-14 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:288:5)
-15 verbose pkgid getinhere@1.0.0
-16 verbose cwd /home/ubuntu/getinhere-1
-17 error Linux 5.4.0-1038-aws
-18 error argv "/home/ubuntu/.nvm/versions/node/v14.16.0/bin/node" "/usr/bin/npm" "run" "start"
-19 error node v14.16.0
-20 error npm  v3.5.2
+4 verbose run-script [ 'prepm2', 'pm2', 'postpm2' ]
+5 info lifecycle getinhere@1.0.0~prepm2: getinhere@1.0.0
+6 silly lifecycle getinhere@1.0.0~prepm2: no script for prepm2, continuing
+7 info lifecycle getinhere@1.0.0~pm2: getinhere@1.0.0
+8 verbose lifecycle getinhere@1.0.0~pm2: unsafe-perm in lifecycle true
+9 verbose lifecycle getinhere@1.0.0~pm2: PATH: /usr/share/npm/bin/node-gyp-bin:/home/ubuntu/getinhere-1/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+10 verbose lifecycle getinhere@1.0.0~pm2: CWD: /home/ubuntu/getinhere-1
+11 silly lifecycle getinhere@1.0.0~pm2: Args: [ '-c', 'pm2 start server/index.js -i 0' ]
+12 info lifecycle getinhere@1.0.0~pm2: Failed to exec pm2 script
+13 verbose stack Error: getinhere@1.0.0 pm2: `pm2 start server/index.js -i 0`
+13 verbose stack spawn ENOENT
+13 verbose stack     at ChildProcess.<anonymous> (/usr/share/npm/lib/utils/spawn.js:17:16)
+13 verbose stack     at ChildProcess.emit (events.js:315:20)
+13 verbose stack     at maybeClose (internal/child_process.js:1048:16)
+13 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:288:5)
+14 verbose pkgid getinhere@1.0.0
+15 verbose cwd /home/ubuntu/getinhere-1
+16 error Linux 5.4.0-1041-aws
+17 error argv "/home/ubuntu/.nvm/versions/node/v14.16.0/bin/node" "/usr/bin/npm" "run" "pm2"
+18 error node v14.16.0
+19 error npm  v3.5.2
+20 error file sh
 21 error code ELIFECYCLE
-22 error getinhere@1.0.0 start: `sudo $(which node) server/index.js`
-22 error Exit status 1
-23 error Failed at the getinhere@1.0.0 start script 'sudo $(which node) server/index.js'.
-23 error Make sure you have the latest version of node.js and npm installed.
-23 error If you do, this is most likely a problem with the getinhere package,
-23 error not with npm itself.
-23 error Tell the author that this fails on your system:
-23 error     sudo $(which node) server/index.js
-23 error You can get information on how to open an issue for this project with:
-23 error     npm bugs getinhere
-23 error Or if that isn't available, you can get their info via:
-23 error     npm owner ls getinhere
-23 error There is likely additional logging output above.
-24 verbose exit [ 1, true ]
+22 error errno ENOENT
+23 error syscall spawn
+24 error getinhere@1.0.0 pm2: `pm2 start server/index.js -i 0`
+24 error spawn ENOENT
+25 error Failed at the getinhere@1.0.0 pm2 script 'pm2 start server/index.js -i 0'.
+25 error Make sure you have the latest version of node.js and npm installed.
+25 error If you do, this is most likely a problem with the getinhere package,
+25 error not with npm itself.
+25 error Tell the author that this fails on your system:
+25 error     pm2 start server/index.js -i 0
+25 error You can get information on how to open an issue for this project with:
+25 error     npm bugs getinhere
+25 error Or if that isn't available, you can get their info via:
+25 error     npm owner ls getinhere
+25 error There is likely additional logging output above.
+26 verbose exit [ 1, true ]

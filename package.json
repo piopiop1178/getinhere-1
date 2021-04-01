@@ -7,7 +7,8 @@
     "start": "sudo $(which node) server/index.js",
     "wstart": "nodemon server/index.js",
     "tt": "node server/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pm2": "pm2 start server/index.js -i 0"
   },
   "author": "",
   "license": "ISC",
@@ -18,15 +19,17 @@
     "express": "^4.17.1",
     "http": "^0.0.1-security",
     "https": "^1.0.0",
-    "mediasoup": "^3.6.37",
-    "mongoose": "^5.12.2",
+    "mediasoup": "^3.7.0",
+    "mongoose": "^5.12.3",
     "nginx": "^1.0.2",
     "nodemon": "^2.0.7",
     "react-router-dom": "^5.2.0",
     "redirect-https": "^1.3.1",
-    "simple-peer": "^9.9.3",
-    "socket.io": "^4.0.0",
+    "redis": "^3.1.0",
+    "simple-peer": "^9.10.0",
+    "socket.io": "^4.0.1",
     "socket.io-promise": "^1.1.2",
+    "socket.io-redis": "^6.1.0",
     "uuid": "^8.3.2"
   }
 }
