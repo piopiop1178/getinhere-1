@@ -36,6 +36,22 @@ class Mainpage extends Component {
     mainRef = React.createRef();
 
     componentDidMount = async () => {
+        let checkRoomName = true;
+        await axios.get('/api/checkRoomName', {
+            params: {
+                roomName : this.props.match.params.roomName,
+            }
+        })
+        .then ((response) => {
+            if (response.data.room === undefined) {
+                this.goLandingPage("No room");
+                checkRoomName = false;
+            }
+        })
+        if (!checkRoomName) {
+            return;
+        }
+
         await axios.get('/api/usersCount', {
             params: { 
                 roomName : this.props.match.params.roomName,
@@ -172,6 +188,17 @@ class Mainpage extends Component {
             // history.push({
             //     pathname: `/`,
             // });
+    }
+
+    goLandingPage = (reason) => {
+        switch (reason) {
+            case "No room":
+                alert("잘못된 방 이름입니다")
+                break;
+            default:
+                break;
+        }
+        window.location.replace("/")
     }
 
     loadingFinished = () => {this.setState({isLoadingMain: false})} // mainPage->presetPage->videoPage로 함수 전달됨
