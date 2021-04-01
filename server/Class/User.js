@@ -49,9 +49,12 @@ class User{
         this._status = value;
     }
 
+    // this.status.x = Math.floor(Math.random()*map.TILE_WIDTH)*map.TILE_LENGTH;
+    // this.status.y = Math.floor(Math.random()*map.TILE_HEIGHT)*map.TILE_LENGTH;
+
     createCharacter(map){
-        this.status.x = Math.floor(Math.random()*map.TILE_WIDTH)*map.TILE_LENGTH;
-        this.status.y = Math.floor(Math.random()*map.TILE_HEIGHT)*map.TILE_LENGTH;
+        this.status.x = Math.floor(Math.random()*13)*map.TILE_LENGTH;
+        this.status.y = Math.floor( 8 + Math.random()*12)*map.TILE_LENGTH;
         this.status.space = this.calcSpace(this.status.x, this.status.y);
         this.status.height = map.CHAR_SIZE;
         this.status.width = map.CHAR_SIZE;
