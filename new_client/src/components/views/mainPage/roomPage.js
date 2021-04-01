@@ -79,7 +79,7 @@ let keyUpBuffer = {};
 let curr_space
 let changeSpace = true
 let isAlreadyArrowKeyPressed = false;        /* 대각선 이동 방지-> 첫번째 화살표 입력만 받고 나머지는 무시하기, keyup일때만 다시 false로 바꿔줌 -> 키 입력에 대한 전역변수 설정 */
-
+let movementStack = []
 
 // youtube synchro play
 var tag = document.createElement('script');
@@ -153,28 +153,32 @@ class Room extends Component {
         objects: 0, // 0: 기본상태, 1: 동영상 검색창, 2: 동영상 같이보기, 3: 게임하기, 4. 노래
         faceList: [], //
     }
-    componentDidMount = async () => {
-        // console.log(this.state.users)
-        socket = this.props.socket;
 
+    addMyFace = () => {
         //! 내 얼굴 넣기
-        console.log('this.props.faceMode', this.props);
-
-        if (this.props.faceMode) {
+        // if (this.props.faceMode) {
+            console.log('내 얼굴 넣기', this.props.faceMode)
             let characterImage = new Image();
             characterImage.onload = () => {
                 // this.state.contextHide.drawImage(characterImage, 0, 0, 60, 60)
             }
             characterImage.src = this.props.faceMode //! 그리기
             this.state.faceList[socket.id] = characterImage; //! 리스트에 넣기
-        }
+        // }
         //! 내 얼굴 넣기 끝
+    }
+
+    componentDidMount = async () => {
+        // console.log(this.state.users)
+        socket = this.props.socket;
+        
 
         /* Room 에서 사용할 socket on 정의 */
         await this.initSocket();
 
         /* 연결 준비가 되었음을 알림 */
         if(this.props.faceMode) {
+            this.addMyFace()
             socket.emit('ready', this.props.roomName, this.props.userName, this.props.faceMode);    
         } else {
             socket.emit('ready', this.props.roomName, this.props.userName, this.props.characterNum);
@@ -264,17 +268,20 @@ class Room extends Component {
             }
 
             e.preventDefault()
-
             if(e.code === UP    )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
             if(e.code === RIGHT )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
             if(e.code === DOWN  )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
             if(e.code === LEFT  )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
 
         })
+        window.addEventListener("keypress", (e)=> console.log(e.code))
+
+
         window.addEventListener("keyup", function (e) {
             if(e.path[0]===document.getElementById("chat-message")){
                 return;
             }
+
 
             if (keyDownUpOnceFlag) {
                 keyUpBuffer[e.code] = true;
@@ -443,6 +450,7 @@ class Room extends Component {
             /* 시작 알림 */
             if(this.props.faceMode) {
                 socket.emit('start', this.props.roomName, this.props.userName, this.props.faceMode, curr_space);    
+                this.addMyFace()
             } else {
                 socket.emit('start', this.props.roomName, this.props.userName, this.props.characterNum, curr_space);
             }
@@ -549,7 +557,13 @@ class Room extends Component {
                 // socket.removeAllListeners()
                 socket.emit("initSocket", this.props.roomName);
                 await this.initSocket()
-                socket.emit('ready', this.props.roomName, this.props.userName, this.props.characterNum);
+                // socket.emit('ready', this.props.roomName, this.props.userName, this.props.characterNum);
+                if(this.props.faceMode) {
+                    socket.emit('ready', this.props.roomName, this.props.userName, this.props.faceMode);    
+                } else {
+                    socket.emit('ready', this.props.roomName, this.props.userName, this.props.characterNum);
+                }
+                
             }
         })
         reconnect_checker = true
