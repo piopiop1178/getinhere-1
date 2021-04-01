@@ -463,6 +463,7 @@ class Room extends Component {
             this.setState({objects:5})
             onYouTubeIframeAPIReady2(video_id)
             this.updatePositionSocketOn()
+            document.getElementById("character-layer").style.removeProperty("background-color");
         })
 
         socket.on('music_off', () => {
