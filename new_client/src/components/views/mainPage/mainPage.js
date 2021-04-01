@@ -44,7 +44,7 @@ class Mainpage extends Component {
         .then((response) => {
             console.log(response.data.usersCount);
             if(response.data.usersCount > 8){
-                this.goBack();
+                this.goBack("방이 꽉 찼습니다");
             }
         })
         .then(() => {
@@ -165,8 +165,8 @@ class Mainpage extends Component {
         this.setState({isFinishedPreset: true});
     }
 
-    goBack = () => {
-        alert('방이 꽉 찼습니다');
+    goBack = (errStr) => {
+        alert(errStr);
         const { history } = this.props;
         history.goBack();
             // history.push({

@@ -87,11 +87,11 @@ class RoomManager {   // Room 함수 실행
         delete this.roomByUser[socket.id];
 
         if(room.isEmpty()){
-            console.log("room.isEmpty");
+            // console.log("room.isEmpty");
             //!---------------DEBUG----------------
             setTimeout(() => {
                 this.deleteRoom(room)}
-                , 30000);
+                , 10000);
             //!---------------DEBUG----------------
             // this.deleteRoom(room);
         }
@@ -101,8 +101,9 @@ class RoomManager {   // Room 함수 실행
         // console.log(this.roomByName);
         // console.log("-------------------------------------");
         if(this.roomByName[room.name] !== undefined && room.isEmpty()){
-            console.log("room empty delete!!");
+            // console.log("room empty delete!!");
             delete this.roomByName[room.name];
+            return;
         }
         // console.log("room is not empty !!");
         // console.log(room);
