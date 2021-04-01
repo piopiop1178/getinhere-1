@@ -32,7 +32,7 @@ class VideoPreview extends Component {
             setTimeout(() => this.props.loadingFinished(), 1500);
         }) // mainPage->presetPage->videoPage로 함수 전달됨
 
-        setTimeout(() => this.props.loadingFinished(), 3000);
+        // setTimeout(() => this.props.loadingFinished(), 3000);
     }
     
     render() {

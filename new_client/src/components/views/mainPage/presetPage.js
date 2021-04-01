@@ -108,7 +108,11 @@ export class PresetPage extends Component {
         this.setState({userName : target.value})
     }
 
-    loadingFinished = () => {this.props.loadingFinished()} // mainPage->presetPage->videoPage로 함수 전달됨
+    loadingFinished = () => {
+        this.props.loadingFinished();
+        this.setState({characterNum: this.state.characterList.length});
+        
+    } // mainPage->presetPage->videoPage로 함수 전달됨
 
     render() {
         let characterImage = null;
