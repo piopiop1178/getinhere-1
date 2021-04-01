@@ -87,8 +87,8 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
     removeUser(socket){
         if (socket.id in this.users){
             delete this.users[socket.id];
+            this.memberCount -= 1;
         }
-        this.memberCount -= 1;
     }
 
     isEmpty(){
