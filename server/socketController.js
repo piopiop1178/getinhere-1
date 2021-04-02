@@ -26,6 +26,7 @@ module.exports = (io) => {
           initAlcholIcon(socket, room);
           initObject(socket, room);
           initSpaceChange(socket, room);
+          initMafiaGame(socket, room);
         });
 
         socket.on('ready', async (roomName, userName, characterNum) => {
@@ -249,6 +250,21 @@ module.exports = (io) => {
                 }
             })
         })
+    }
+    function initMafiaGame(socket, room) {
+      socket.on("startMafiaGame", () => {
+        startMafiaGame(socket, room);
+      })
+    }
+
+    function startMafiaGame(socket, room) {
+      // socket.on();
+
+    }
+
+    // 유저 수가 0일 때
+    function endMafiaGame(socket){
+      // socket.off();
     }
 }
 
