@@ -81,6 +81,13 @@ class LandingPage extends Component {
     };
 
     render(){
+        let startButton
+        if (this.state.mobileOrNocamera){
+            startButton = <button className="start-button" onClick={window.close}>SEE YOU !</button>
+        }
+        else {
+            startButton = <button className="start-button" onClick={this.mapIndexSend}>START !</button>
+        }
         return (
             <>
             <video className="landing-video" muted autoPlay loop>
@@ -100,7 +107,7 @@ class LandingPage extends Component {
                     <i className="far fa-hand-point-right"></i>
                 </button>
             </div>
-            <button className="start-button" onClick={this.mapIndexSend}>START !</button>
+            {startButton}
             </>
         )
     }
