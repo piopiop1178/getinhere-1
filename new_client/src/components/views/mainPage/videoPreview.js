@@ -23,10 +23,15 @@ class VideoPreview extends Component {
         
         const video = document.querySelector('video');
         
-        navigator.mediaDevices.getUserMedia(constraints).then(stream => {
-            // console.log('Received local stream');
-            video.srcObject = stream;
-        }).catch(e => alert(`getusermedia error ${e.name}`))
+        let filter = "win16|win32|win64|mac|macintel";
+        if ( navigator.platform ) {
+            if ( filter.indexOf( navigator.platform.toLowerCase() ) >= 0 ) {
+                navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+                    // console.log('Received local stream');
+                    video.srcObject = stream;
+                }).catch( () => alert("카메라 상태를 확인해주세요 !"))
+            }
+        }
 
         video.addEventListener('play', () => {
             setTimeout(() => this.props.loadingFinished(), 1500);

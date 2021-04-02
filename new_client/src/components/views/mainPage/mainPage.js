@@ -52,6 +52,14 @@ class Mainpage extends Component {
         //     return;
         // }
 
+        let filter = "win16|win32|win64|mac|macintel";
+        if ( navigator.platform ) {
+            if ( filter.indexOf( navigator.platform.toLowerCase() ) < 0 ) {
+                //mobile
+                window.location.href="/"
+            }
+        }
+
         await axios.get('/api/usersCount', {
             params: { 
                 roomName : this.props.match.params.roomName,

@@ -8,6 +8,7 @@ class LandingPage extends Component {
     state = {
         map_index : 0,
         maps : [],
+        mobileOrNocamera : false,
     }
 
     componentDidMount = () =>{
@@ -15,6 +16,39 @@ class LandingPage extends Component {
         .then(response => {
             this.setState({maps : response.data.mapList})
         });
+
+        this.mobileOrNocameraBan();
+    }
+
+    mobileOrNocameraBan = () => {
+        let filter = "win16|win32|win64|mac|macintel";
+        let constraints = {
+            video: {
+                width: {
+                    max: 1280,
+                    ideal: 720
+                },
+                height: {
+                    max: 720,
+                    ideal: 480
+                }
+            }
+        }
+        
+        if ( navigator.platform) {
+            if ( filter.indexOf( navigator.platform.toLowerCase() ) < 0 ) {
+                //mobile
+                alert("현재는 카메라가 있는 노트북이나 데스크탑에서만 이용이 가능합니다. 다음 버전을 기대해주세요 !");
+                this.setState({mobileOrNocamera:true});
+            }
+            else{
+                navigator.mediaDevices.getUserMedia(constraints).then( () => {
+                }).catch( () => {
+                    alert("현재는 카메라가 있는 노트북이나 데스크탑에서만 이용이 가능합니다. 다음 버전을 기대해주세요 !")
+                    this.setState({mobileOrNocamera:true});
+                });
+            }
+        }
     }
 
     mapIndexSend = () => {
