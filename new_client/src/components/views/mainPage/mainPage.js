@@ -36,21 +36,21 @@ class Mainpage extends Component {
     mainRef = React.createRef();
 
     componentDidMount = async () => {
-        // let checkRoomName = true;
-        // await axios.get('/api/checkRoomName', {
-        //     params: {
-        //         roomName : this.props.match.params.roomName,
-        //     }
-        // })
-        // .then ((response) => {
-        //     if (response.data.room === undefined) {
-        //         this.goLandingPage("No room");
-        //         checkRoomName = false;
-        //     }
-        // })
-        // if (!checkRoomName) {
-        //     return;
-        // }
+        let checkRoomName = true;
+        await axios.get('/api/checkRoomName', {
+            params: {
+                roomName : this.props.match.params.roomName,
+            }
+        })
+        .then ((response) => {
+            if (response.data.room === undefined) {
+                this.goLandingPage("No room");
+                checkRoomName = false;
+            }
+        })
+        if (!checkRoomName) {
+            return;
+        }
 
         let filter = "win16|win32|win64|mac|macintel";
         if ( navigator.platform ) {
@@ -198,16 +198,16 @@ class Mainpage extends Component {
             // });
     }
 
-    // goLandingPage = (reason) => {
-    //     switch (reason) {
-    //         case "No room":
-    //             alert("잘못된 방 이름입니다")
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    //     window.location.replace("/")
-    // }
+    goLandingPage = (reason) => {
+        switch (reason) {
+            case "No room":
+                alert("잘못된 방 이름입니다")
+                break;
+            default:
+                break;
+        }
+        window.location.replace("/")
+    }
 
     loadingFinished = () => {this.setState({isLoadingMain: false})} // mainPage->presetPage->videoPage로 함수 전달됨
 

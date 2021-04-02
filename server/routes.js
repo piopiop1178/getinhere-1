@@ -80,11 +80,12 @@ module.exports = async (app) => {
         });
     });
 
-    // app.get('/api/checkRoomName', (req, res) => {
-    //     const roomName = req.query.roomName;
-    //     return res.status(200).json({
-    //         "room": RoomManager.getRoomByRoomName(roomName),
-    //         "success": true,
-    //     });
-    // });
+    app.get('/api/checkRoomName', (req, res) => {
+        const roomName = req.query.roomName;
+        const room = RoomManager.getRoomByRoomName(roomName)
+        return res.status(200).json({
+            "room": room ? room.name : undefined,
+            "success": true,
+        });
+    });
 }
