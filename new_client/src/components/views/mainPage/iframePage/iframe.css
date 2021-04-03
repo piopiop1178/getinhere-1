@@ -2,7 +2,7 @@
   font-family: Gaegu;
   position: fixed;
   width: 87vw;
-  height: 75vh;
+  height: 78vh;
   bottom: 0px;
   z-index: 5; /* mainPage.css:video-box z-index:3 */
 }

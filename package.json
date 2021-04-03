@@ -7,7 +7,8 @@
     "start": "sudo $(which node) server/index.js",
     "wstart": "nodemon server/index.js",
     "tt": "node server/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pm2": "pm2 start server/index.js"
   },
   "author": "",
   "license": "ISC",

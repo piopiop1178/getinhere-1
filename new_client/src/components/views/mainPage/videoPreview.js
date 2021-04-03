@@ -27,7 +27,8 @@ class VideoPreview extends Component {
         if ( navigator.platform ) {
             if ( filter.indexOf( navigator.platform.toLowerCase() ) >= 0 ) {
                 navigator.mediaDevices.getUserMedia(constraints)
-                .catch( (e) => alert(`카메라 상태를 확인해주세요 !${e}`))
+                .catch( (e) => alert(`카메라 상태를 확인해주세요 !`))
+                // .catch( (e) => alert(`카메라 상태를 확인해주세요 !${e}`))
                 .then(stream => {
                     // console.log('Received local stream');
                     video.srcObject = stream;
