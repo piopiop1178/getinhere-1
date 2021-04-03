@@ -22,6 +22,7 @@ import Youtube from '../youtubePage/youtube-fetch';
 import YoutubeIframe from '../youtubePage/youtubeIframe';
 import ToggleButton from './toggleButton/toggleButton';
 import { Spring, animated } from 'react-spring'
+import Guidance from './guidance';
 
 const uuuuu = new Youtube();
 
@@ -155,6 +156,7 @@ class Room extends Component {
         contextCharacter: document.getElementById("character-layer").getContext("2d"),
         objects: 0, // 0: 기본상태, 1: 동영상 검색창, 2: 동영상 같이보기, 3: 게임하기, 4. 노래
         faceList: [], //
+        guidance: false,
     }
 
     addMyFace = () => {
@@ -1066,6 +1068,15 @@ class Room extends Component {
     //     // chatBox.setAttribute("display", "none");
     // }
 
+    guidanceOnOff = () => {
+        if (this.state.guidance){
+            this.setState({guidance:false});
+         }
+         else{
+             this.setState({guidance:true});
+         }
+    }
+
     render() {
         let youtubePage;
         if (this.state.objects === 1){
@@ -1108,9 +1119,14 @@ class Room extends Component {
             youtubeMusic = <div><div className="player2" id="player2"></div></div>
         }
 
+        let guidance;
+        if (this.state.guidance) guidance = <Guidance/> 
+        else guidance = <></>
+
         return (
           
             <div className="room" id="room">
+                {guidance}
                 {iframeRender}
                 <div className="youtubePage">{youtubePage}</div>
                 {youtubeVideo}
@@ -1119,7 +1135,7 @@ class Room extends Component {
                     <div id="videos" className="video-container"></div>
                 </div>
                 <div className="local-video-box">
-                    <ToggleButton />
+                    <ToggleButton guidanceOnOff ={this.guidanceOnOff} />
                     <video id="localVideo" autoPlay muted></video>
                     <div className="setting-container">
                         {/* <button id="muteButton" className="settings" onClick={this.toggleMute}>Unmuted</button>

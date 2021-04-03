@@ -24,17 +24,17 @@ class toggleButton extends Component {
     }, 1000)
   }
 
-  toggleChat = () => {
-    const chatBox = document.getElementById("chat-box");
+  guidanceOnOff = () => {
+    // const chatBox = document.getElementById("chat-box");
     // if 
     // chatBox.setAttribute("display", "none");
-
+    this.props.guidanceOnOff()
   }
 
   render() {
     return (
       <div className="toggles">
-          <div className="chat-toggle" onClick={this.toggleChat}>📢</div>
+          <div className="chat-toggle" onClick={this.guidanceOnOff}>❓</div>
           <div className="invite-toggle"  onClick={this.copyInviteLinkToClipboard}>👨‍👩‍👦Invite</div>
           <div className="invite-toggle-notice"> Invite Link Copied! </div>
           <div className="etc-toggle">🔧</div>

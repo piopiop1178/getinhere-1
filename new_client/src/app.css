@@ -186,3 +186,24 @@ select {
   text-decoration: none;
   color: floralwhite;
 }
+
+.guidanceForm {
+  font-family: "Gaegu";
+  background-color: antiquewhite;
+  font-size: 1.3rem;
+  width: 50vw;
+  height: 100vh;
+  overflow-y: scroll;
+  margin-left: 25vw;
+  position: fixed;
+  line-height: 1.8rem;
+}
+.guidanceImg {
+  width: 40vw;
+  height: 40vh;
+  margin-left: 5vw;
+}
+.guidanceLetter {
+  margin: auto;
+  width: 40vw;
+}
