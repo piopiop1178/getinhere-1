@@ -77,7 +77,7 @@ module.exports = {
             announcedIp: process.env.CONFIG_ANNOUNCE_IP,
           }
         ],
-        maxIncomingBitrate: 1500000,
+        // maxIncomingBitrate: 1500000,
         initialAvailableOutgoingBitrate: 1000000,
       }
     }

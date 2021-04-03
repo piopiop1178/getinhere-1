@@ -272,7 +272,7 @@ module.exports = (io) => {
 
 async function createWebRtcTransport(router, socket) {
   const {
-    maxIncomingBitrate,
+    // maxIncomingBitrate,
     initialAvailableOutgoingBitrate
   } = config.mediasoup.webRtcTransport;
 
@@ -284,12 +284,12 @@ async function createWebRtcTransport(router, socket) {
     appData: { socket_id: socket.id },
     initialAvailableOutgoingBitrate,
   });
-  if (maxIncomingBitrate) {
-    try {
-      await transport.setMaxIncomingBitrate(maxIncomingBitrate);
-    } catch (error) {
-    }
-  }
+  // if (maxIncomingBitrate) {
+  //   try {
+  //     await transport.setMaxIncomingBitrate(maxIncomingBitrate);
+  //   } catch (error) {
+  //   }
+  // }
   return {
     transport,
     params: {
