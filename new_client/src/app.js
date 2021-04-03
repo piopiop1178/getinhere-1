@@ -9,6 +9,7 @@ import {
 
 import LandingPage from './components/views/landingPage/landingPage';
 import MainPage from './components/views/mainPage/mainPage';
+import LadderPage from './components/views/mainPage/ladderPage/ladderPage';
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -26,6 +27,7 @@ function App() {
         <Switch>
           <Route exact path="/" component={LandingPage} />
           <Route exact path="/room/:roomName" component={MainPage} />
+          <Route exact path="/ladder" component={LadderPage} />
         </Switch>
     </Router>
   );
