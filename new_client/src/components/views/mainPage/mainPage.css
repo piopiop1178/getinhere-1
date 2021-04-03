@@ -209,14 +209,6 @@ canvas {
   display: flex;
 }
 
-/* 기존 코드 */
-.containers {
-  display: grid;
-  grid-gap: 5px;
-  grid-template-columns: repeat(auto-fit, 1fr);
-  grid-template-rows: repeat(auto-fit, 300px);
-}
-
 .video-container::-webkit-scrollbar {
   /* display: none; */
 }
@@ -232,6 +224,14 @@ canvas {
   height: 150px;
   border-radius: 10%;
   margin: 0px 5px;
+}
+
+/* 기존 코드 */
+.containers {
+  display: grid;
+  grid-gap: 5px;
+  grid-template-columns: repeat(auto-fit, 1fr);
+  grid-template-rows: repeat(auto-fit, 300px);
 }
 
 .settings {

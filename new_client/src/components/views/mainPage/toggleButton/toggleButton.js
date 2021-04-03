@@ -35,7 +35,7 @@ class toggleButton extends Component {
     return (
       <div className="toggles">
           <div className="chat-toggle" onClick={this.toggleChat}>📢</div>
-          <div className="invite-toggle"  onClick={this.copyInviteLinkToClipboard}>👨‍👩‍👦 Get In!</div>
+          <div className="invite-toggle"  onClick={this.copyInviteLinkToClipboard}>👨‍👩‍👦Invite</div>
           <div className="invite-toggle-notice"> Invite Link Copied! </div>
           <div className="etc-toggle">🔧</div>
       </div>
