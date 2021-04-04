@@ -251,29 +251,60 @@ module.exports = (io) => {
             })
         })
     }
-    function initMafiaGame(socket, room) {
-      socket.on("startMafiaGame", () => {
-        // 마피아 게임에 플레이어 추가
-        room.addPlayerToMafiaGame(socket);
-        // 기존 플레이어 목록을 신규 플레이어에게 전달
-        const players = room.mafiaGame.players;
-        socket.emit("sendCurrentPlayers", Object.keys(players));
 
-        const users = room.users; 
-        for(let socketId in users){
-          if(socketId !== socket.id){
-            users[socketId].socket.emit('addUser', socket.id, userName, characterNum, space);
-          } 
-          // console.log(socketId);
-          // let user = this.users[socketId];
-          // userDatas[socketId] = {userName: user.userName, characterNum: user.characterNum}
-        }
-        startMafiaGame(socket, room);
+    function initMafiaGame(socket, room) {
+      /* MG-03. 클라이언트에서 마피아 게임 시작 이벤트를 받는다 */ 
+      socket.on("joinMafiaGame", () => {
+        this.joinMafiaGame(socket, room);
       });
     }
 
-    function startMafiaGame(socket, room) {
-      // socket.on();
+    function joinMafiaGame(socket, room) {
+      /* TODO: 인원 확인해서 방 생성 로직 확인 */
+
+      /* MG-04. 기존 플레이어들에게 신규 플레이어를 추가하라고 알린다 */
+      const players = room.mafiaGame.players;
+      for (let socketId in players){
+        players[socketId].socket.emit("addNewPlayer", socket.id);
+      }
+      /* MG-05. 마피아 게임에 신규 플레이어를 추가한다 */
+      room.addPlayerToMafiaGame(socket);
+      /* MG-06. 마피아 게임 플레이어 목록을 신규 플레이어에게 전달한다 */
+      socket.emit("sendCurrentPlayers", players);
+      /* MG-09. 게임 시작 이벤트를 수신하여 게임 세팅을 하고 시작신호 전달*/
+      socket.on('startMafiaGame', () => {
+        /* TODO: 역할 랜덤으로 지정 구현*/
+
+        /* TODO: Player 별로 자신의 역할과 함께 mafiaStart 이벤트 전달*/
+        socket.emit("sendRole", role);
+
+        /* TODO: 아침 턴 관련 함수 구현 */
+        this.dayTurn();
+
+        /* TODO: 회의 끝 신호 어떻게 처리할 지 고민 */
+      });
+
+      /* MG-12. 투표 턴에서 선택한 플레이어와 선택된 플레이어 정보를 게임에 저장 */
+      socket.on("sendCandidate", (candidateSocketId) => {
+        /* TODO: 선택한 플레이어, 선택된 플레이어 MafiaGame 객체에 저장
+         * 선택 정보를 역할이 같은 플레이어에게도 공유, socket.emit("sendCandidateResult"); */
+      });
+
+      /* MG-14. 투표 턴에서 후보 선택 확정 신호 수신 */
+      socket.on("confirmCandidate", () => {
+        /* TODO: 마피아 게임 객체에서 플레이어 선택 확정 정보 Update */
+        /* TODO: 투표 완료 시 낮이면 생사투표(socket.emit("sendCitizenCandidationVoteResult")), 밤이면 결과 확인*/
+      });
+
+      /* MG-16. 생사 투표 진행 */
+      socket.on("sendLiveOrDie", (liveOrDie) => {
+        /* TODO: 생사 투표 결과 Update 
+         * 완료되면 결과 전달 socket.emit("confirmLiveOrDie");
+         * 게임 종료 여부 확인 */
+      });
+    }
+
+    function dayTurn(){
 
     }
 

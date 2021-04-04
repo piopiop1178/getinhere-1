@@ -1080,6 +1080,55 @@ class Room extends Component {
          }
     }
 
+    joinMafiaGame = async () => {
+        /* MG-01. 마피아 게임 창을 띄운다 */
+
+        /* MG-02. 마피아 게임을 위한 socket 세팅을 완료하고 게임 참여를 알린다 */
+        await this.initMafiaGame();     // 마피아 게임을 위한 socket on
+        socket.emit("joinMafiaGame");   // 게임 참여 알림
+    }
+
+    initMafiaGame = async () =>{
+        /* MG-05. 신규 플레이어의 비디오를 추가한다 */
+        socket.on("addNewPlayer", (socketId) => {
+            /* 전달 받은 player의 비디오 UI 수정 socketId는 newPlayer의 socket.id */
+        });
+        /* MG-07. 마피아 게임 플레이어 목록을 받아서 게임 화면에 플레이어 비디오를 보여준다*/
+        socket.on("sendCurrentPlayers", (players) => {
+            /* 전달 받은 player의 비디오 UI 수정, players는 socketId가 들어있는 배열 */
+        });
+        /* MG-10. 마피아 게임을 위한 정보를 수신하고 투표 시작*/
+        socket.on("sendRole", (role) => {
+            // 자기 역할 저장 및 직업 확인 팝업
+            // 회의 시작
+        });
+        /* MG-15. 생사 투표 진행 */
+        socket.on("sendCitizenCandidationVoteResult", (socketId) => {
+            /* TODO: 생사 투표 진행 */
+            // socket.emit("sendLiveOrDie", liveOrDie);
+        });
+
+        /* MG-
+    }
+
+    startMafiaGame = async () => {
+        /* MG-08. 마피아 게임 start 버튼 클릭할 때 실행되어 서버에 게임 시작 이벤트 전달 후 대기
+         * TODO: 2명 이하 일 경우 start 할 수 없도록 처리 */
+        socket.emit("startMafiaGame");
+    }
+
+    sendCandidate = () => {
+        /* MG-11. 투표 턴에서 후보 선택 정보 전달 */
+        /* TODO: 비디오를 선택하면 해당 비디오의 id(socketId) 를 서버에 전달 */
+        // socket.emit("sendCandidate", candidateSocketId);
+    }
+
+    confirmCandidate = () => {
+        /* MG-13. 투표 턴에서 후보 확정 정보 전달 */
+        socket.emit("confirmCandidate");
+        /* TODO: sendCandidate 불가능 하도록 처리 */
+    }
+
     render() {
         let youtubePage;
         if (this.state.objects === 1){
