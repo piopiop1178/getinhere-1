@@ -91,10 +91,7 @@ module.exports = (io) => {
             const { mediaTag } = appData;
             let producer = await transport.produce({ kind, rtpParameters, appData: { peerId, transportId, mediaTag} });
             room.roomState.producers.push(producer);
-
             producer.on('transportclose', () => {
-                // console.log('producer\'s transport closed', producer.id);
-                // console.log('room state is', room.roomState)
                 closeProducer(room.roomState, producer);
             });
 
@@ -114,24 +111,57 @@ module.exports = (io) => {
 
             const roomState = room.roomState;
             // console.log(roomState);
-            callback(await createConsumer(router, transport, roomState, producer, data.rtpCapabilities));
+            callback(await createConsumer(router, transport, roomState, producer, data.rtpCapabilities, data.mediaTag));
           });
 
         socket.on('resumeConsumer', async (data, callback) => {
-            let { consumerId } = data,
-                consumer = room.roomState.consumers.find((c) => c.id === consumerId);
+            let { consumerId, mediaTag } = data,
+                consumer = room.roomState.consumers.find((c) => c.id === consumerId && c.appData.mediaTag === mediaTag);
 
             await consumer.resume();
             callback();
         });
 
         socket.on('pauseConsumer', async (data, callback) => {
-            let { consumerId } = data,
-                consumer = room.roomState.consumers.find((c) => c.id === consumerId);
+          let { consumerId, mediaTag } = data,
+              consumer = room.roomState.consumers.find((c) => c.id === consumerId && c.appData.mediaTag === mediaTag);
 
             await consumer.pause();
             callback();
         })
+
+        socket.on('resumeProducer', async (data, callback) => {
+          let { producerId, mediaTag } = data,
+              producer = room.roomState.producers.find((p) => p.id === producerId && p.appData.mediaTag === mediaTag);
+
+          await producer.resume();
+          callback();
+      });
+
+      socket.on('pauseProducer', async (data, callback) => {
+          let { producerId, mediaTag } = data,
+              producer = room.roomState.producers.find((p) => p.id === producerId && p.appData.mediaTag === mediaTag);
+          await producer.pause();
+          callback();
+      })
+
+      socket.on('closeProducer', async (data, callback) => {
+        let roomState = room.roomState;
+            try {
+                let { producerId } = data,
+                    producer = roomState.producers.find((p) => p.id === producerId);
+  
+                if (!producer) {
+                  console.error(`close-producer: server-side producer ${producerId} not found`);
+                  return;
+                }
+            
+                await closeProducer(roomState, producer);
+                callback()
+            } catch (e) {
+                console.error('error in /signaling/close-producer', e);
+            }
+      })
 
         socket.on('closeConsumer', async (data, callback) => {
             let roomState = room.roomState;
@@ -149,6 +179,15 @@ module.exports = (io) => {
             } catch (e) {
                 console.error('error in /signaling/close-consumer', e);
             }
+        });
+
+        socket.on('screenShare', (audio) => {
+          socket.to(room.name).emit('createScreenShareConsumer', socket.id, audio);
+          // socket.emit('createScreenShareConsumer', socket.id);
+        });
+
+        socket.on('endScreenShare-signal', (audio) => {
+          socket.to(room.name).emit('endScreenShare', socket.id, audio);
         });
 
         socket.on('disconnect', async () => {          
@@ -362,7 +401,7 @@ async function createWebRtcTransport(router, socket) {
   };
 }
 
-async function createConsumer(router, transport, roomState, producer, rtpCapabilities) {
+async function createConsumer(router, transport, roomState, producer, rtpCapabilities, mediaTag) {
   let consumer;
 
   if (!router.canConsume(
@@ -379,6 +418,7 @@ async function createConsumer(router, transport, roomState, producer, rtpCapabil
       producerId: producer.id,
       rtpCapabilities,
       paused: true,
+      appData: { mediaTag: mediaTag},
     });
 
   consumer.on('transportclose', () => {
@@ -410,6 +450,11 @@ async function createConsumer(router, transport, roomState, producer, rtpCapabil
     type: consumer.type,
     producerPaused: consumer.producerPaused
   };
+} 
+
+async function closeProducer(roomState, producer) {
+  await producer.close();
+  roomState.producers = roomState.producers.filter((p) => p.id !== producer.id);
 }
 
 async function closeConsumer(roomState, consumer) {
