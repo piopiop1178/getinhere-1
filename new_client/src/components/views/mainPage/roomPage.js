@@ -1097,7 +1097,7 @@ class Room extends Component {
         socket.on("sendCurrentPlayers", (players) => {
             /* 전달 받은 player의 비디오 UI 수정, players는 socketId가 들어있는 배열 */
         });
-        /* MG-10. 마피아 게임을 위한 정보를 수신하고 투표 시작*/
+        /* MG-10. 마피아 게임을 위한 정보를 수신하고 투표 시작 */
         socket.on("sendRole", (role) => {
             // 자기 역할 저장 및 직업 확인 팝업
             // 회의 시작
@@ -1105,10 +1105,27 @@ class Room extends Component {
         /* MG-15. 생사 투표 진행 */
         socket.on("sendCitizenCandidationVoteResult", (socketId) => {
             /* TODO: 생사 투표 진행 */
-            // socket.emit("sendLiveOrDie", liveOrDie);
+            // 결과 전달은 sendLiveOrDie 함수를 통해
         });
 
-        /* MG-
+        /* MG-18. 생사 투표 결과 확인 및 Night 턴 전환 */
+        socket.on("confirmLiveOrDie", (results) => {
+
+            
+            /* TODO: NightTurn 진행 할 경우 팝업 등 화면 전환 구현 */
+
+            socket.emit("startNight");
+        });
+
+        /* MG-20. 역할별 동작 수행 */
+        socket.on("doAction", () => {
+            /* 각 역할 별 화면 구성하기 */
+            /* 선택 및 확정은 시민 투표와 동일 */
+        });
+        /* MG-25. 게임 종료 시 결과 화면 출력 */
+        socket.on("gameOver", () => {
+            
+        });
     }
 
     startMafiaGame = async () => {
@@ -1119,14 +1136,21 @@ class Room extends Component {
 
     sendCandidate = () => {
         /* MG-11. 투표 턴에서 후보 선택 정보 전달 */
+        /* MG-21. Night 턴에서 각 역할군이 지정한 후보 전달 */
         /* TODO: 비디오를 선택하면 해당 비디오의 id(socketId) 를 서버에 전달 */
         // socket.emit("sendCandidate", candidateSocketId);
     }
 
     confirmCandidate = () => {
         /* MG-13. 투표 턴에서 후보 확정 정보 전달 */
+        /* MG-23. Night 턴에서 후보 확정 정보 전달 */
         socket.emit("confirmCandidate");
         /* TODO: sendCandidate 불가능 하도록 처리 */
+    }
+
+    sendLiveOrDie = () => {
+        /* MG-16. 생사 투표 전달 */
+        // socket.emit("sendLiveOrDie", liveOrDie);
     }
 
     render() {
