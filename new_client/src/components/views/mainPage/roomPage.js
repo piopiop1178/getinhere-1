@@ -1170,7 +1170,6 @@ class Room extends Component {
          }
     }
 
-<<<<<<< HEAD
     joinMafiaGame = async () => {
         /* MG-01. 마피아 게임 창을 띄운다 */
 
@@ -1242,7 +1241,8 @@ class Room extends Component {
     sendLiveOrDie = () => {
         /* MG-16. 생사 투표 전달 */
         // socket.emit("sendLiveOrDie", liveOrDie);
-=======
+    }
+    
     screenShare = async () => {
         let screenAudio = false;
 
@@ -1298,8 +1298,7 @@ class Room extends Component {
             //!--------------screenshare 끝나고 원래대로 돌아오는 코드 넣으면 됨-----
             //! local 바꿀건지?? 
         }
->>>>>>> screenshare
-    }
+    };
 
     render() {
         let youtubePage;
