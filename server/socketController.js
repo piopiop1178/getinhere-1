@@ -253,8 +253,23 @@ module.exports = (io) => {
     }
     function initMafiaGame(socket, room) {
       socket.on("startMafiaGame", () => {
+        // 마피아 게임에 플레이어 추가
+        room.addPlayerToMafiaGame(socket);
+        // 기존 플레이어 목록을 신규 플레이어에게 전달
+        const players = room.mafiaGame.players;
+        socket.emit("sendCurrentPlayers", Object.keys(players));
+
+        const users = room.users; 
+        for(let socketId in users){
+          if(socketId !== socket.id){
+            users[socketId].socket.emit('addUser', socket.id, userName, characterNum, space);
+          } 
+          // console.log(socketId);
+          // let user = this.users[socketId];
+          // userDatas[socketId] = {userName: user.userName, characterNum: user.characterNum}
+        }
         startMafiaGame(socket, room);
-      })
+      });
     }
 
     function startMafiaGame(socket, room) {

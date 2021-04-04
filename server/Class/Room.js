@@ -1,5 +1,7 @@
 'use strict';
 
+const MafiaGame = require('./MafiaGame');
+
 /* 각 방에 대한 처리를 위한 Class */
 
 class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
@@ -8,6 +10,7 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
         this.map = map;
         this.memberCount = 0;
         this.users = {};
+
         this.router;
         this.music = false;
         this.roomState = {
@@ -17,6 +20,7 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
             consumers: []
         }
         this.video = false;
+        this.mafiaGame = undefined;
     }
 
     get router(){
@@ -77,6 +81,12 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
         this._video = value;
     }
 
+    get mafiaGame(){
+        return this._mafiaGame;
+    }
+    set mafiaGame(value){
+        this._mafiaGame = value;
+    }
 
     addUser(user) {
         this.users[user.socket.id] = user;
@@ -190,6 +200,13 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
         } else {
             return false;
         }
+    }
+
+    addPlayerToMafiaGame(socket){
+        if(this.mafiaGame === undefined){
+            this.mafiaGame = new MafiaGame();
+        }
+        this.mafiaGame.addPlayer(socket);
     }
 }
 module.exports = Room;

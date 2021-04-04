@@ -51,7 +51,9 @@ class LadderPage extends Component {
         }
         const landing = document.getElementById("landing");
         nodeColumns = membersCount;
-
+        if(membersCount > nodeRows + 2){
+            nodeRows = membersCount - 2;
+        }
         landing.remove();
         this.canvasDraw(); 
     };
