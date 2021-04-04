@@ -1210,10 +1210,6 @@ class Room extends Component {
             console.log('screen share stopped');
             localVideo.srcObject = localStream;
 
-            //!----------------close producer!!
-            //!----------------close producer!!
-            //!----------------close producer!!
-            //!----------------close producer!!
             await socket.request('closeProducer', { producerId: screenVideoProducer.id })
             this.closeProducer(screenVideoProducer)
             if (screenAudio){
