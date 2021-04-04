@@ -870,7 +870,10 @@ class Room extends Component {
     
         videoProducer = await sendTransport.produce({
             track: localStream.getVideoTracks()[0],
-    
+            encodings : [
+                {maxBitrate: 100000},
+                {maxBitrate: 200000}
+            ],
             appData: { mediaTag: 'cam-video' }
         });
         audioProducer = await sendTransport.produce({
