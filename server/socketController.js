@@ -296,7 +296,7 @@ module.exports = (io) => {
         /* TODO: 투표 완료 시 낮이면 생사투표(socket.emit("sendCitizenCandidationVoteResult")), 밤이면 결과 확인*/
       });
 
-      /* MG-16. 생사 투표 진행 */
+      /* MG-16. 생사 투표 확인 및 결과 전달 */
       socket.on("sendLiveOrDie", (liveOrDie) => {
         /* TODO: 생사 투표 결과 Update 
          * 완료되면 결과 전달 socket.emit("confirmLiveOrDie");
