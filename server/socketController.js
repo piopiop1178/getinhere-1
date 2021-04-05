@@ -294,7 +294,8 @@ module.exports = (io) => {
     function initMafiaGame(socket, room) {
       /* MG-03. 클라이언트에서 마피아 게임 시작 이벤트를 받는다 */ 
       socket.on("joinMafiaGame", () => {
-        this.joinMafiaGame(socket, room);
+        console.log("MG-03 joinMafiaGame");
+        joinMafiaGame(socket, room);
       });
     }
 
@@ -302,24 +303,29 @@ module.exports = (io) => {
       /* 4 ~ 6 순서는 클라이언트 로직에 맞춰서 변경 */
       /* MG-04. 기존 플레이어들에게 신규 플레이어를 추가하라고 알린다 */
       const players = room.mafiaGame.players;
-      for (let socketId in Object.keys(players)){
+      // console.log("joinMafiaGame", players);
+      for (let socketId of Object.keys(players)){
+        console.log(socketId);
         players[socketId].socket.emit("addNewPlayer", socket.id);
       }
       /* MG-05. 마피아 게임에 신규 플레이어를 추가한다 */
       room.addPlayerToMafiaGame(socket);
-      /* MG-06. 마피아 게임 플레이어 목록을 신규 플레이어에게 전달한다 */
+      // /* MG-06. 마피아 게임 플레이어 목록을 신규 플레이어에게 전달한다 */
       socket.emit("sendCurrentPlayers", Object.keys(players));
       
       /* MG-09. 게임 시작 이벤트를 수신하여 게임 세팅을 하고 시작신호 전달*/
-      socket.on('startMafiaGame', () => {
+      socket.on('startMafiaGame', async () => {
+        console.log("MG-09 startMafiaGame");
         /* 역할 랜덤 추첨 및 전달 */
-        room.mafiaGame.raffleRoles();
-        room.mafiaGame.turnStart();
+        await room.mafiaGame.init();
+        await room.mafiaGame.raffleRoles();
+        await room.mafiaGame.turnStart();
       });
 
       /* MG-12. 투표 턴에서 선택한 플레이어와 선택된 플레이어 정보를 게임에 저장 */
       /* MG-22. Night 턴에서 각 역할군이 지정한 후보 저장 */
       socket.on("sendCandidate", (candidateSocketId) => {
+        console.log("MG-12 sendCandidate", candidateSocketId);
         /* 선택한 플레이어, 선택된 플레이어 MafiaGame 객체에 저장 및 같은 직업에게 공유 */
         room.mafiaGame.selectCandidate(socket.id, candidateSocketId);
       });
@@ -327,6 +333,7 @@ module.exports = (io) => {
       /* MG-14. 투표 턴에서 후보 선택 확정 신호 수신 */
       /* MG-24. Night 턴에서 후보 선택 확정 신호 수신 */
       socket.on("confirmCandidate", () => {
+        console.log("MG-14 confirmCandidate", socket.id);
         /* 마피아 게임 객체에서 플레이어 선택 확정 정보 Update */
         room.mafiaGame.confirmCandidate(socket.id);
       });
@@ -336,18 +343,14 @@ module.exports = (io) => {
         /* TODO: 생사 투표 결과 Update 
         * 완료되면 결과 전달 socket.emit("confirmLiveOrDie");
         * 게임 종료 여부 확인 */
+        console.log("sendLiveOrDie", liveOrDie);
         room.mafiaGame.checkLiveOrDie(socket.id, liveOrDie);
       });
 
-      /* MG-19. Night 턴 */
-      socket.on("startNight", () => {
-        socket.emit("doAction"); 
-      });
-    }
-
-    // 유저 수가 0일 때
-    function endMafiaGame(socket){
-      // socket.off();
+      // /* MG-19. Night 턴 */
+      // socket.on("startNight", () => {
+      //   socket.emit("doAction"); 
+      // });
     }
 }
 
