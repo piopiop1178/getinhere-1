@@ -166,7 +166,7 @@ class MafiaGame{
         }
         else{
             this.liveOrDie[1]++;
-            this.liveOrDie[2][live].push(socketId);
+            this.liveOrDie[2][die].push(socketId);
         }
         if(this.liveOrDie[1] == this.playerCount){
             if(this.liveOrDie[2][live] < this.liveOrDie[2][die]){

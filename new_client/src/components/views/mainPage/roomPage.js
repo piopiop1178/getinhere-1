@@ -1198,7 +1198,7 @@ class Room extends Component {
             // 회의 시작
         });
         /* MG-15. 생사 투표 진행 */
-        socket.on("sendCitizenCandidationVoteResult", (socketId) => {
+        socket.on("sendVoteResult", (deadPlayerSocketId) => {
             /* TODO: 생사 투표 진행 */
             // 결과 전달은 sendLiveOrDie 함수를 통해
         });

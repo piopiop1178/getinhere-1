@@ -329,7 +329,7 @@ module.exports = (io) => {
         let result = room.mafiaGame.confirmCandidate();
         /* !!!! 이건 안에서 해야할 듯*/
         if(result !== undefined){
-          socket.emit("sendVoteResult");
+          socket.emit("sendVoteResult", result); // result = deadplayer
         }
       });
 
