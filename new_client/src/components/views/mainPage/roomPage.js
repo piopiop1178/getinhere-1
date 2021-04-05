@@ -280,16 +280,8 @@ class Room extends Component {
             }
             
             // 마피아 4번 방
-            if (e.code ==="KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 1){            
-                if (this.state.objects ===0) {
-                    this.setState({objects : 4})
-                    document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,51)';
-                }
-                else {
-                    this.setState({objects : 0})      
-                    this.updatePositionSocketOn()
-                    document.getElementById("character-layer").style.removeProperty("background-color");
-                }
+            if (e.code ==="KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 4){            
+                // 마피아 CSS 조작 코드
             }
 
             e.preventDefault()
