@@ -117,7 +117,6 @@ module.exports = (io) => {
         socket.on('resumeConsumer', async (data, callback) => {
             let { consumerId, mediaTag } = data,
                 consumer = room.roomState.consumers.find((c) => c.id === consumerId && c.appData.mediaTag === mediaTag);
-
             await consumer.resume();
             callback();
         });
@@ -125,7 +124,6 @@ module.exports = (io) => {
         socket.on('pauseConsumer', async (data, callback) => {
           let { consumerId, mediaTag } = data,
               consumer = room.roomState.consumers.find((c) => c.id === consumerId && c.appData.mediaTag === mediaTag);
-
             await consumer.pause();
             callback();
         })
@@ -182,6 +180,8 @@ module.exports = (io) => {
         });
 
         socket.on('screenShare', (audio) => {
+          //if audio set screenShare 2 / if not set screenShare 1
+          room.users[socket.id].screenShare = audio ? 2 : 1;
           socket.to(room.name).emit('createScreenShareConsumer', socket.id, audio);
           // socket.emit('createScreenShareConsumer', socket.id);
         });
@@ -277,15 +277,18 @@ module.exports = (io) => {
     function initSpaceChange(socket, room) {
         socket.on('spaceChange', (oldSpace, newSpace) => {
             room.users[socket.id].status.space = newSpace
+            let myScreenShareFlag = room.users[socket.id].screenShare
+
             Object.values(room.users).forEach((user) => {
                 /* Need to be changed to send emit with list of changed users */
+                let userScreenShareFlag = user.screenShare;
                 if (user.status.space === oldSpace) {
-                    user.socket.emit('removeOutUser', socket.id)
-                    socket.emit('removeOutUser', user.socket.id)
+                    user.socket.emit('removeOutUser', socket.id, myScreenShareFlag)
+                    socket.emit('removeOutUser', user.socket.id, userScreenShareFlag)
                 }
                 else if (user.status.space === newSpace && user.socket.id != socket.id) {
-                    user.socket.emit('addInUser', socket.id)
-                    socket.emit('addInUser', user.socket.id)
+                    user.socket.emit('addInUser', socket.id, myScreenShareFlag)
+                    socket.emit('addInUser', user.socket.id, userScreenShareFlag)
                 }
             })
         })
