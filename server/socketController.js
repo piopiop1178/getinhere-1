@@ -260,8 +260,6 @@ module.exports = (io) => {
     }
 
     function joinMafiaGame(socket, room) {
-      /* TODO: 인원 확인해서 방 생성 로직 확인 */
-
       /* MG-04. 기존 플레이어들에게 신규 플레이어를 추가하라고 알린다 */
       const players = room.mafiaGame.players;
       for (let socketId in players){
@@ -273,39 +271,35 @@ module.exports = (io) => {
       socket.emit("sendCurrentPlayers", players);
       /* MG-09. 게임 시작 이벤트를 수신하여 게임 세팅을 하고 시작신호 전달*/
       socket.on('startMafiaGame', () => {
-        /* TODO: 역할 랜덤으로 지정 구현*/
-
-        /* TODO: Player 별로 자신의 역할과 함께 mafiaStart 이벤트 전달*/
-        socket.emit("sendRole", role);
-
-        /* TODO: 아침 턴 관련 함수 구현 */
-        this.dayTurn();
-
-        /* TODO: 회의 끝 신호 어떻게 처리할 지 고민 */
+        /* 역할 랜덤 추첨 및 전달 */
+        room.mafiaGame.raffleRoles();
+        room.mafiaGame.turnStart(10000); // 실제 게임은 120000, 테스트 용으로 10000
       });
 
       /* MG-12. 투표 턴에서 선택한 플레이어와 선택된 플레이어 정보를 게임에 저장 */
       /* MG-22. Night 턴에서 각 역할군이 지정한 후보 저장 */
       socket.on("sendCandidate", (candidateSocketId) => {
-        /* TODO: 선택한 플레이어, 선택된 플레이어 MafiaGame 객체에 저장
-         * 선택 정보를 역할이 같은 플레이어에게도 공유, socket.emit("sendCandidateResult"); */
+        /* 선택한 플레이어, 선택된 플레이어 MafiaGame 객체에 저장 및 같은 직업에게 공유 */
+        room.mafiaGame.selectCandidate(socket.id, candidateSocketId);
       });
 
       /* MG-14. 투표 턴에서 후보 선택 확정 신호 수신 */
       /* MG-24. Night 턴에서 후보 선택 확정 신호 수신 */
       socket.on("confirmCandidate", () => {
-        /* TODO: 마피아 게임 객체에서 플레이어 선택 확정 정보 Update */
-        /* TODO: 투표 완료 시 게임 종료 여부 확인, 종료 시 종료 알림 socket.emit("gameOver"), 게임 초기화
-         * 종료하지 않은 경우 
-         * 낮이면 생사투표(socket.emit("sendCitizenCandidationVoteResult"))
-         * 밤이면 직업 별 결과 전송*/
+        /* 마피아 게임 객체에서 플레이어 선택 확정 정보 Update */
+        let result = room.mafiaGame.confirmCandidate();
+        /* !!!! 이건 안에서 해야할 듯*/
+        if(result !== undefined){
+          socket.emit("sendVoteResult");
+        }
       });
 
       /* MG-17. 생사 투표 확인 및 결과 전달 */
       socket.on("sendLiveOrDie", (liveOrDie) => {
         /* TODO: 생사 투표 결과 Update 
-         * 완료되면 결과 전달 socket.emit("confirmLiveOrDie");
-         * 게임 종료 여부 확인 */
+        * 완료되면 결과 전달 socket.emit("confirmLiveOrDie");
+        * 게임 종료 여부 확인 */
+        room.mafiaGame.checkLiveOrDie(socket.id, liveOrDie);
       });
 
       /* MG-19. Night 턴 */

@@ -20,7 +20,7 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
             consumers: []
         }
         this.video = false;
-        this.mafiaGame = undefined;
+        this.mafiaGame = new MafiaGame();
     }
 
     get router(){
@@ -203,9 +203,6 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
     }
 
     addPlayerToMafiaGame(socket){
-        if(this.mafiaGame === undefined){
-            this.mafiaGame = new MafiaGame();
-        }
         this.mafiaGame.addPlayer(socket);
     }
 }
