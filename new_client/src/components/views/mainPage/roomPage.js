@@ -159,7 +159,7 @@ class Room extends Component {
         characterList: [],
         users: {},
         contextCharacter: document.getElementById("character-layer").getContext("2d"),
-        objects: 0, // 0: 기본상태, 1: 동영상 검색창, 2: 동영상 같이보기, 3: 게임하기, 4. 노래
+        objects: 0, // 0: 기본상태, 1: 동영상 검색창, 2: 동영상 같이보기, 3: 게임하기, 4. 노래검색, 5. 노래재생
         faceList: [], //
         guidance: false,
     }
@@ -267,6 +267,19 @@ class Room extends Component {
             }
 
             // 음악듣는 1번 방
+            if (e.code ==="KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 1){            
+                if (this.state.objects ===0) {
+                    this.setState({objects : 4})
+                    document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,51)';
+                }
+                else {
+                    this.setState({objects : 0})      
+                    this.updatePositionSocketOn()
+                    document.getElementById("character-layer").style.removeProperty("background-color");
+                }
+            }
+            
+            // 마피아 4번 방
             if (e.code ==="KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 1){            
                 if (this.state.objects ===0) {
                     this.setState({objects : 4})
