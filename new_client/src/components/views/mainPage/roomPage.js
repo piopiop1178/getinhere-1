@@ -202,7 +202,7 @@ class Room extends Component {
                 // e.preventDefault();
                 return;
             }
-            
+
             // if during event except music prevent move
             if (this.state.objects !== 0 && this.state.objects !== 5){
                 return;
@@ -601,7 +601,12 @@ class Room extends Component {
                 await this.resumeConsumer(screenAudioConsumer, 'screen-audio');
             }
 
-            let new_stream = await this.addVideoAudio(screenVideoConsumer, screenAudioConsumer);
+            //!------------add audio-----------------
+            let audioConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
+                c.appData.mediaTag === 'cam-audio'));
+            
+            let new_stream = await this.addScreenVideoAudio(screenVideoConsumer, audioConsumer, screenAudioConsumer);
+            //!------------add audio-----------------
 
             let videoEl = document.getElementById(socketId)
 
@@ -694,17 +699,28 @@ class Room extends Component {
         let newVid = document.createElement('video')
         let videos = document.getElementById('videos')
 
+        let audioConsumer = consumers.find((c) => (c.appData.peerId === socket_id &&
+            c.appData.mediaTag === 'cam-audio'));
+        
+        while(!audioConsumer){
+            await this.sleep(100)
+            audioConsumer = consumers.find((c) => (c.appData.peerId === socket_id &&
+                c.appData.mediaTag === 'cam-audio'));
+        }
+
         let screenAudioConsumer = null;
         if (screenShareFlag === 1){
             let screenVideoConsumer = await this.createRealConsumer('screen-video', recvTransport, socket_id, recvTransport.id)
             await this.resumeConsumer(screenVideoConsumer, 'screen-video');
-            newStream = await this.addVideoAudio(screenVideoConsumer, screenAudioConsumer);
+            newStream = await this.addScreenVideoAudio(screenVideoConsumer, audioConsumer, screenAudioConsumer);
+            // newStream = await this.addVideoAudio(screenVideoConsumer, screenAudioConsumer);
         } else if (screenShareFlag === 2){
             let screenVideoConsumer = await this.createRealConsumer('screen-video', recvTransport, socket_id, recvTransport.id)
             screenAudioConsumer = await this.createRealConsumer('screen-audio', recvTransport, socket_id, recvTransport.id)
             await this.resumeConsumer(screenVideoConsumer, 'screen-video');
             await this.resumeConsumer(screenAudioConsumer, 'screen-audio');
-            newStream = await this.addVideoAudio(screenVideoConsumer, screenAudioConsumer);
+            newStream = await this.addScreenVideoAudio(screenVideoConsumer, audioConsumer, screenAudioConsumer);
+            // newStream = await this.addVideoAudio(screenVideoConsumer, screenAudioConsumer);
         }
 
         newVid.srcObject = newStream
@@ -1196,6 +1212,19 @@ class Room extends Component {
         return stream
     }
 
+    addScreenVideoAudio = async (screenVideoConsumer, audioConsumer, screenAudioConsumer) => {
+        const stream = new MediaStream();
+        await stream.addTrack(screenVideoConsumer.track);
+
+        await stream.addTrack(audioConsumer.track);
+
+        if (screenAudioConsumer){
+            await stream.addTrack(screenAudioConsumer.track);
+        }
+
+        return stream
+    }
+
     sleep = async (ms) => {
         return new Promise((r) => setTimeout(() => r(), ms));
     }
@@ -1337,8 +1366,8 @@ class Room extends Component {
         screenVideoProducer = await sendTransport.produce({
             track: localScreen.getVideoTracks()[0],
             encodings: [
-                {maxBitrate: 100000},
-                {maxBitrate: 300000}
+                {maxBitrate: 300000},
+                {maxBitrate: 500000}
             ],
             appData: {mediaTag: 'screen-video'}
         });
@@ -1355,8 +1384,10 @@ class Room extends Component {
         //------------------DEBUG---------------
 
         socket.emit('screenShare', screenAudio);
-        
-        this.pauseProducer(audioProducer, 'cam-audio')
+
+        //!------------add audio-----------------
+        // this.pauseProducer(audioProducer, 'cam-audio')
+        //!------------add audio-----------------
         this.pauseProducer(videoProducer, 'cam-video')
 
         const localVideo = document.getElementById("localVideo")
@@ -1376,7 +1407,9 @@ class Room extends Component {
             screenAudioProducer = null;
 
             socket.emit('endScreenShare-signal', screenAudio);
-            this.resumeProducer(audioProducer, 'cam-audio')
+            //!------------add audio-----------------
+            // this.resumeProducer(audioProducer, 'cam-audio')
+            //!------------add audio-----------------
             this.resumeProducer(videoProducer, 'cam-video')
             //!--------------screenshare 끝나고 원래대로 돌아오는 코드 넣으면 됨-----
             //! local 바꿀건지?? 
