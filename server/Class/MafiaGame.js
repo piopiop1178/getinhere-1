@@ -10,41 +10,53 @@ const gameRoles = {
     9: {citizen : 5, mafia : 3, police : 1, doctor: 1},
 };
 
+const dayTime = 10000;          // 120000
+const nightTime = 5000;        // 20000
+
 class MafiaGame{
     constructor(){
-        this.isDay = true;
-        this.players = {};   // 객체로 추가 players {socketId: {role:police, selectedCount: 0}}
+        this.isDay = false;
+        this.players = {};   // players {socketId: {socket: socketObject, role:police}}
         this.citizens = [];
-        this.polices = [];
         this.mafias = [];
-        this.doctors = [];
+        this.police = undefined;
+        this.doctor = undefined;
         this.playerCount = 0;
         this.deadPlayers = [];
         this.candidate = {}; // {socketId: socketId}
         this.selectedCount = {};
-        this.inTurn = false;
+        this.turn = 0;
         this.confirmCount = 0;
         this.liveOrDie = [undefined, undefined];
+        this.checkCount = undefined;
     }
 
-    init(){
-        // constructor 참고 초기화
+    async init(){
+        this.isDay = false;
+        this.citizens = [];
+        this.mafias = [];
+        this.police = undefined;
+        this.doctor = undefined;
+        this.playerCount = this.players.length;
+        this.turn = 0;
     }
 
     addPlayer(socket){
         this.players[socket.id] = {socket: socket, role: undefined};
-        this.selectCount[socket.id] = 0;
         this.playerCount += 1;
     }
 
-    raffleRole(){
+    async raffleRole(){
         let roles = [];
+
         for(let role in Object.keys(gameRoles[this.playerCount])){
             for(let i; i < gameRoles[this.playerCount].role; i++){
                 roles.push(role);
             }
         }
+
         this.shuffle(roles);
+
         let i = 0;
         let role, socket;
         for(let socketId in Object.keys(this.players)){
@@ -52,17 +64,17 @@ class MafiaGame{
             socket = this.players[socketId].socket;
             this.players[socketId].role = role;
             socket.emit("sendRole", role);
-            if(role === "citizen"){
-                this.citizens.push(socket);
-            }
-            else if(role === "mafia"){
+            if(role === "mafia"){
                 this.mafias.push(socket);
             }
-            else if(role === "police"){
-                this.polices.push(socket);
-            }
-            else if(role === "doctor"){
-                this.doctors.push(socket);
+            else{
+                if(role === "police"){
+                    this.police = socket;
+                }
+                else if(role === "doctor"){
+                    this.doctor = socket;
+                }
+                this.citizens.push(socket);
             }
         }
     }
@@ -78,16 +90,41 @@ class MafiaGame{
         }
     }
 
-    turnStart(timeCount) {
-        this.inTurn = true;
-        setTimeout(this.turnEnd, timeCount);
+    async turnStart() {
+        turnInit();
+        setTimeout(() => {
+            this.turnEnd(this.turn);
+        }, this.isDay ? dayTime : nightTime);
     }
 
-    turnEnd() {
-        if(this.inTurn === false){
+    turnInit(){
+        this.isDay = !this.isDay;
+        this.candidate = {};
+        this.selectedCount = {};
+        for(let id in Object.keys(this.players)){
+            this.selectedCount[id] = 0;
+        }
+        this.confirmCount = 0;
+        this.checkCount = this.mafias.length;
+        if(this.isDay === true){
+            this.liveOrDie = [undefined, undefined];
+            this.checkCount += this.citizens.length;
+        }
+        else{
+            if(this.police !== undefined){
+                this.checkCount++;
+            }
+            if(this.doctor !== undefined){
+                this.checkCount++;
+            }
+        }
+    }
+
+    turnEnd(turn) {
+        if(this.turn !== turn){
             return;
         }
-        this.inTurn = false;
+        this.turn++;
         for(let socketId in Object.keys(this.players)){
             this.players[socketId].socket.emit("turnEnd"); 
         }
@@ -95,44 +132,48 @@ class MafiaGame{
 
     selectCandidate(socketId, candidateSocketId){
         this.candidate[socketId] = candidateSocketId;
-        this.selectedCount[candidateSocketId]++;
-        /* 선택 정보를 역할이 같은 플레이어에게도 공유 */
-        let sameRolePlayers;
+        if(this.selectedCount[candidateSocketId] !== undefined){
+            this.selectedCount[candidateSocketId]++;
 
-        if(this.isDay === true){
-            sameRolePlayers = Object.keys(this.players);
-        }
-        else{
-            const role = this.players[socketId].role;
-            if(role === "mafia"){
-                sameRolePlayers = Object.keys(this.mafias);
+            const array1 = [1, 4, 9, 16];
+            // pass a function to map
+            const map1 = array1.map(x => x * 2);
+            console.log(map1);
+            // expected output: Array [2, 8, 18, 32]
+
+            let sameRolePlayers = [];
+            if(this.isDay === true){
+                sameRolePlayers = this.players.map(player => player.socket);
             }
-            else if(role === "police"){
-                sameRolePlayers = Object.keys(this.polices);
+            else{
+                const role = this.players[socketId].role;
+                if(role === "mafia"){
+                    sameRolePlayers = Object.keys(this.mafias);
+                }
+                else if(role === "police"){
+                    sameRolePlayers = [socketId];
+                }
+                else if(role === "doctor"){
+                    sameRolePlayers = [socketId];
+                }
             }
-            else if(role === "doctor"){
-                sameRolePlayers = Object.keys(this.docters);
+            for(let id in sameRolePlayers){
+                this.players[id].socket.emit("sendCandidateResult", socketId, candidateSocketId);
             }
-        }
-        for(let socketId in sameRolePlayers){
-            this.players[socketId].socket.emit("sendCandidateResult", socket.id, candidateSocketId);
         }
     }    
 
-    confirmCandidate(){
+    confirmCandidate(socketId){
         this.confirmCount++;
-        socket.emit("sendCandidateResult"); 
-        if(this.confirmCount === this.playerCount){
+        if(this.confirmCount === this.checkCount){
             if(isDay){
-                let deadPlayer;
-                /* 생사 투표 진행 여부 확인 및 진행*/
+                let candidate = undefined;
                 if(this.selectedCount.length === 0){
-                    /* 투표 진행 안함 */
-                    return undefined;
+                    candidate = undefined;
                 }
                 if(this.selectedCount.length === 1){
-                    /* 생사 투표 진행 */
-                    deadPlayer = Object.keys(this.selectedCount)[0];
+                    candidate = Object.keys(this.selectedCount)[0];
+                    this.liveOrDie = [candidate, 0, {live: [], die: []}];
                 }
                 else{
                     let sortedArray = [];
@@ -144,17 +185,47 @@ class MafiaGame{
                     });
                     if(sortedArray[0][1] == sortedArray[1][1]){
                         /* 투표 진행 안함 */
-                        return undefined;
+                        candidate = undefined;
                     }
                     else{
-                        deadPlayer = sortedArray[0][0];
+                        candidate = sortedArray[0][0];
+                        this.liveOrDie = [candidate, 0, {live: [], die: []}];
                     }
                 }
-                this.liveOrDie = [deadPlayer, 0, {live: [], die: []}];
-                return deadPlayer;   
+                for(let id in Object.keys(this.players)){
+                    this.players[socketId].socket.emit("sendVoteResult", candidate)
+                }
+                if(candidate === undefined){
+                    this.turnEnd();
+                }
             }
             else{
-                /* 직업 별 결과 전송*/
+                /* 경찰 */
+                this.police.socket.emit("checkMafia", this.candidate[this.police.id].role === 'mafia');
+                /* 의사 */
+                const doctorPick = this.candidate[this.doctor.id];
+
+                this.selectedCount[this.police.id]--;
+                this.selectedCount[this.doctor.id]--;
+
+                /* 마피아 선택 */
+                let mafiaPicks = [];
+                let mafiaPick = undefined;
+                for (let id in Object.keys(this.selectedCount)){
+                    mafiaPicks.push = [id, selectCount[id]];
+                    mafiaPicks.sort((a, b) => {
+                        return b[1] - a[1];
+                    });
+                    if(mafiaPicks.length === 1 || mafiaPicks[0][1] > mafiaPicks[1][1]){
+                        mafiaPick = mafiaPicks[0][0];
+                    }
+                }
+                if(mafiaPick === doctorPick){
+                    mafiaPick = undefined;
+                }
+                for (let socketId in Object.keys(this.players)){
+                    this.players.socket.emit("nightOver", mafiaPick, this.checkGameOver())
+                }
             }
         }
     };
@@ -166,17 +237,20 @@ class MafiaGame{
         }
         else{
             this.liveOrDie[1]++;
-            this.liveOrDie[2][live].push(socketId);
+            this.liveOrDie[2][die].push(socketId);
         }
-        if(this.liveOrDie[1] == this.playerCount){
+        let result = undefined;
+        if(this.liveOrDie[1] === this.checkCount){
             if(this.liveOrDie[2][live] < this.liveOrDie[2][die]){
-                return 'die';
+                result = 'die';
             }
             else{
-                return 'live';
+                result = 'live';
+            }
+            for(let id in Object.keys(this.players)){
+                this.players[id].socket.emit("confirmLiveOrDie", result);
             }
         }
-        return undefined;
     }
 
     checkGameOver(){
