@@ -294,7 +294,7 @@ module.exports = (io) => {
     function initMafiaGame(socket, room) {
       /* MG-03. 클라이언트에서 마피아 게임 시작 이벤트를 받는다 */ 
       socket.on("joinMafiaGame", () => {
-        this.joinMafiaGame(socket, room);
+        joinMafiaGame(socket, room);
       });
     }
 
