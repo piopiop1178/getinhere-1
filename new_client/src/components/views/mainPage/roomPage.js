@@ -14,7 +14,7 @@ import * as mediasoup from "mediasoup-client";
 
 import beerSource from './sounds/beer.mp3'
 import cocktailSource from './sounds/cocktail.mp3'
-import wineSource from './sounds/wine.mp3'
+import wineSource from './sounds/wine.mp3'  
 import glassBreakSource from './sounds/glassbreak.mp3'
 import IframePage from './iframePage/iframe.js'; // 0329 승민
 import YoutubeMain from '../youtubePage/youtubeMain';
@@ -23,6 +23,7 @@ import YoutubeIframe from '../youtubePage/youtubeIframe';
 import ToggleButton from './toggleButton/toggleButton';
 import { Spring, animated } from 'react-spring'
 import Guidance from './guidance';
+import './roomPage.css'
 
 const uuuuu = new Youtube();
 
@@ -158,7 +159,7 @@ class Room extends Component {
         characterList: [],
         users: {},
         contextCharacter: document.getElementById("character-layer").getContext("2d"),
-        objects: 0, // 0: 기본상태, 1: 동영상 검색창, 2: 동영상 같이보기, 3: 게임하기, 4. 노래검색, 5. 노래재생
+        objects: 0, // 0: 기본상태, 1: 동영상 검색창, 2: 동영상 같이보기, 3: 게임하기, 4. 노래검색, 5. 노래재생, 6. 화면공유
         faceList: [], //
         guidance: false,
     }
@@ -201,7 +202,7 @@ class Room extends Component {
                 // e.preventDefault();
                 return;
             }
-
+            
             // if during event except music prevent move
             if (this.state.objects !== 0 && this.state.objects !== 5){
                 return;
@@ -603,7 +604,9 @@ class Room extends Component {
             let new_stream = await this.addVideoAudio(screenVideoConsumer, screenAudioConsumer);
 
             let videoEl = document.getElementById(socketId)
-            
+
+            videoEl.addEventListener('dblclick', this.dblclickhandler)
+
             await this.resumeConsumer(screenVideoConsumer, 'screen-video');
 
             videoEl.srcObject = new_stream;             
@@ -611,6 +614,8 @@ class Room extends Component {
 
         socket.on('endScreenShare', async (socketId, audio) => {
             let videoEl = document.getElementById(socketId)
+
+            videoEl.removeEventListener('dblclick', this.dblclickhandler)
 
             await this.closeClientTrackConsumer(socketId, 'screen-video')
             if (audio){
@@ -625,7 +630,16 @@ class Room extends Component {
             
             let original_stream = await this.addVideoAudio(videoConsumer, audioConsumer);
             
-            console.log(original_stream)
+            if (videoEl.classList.contains('iframe-video')){
+                videoEl.classList.remove('iframe-video');
+                videoEl.classList.add('vid');
+                let videos = document.getElementById('videos');
+                videos.appendChild(videoEl);
+                this.setState({objects : 0})
+                document.getElementById("character-layer").style.removeProperty("background-color");
+                this.updatePositionSocketOn()
+            }
+
             videoEl.srcObject = original_stream;
         })
 
@@ -1368,6 +1382,31 @@ class Room extends Component {
             //! local 바꿀건지?? 
         }
     };
+    //!--------prevent key???--------------------------------------
+    dblclickhandler = (e) => {
+        if (e.target.classList.contains('vid')){
+            let room = document.getElementById('room')
+            e.target.classList.add('iframe-video');
+            e.target.classList.remove('vid');
+            room.appendChild(e.target)
+            this.setState({objects : 6})
+            // -----------------clear canvas---------------------
+            const contextCharacter = this.state.contextCharacter;
+            contextCharacter.clearRect(0, 0, window.innerWidth*2, window.innerHeight*2);
+            document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,51)';
+            // -----------------clear canvas---------------------
+            this.updatePositionSocketOff()
+        } else {
+            let videos = document.getElementById('videos')
+            e.target.classList.remove('iframe-video');
+            e.target.classList.add('vid');
+            videos.appendChild(e.target)
+            this.setState({objects : 0})
+            document.getElementById("character-layer").style.removeProperty("background-color");
+            this.updatePositionSocketOn()
+        }
+    }
+    //!--------prevent key???--------------------------------------
 
     render() {
         let youtubePage;
