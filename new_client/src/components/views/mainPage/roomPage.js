@@ -54,6 +54,8 @@ let constraints = {
 }
 
 let localStream = null;
+let localScreen = null;
+
 let peers = {}
 // let audioctx
 // audioctx = new AudioContext()
@@ -64,8 +66,11 @@ let device,
 recvTransport, 
 sendTransport, 
 videoProducer, 
-audioProducer, 
-consumers = []
+audioProducer,
+screenVideoProducer,
+screenAudioProducer
+
+let consumers = []
 
 // let audio = new Audio('../music/all_falls_down.mp3');
 
@@ -154,7 +159,7 @@ class Room extends Component {
         characterList: [],
         users: {},
         contextCharacter: document.getElementById("character-layer").getContext("2d"),
-        objects: 0, // 0: 기본상태, 1: 동영상 검색창, 2: 동영상 같이보기, 3: 게임하기, 4. 노래
+        objects: 0, // 0: 기본상태, 1: 동영상 검색창, 2: 동영상 같이보기, 3: 게임하기, 4. 노래검색, 5. 노래재생
         faceList: [], //
         guidance: false,
     }
@@ -228,6 +233,10 @@ class Room extends Component {
             if(e.code === "KeyQ" && e.ctrlKey) {
                 socket.emit("testSocketDisconnect")
             }
+
+            if (e.code === "KeyE") {
+                this.screenShare()
+            }
     
             /* 동영상, 게임하기, 노래 등 */
             // 게임하는 2번 방
@@ -268,6 +277,11 @@ class Room extends Component {
                     this.updatePositionSocketOn()
                     document.getElementById("character-layer").style.removeProperty("background-color");
                 }
+            }
+            
+            // 마피아 4번 방
+            if (e.code ==="KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 4){            
+                // 마피아 CSS 조작 코드
             }
 
             e.preventDefault()
@@ -419,8 +433,6 @@ class Room extends Component {
         socket.on("update", this.updatePosition );
     }
 
-
-
     initSocket = async () => {
         /* room에 자신의 socket이 추가된 후 해당 room의 기존 user 정보를 수신 */
         socket.on('sendUsers', async (users) => {
@@ -524,6 +536,52 @@ class Room extends Component {
             this.removePeer(socketId);
             delete this.state.users[socketId]
         });
+
+        socket.on('createScreenShareConsumer', async (socketId, audio) => {
+            // let sameSpace = (users[socketId].space === curr_space) ? true : false
+            console.log(socketId);
+            let screenAudioConsumer = null;
+            
+            let screenVideoConsumer = await this.createRealConsumer('screen-video', recvTransport, socketId, recvTransport.id)
+
+            if (audio){
+                screenAudioConsumer = await this.createRealConsumer('screen-audio', recvTransport, socketId, recvTransport.id)
+                await this.resumeConsumer(screenAudioConsumer, 'screen-audio');
+            }
+
+            let new_stream = await this.addVideoAudio(screenVideoConsumer, screenAudioConsumer);
+
+            let videoEl = document.getElementById(socketId)
+            
+            await this.resumeConsumer(screenVideoConsumer, 'screen-video');
+
+            videoEl.srcObject = new_stream;            
+
+            //1. socketID 해당하는 consumer 만들기
+            //2. video tag src 교체하기 
+            //3. 같은 space 면 보이게 아니면 block
+            //4. 
+        });
+
+        socket.on('endScreenShare', async (socketId, audio) => {
+            let videoEl = document.getElementById(socketId)
+
+            await this.closeClientTrackConsumer(socketId, 'screen-video')
+            if (audio){
+                await this.closeClientTrackConsumer(socketId, 'screen-audio')
+            }
+
+            let audioConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
+                c.appData.mediaTag === 'cam-audio'));
+
+            let videoConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
+                c.appData.mediaTag === 'cam-video')); 
+            
+            let original_stream = await this.addVideoAudio(videoConsumer, audioConsumer);
+            
+            console.log(original_stream)
+            videoEl.srcObject = original_stream;
+        })
 
         socket.on('disconnect', async () => {
             for (let socket_id in this.state.users){
@@ -908,8 +966,8 @@ class Room extends Component {
         }
         // okay, we're ready. let's ask the peer to send us media
         if (sameSpace) {
-            await this.resumeConsumer(videoConsumer);
-            await this.resumeConsumer(audioConsumer);
+            await this.resumeConsumer(videoConsumer, 'cam-video');
+            await this.resumeConsumer(audioConsumer, 'cam-audio');
         }
         // keep track of all our consumers
         // updatePeersDisplay();
@@ -941,11 +999,11 @@ class Room extends Component {
         return consumer;
     }
 
-    resumeConsumer = async (consumer) => {
+    resumeConsumer = async (consumer, mediaTag) => {
         if (consumer) {
             //   console.log('resume consumer', consumer.appData.peerId, consumer.appData.mediaTag);
             try {
-                await socket.request('resumeConsumer', { consumerId: consumer.id })
+                await socket.request('resumeConsumer', { consumerId: consumer.id, mediaTag: mediaTag})
                 // await sig('resume-consumer', { consumerId: consumer.id });
                 await consumer.resume();
             } catch (e) {
@@ -954,16 +1012,40 @@ class Room extends Component {
         }
     }
 
-    pauseConsumer = async (consumer) => {
+    pauseConsumer = async (consumer, mediaTag) => {
         if (consumer) {
             try {
-                await socket.request('pauseConsumer', { consumerId: consumer.id })
+                await socket.request('pauseConsumer', { consumerId: consumer.id, mediaTag: mediaTag })
                 await consumer.pause()
             } catch (e) {
                 console.error(e)
             }
         }
     }
+
+    resumeProducer = async (producer, mediaTag) => {
+        if (producer) {
+            try {
+                await socket.request('resumeProducer', { producerId: producer.id, mediaTag: mediaTag })
+                await producer.resume()
+            } catch (e) {
+                console.error(e)
+            }
+        }
+    }
+
+    pauseProducer = async (producer, mediaTag) => {
+        if (producer) {
+            try {
+                await socket.request('pauseProducer', { producerId: producer.id, mediaTag: mediaTag})
+                await producer.pause()
+            } catch (e) {
+                console.error(e)
+            }
+        }
+    }
+
+    
     //!------------------DEBUG---------------------
     closeClientTrackConsumer = async (peerId, mediaTag) => {
     // unsubscribeFromTrack = async (peerId, mediaTag) => {
@@ -1005,11 +1087,20 @@ class Room extends Component {
         }
         
         try {
-            /* We don't close serverside consumer in here.
-            * Thus, caller of closeConsumer must request server to close
-            * server-side comsumer if needed */
             await consumer.close();
             consumers = consumers.filter((c) => c !== consumer);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    closeProducer = async (producer) => {
+        if (!producer) {
+            console.log('ERROR: producer undefined in closeConsumer')
+            return;
+        }
+        try {
+            await producer.close();
         } catch (e) {
             console.error(e);
         }
@@ -1023,7 +1114,11 @@ class Room extends Component {
     addVideoAudio = async (videoConsumer, audioConsumer) => {
         const stream = new MediaStream();
         await stream.addTrack(videoConsumer.track);
-        await stream.addTrack(audioConsumer.track);
+
+        if (audioConsumer){
+            await stream.addTrack(audioConsumer.track);
+        }
+
         return stream
     }
 
@@ -1152,6 +1247,63 @@ class Room extends Component {
         /* MG-16. 생사 투표 전달 */
         // socket.emit("sendLiveOrDie", liveOrDie);
     }
+    
+    screenShare = async () => {
+        let screenAudio = false;
+
+        localScreen = await navigator.mediaDevices.getDisplayMedia({
+            video: true,
+            audio: true
+        });
+
+        screenVideoProducer = await sendTransport.produce({
+            track: localScreen.getVideoTracks()[0],
+            encodings: [
+                {maxBitrate: 100000},
+                {maxBitrate: 500000}
+            ],
+            appData: {mediaTag: 'screen-video'}
+        });
+
+        //------------------DEBUG 조건문 필요한지? ---------------
+        if (localScreen.getAudioTracks().length) {
+            console.log('get audio!')
+            screenAudioProducer = await sendTransport.produce({
+                track: localScreen.getAudioTracks()[0],
+                appData: {mediaTag: 'screen-audio'}
+            });
+            screenAudio = true;
+        }
+        //------------------DEBUG---------------
+
+        socket.emit('screenShare', screenAudio);
+        
+        this.pauseProducer(audioProducer, 'cam-audio')
+        this.pauseProducer(videoProducer, 'cam-video')
+
+        const localVideo = document.getElementById("localVideo")
+            localVideo.srcObject = localScreen;
+
+            screenVideoProducer.track.onended = async () => {
+            console.log('screen share stopped');
+            localVideo.srcObject = localStream;
+
+            await socket.request('closeProducer', { producerId: screenVideoProducer.id })
+            this.closeProducer(screenVideoProducer)
+            if (screenAudio){
+                await socket.request('closeProducer', { producerId: screenAudioProducer.id })
+                this.closeProducer(screenAudioProducer)
+            }
+            screenVideoProducer = null;
+            screenAudioProducer = null;
+
+            socket.emit('endScreenShare-signal', screenAudio);
+            this.resumeProducer(audioProducer, 'cam-audio')
+            this.resumeProducer(videoProducer, 'cam-video')
+            //!--------------screenshare 끝나고 원래대로 돌아오는 코드 넣으면 됨-----
+            //! local 바꿀건지?? 
+        }
+    };
 
     render() {
         let youtubePage;
