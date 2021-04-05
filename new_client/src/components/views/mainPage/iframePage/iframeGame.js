@@ -3,9 +3,6 @@ import {LoadingPage2} from '../presetPage';
 
 const IframeGame = ({gameNumber, runGame1, runGame2, runGame3, runGame4, runGame5, runGame6}) => {
     const [loadingdone, setLoadingdone] = useState(false);
-    useEffect(()=>{
-        console.log(loadingdone)
-    })
     
     const inviteCodeButton = () => {
         document.querySelector('#iframe-game').src = document.querySelector('.invite-code-input').value;
