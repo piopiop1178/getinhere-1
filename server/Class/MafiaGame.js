@@ -158,6 +158,10 @@ class MafiaGame{
     }
 
     selectCandidate(socketId, candidateSocketId){
+        if(!(socketId in this.players) && !(candidateSocketId in this.players)){
+            console.log(!(socketId in this.players) && !(candidateSocketId in this.players));
+        }
+
         if(this.selectedCount[candidateSocketId] !== undefined){
             this.candidate[socketId] = candidateSocketId;
             console.log("selectCandidate", this.candidate);
@@ -258,6 +262,7 @@ class MafiaGame{
                         this.die(mafiaPick);
                     }
                 }
+                console.log("mafiaPick", mafiaPick);
                 for (let id in this.players){
                     this.players[id].socket.emit("nightOver", mafiaPick, this.checkGameOver())
                 }
@@ -278,11 +283,10 @@ class MafiaGame{
             this.liveOrDie[1]++;
             this.liveOrDie[2]['die'].push(socketId);
         }
-        let result = undefined;
         if(this.liveOrDie[1] === this.checkCount){
-            console.log('liveOrDie', liveOrDie)
-            if(this.liveOrDie[2]['live'] < this.liveOrDie[2]['die']){
-
+            let result = undefined;
+            console.log('liveOrDie', this.liveOrDie)
+            if(this.liveOrDie[2]['live'].length < this.liveOrDie[2]['die'].length){
                 console.log("checkLiveOrDie: 누군가 죽음")
                 result = 'die';
                 this.die(this.liveOrDie[0]);
@@ -291,7 +295,7 @@ class MafiaGame{
                 result = 'live';
             }
             for(let id of Object.keys(this.players)){
-                this.players[id].socket.emit("confirmLiveOrDie", result, this.liveOrDie[2]['live'], this.liveOrDie[2]['die'], this.checkGameOver());
+                this.players[id].socket.emit("confirmLiveOrDie", result, this.liveOrDie[0], this.liveOrDie[2]['live'], this.liveOrDie[2]['die'], this.checkGameOver());
             }
             this.turnEnd(this.turn);
 
