@@ -107,7 +107,7 @@ module.exports = (io) => {
             let producer = await room.roomState.producers.find(
                 (p) => p.appData.mediaTag === data.mediaTag &&
                        p.appData.peerId === data.peerId
-              );
+            );
 
             const roomState = room.roomState;
             // console.log(roomState);
@@ -400,6 +400,9 @@ async function createWebRtcTransport(router, socket) {
 
 async function createConsumer(router, transport, roomState, producer, rtpCapabilities, mediaTag) {
   let consumer;
+  if (!producer || !transport) {
+    return;
+  }
 
   if (!router.canConsume(
     {

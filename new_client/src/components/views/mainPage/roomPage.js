@@ -444,8 +444,12 @@ class Room extends Component {
             let sameSpace
             let screenShareFlag
             for (let socketId in users){
+                if (this.state.users[socketId]) { continue };
                 sameSpace = (users[socketId].space === curr_space) ? true : false
                 screenShareFlag = users[socketId].screenShare;
+                if (sameSpace) {
+                    console.log("socketId for sendUsers is", socketId);
+                }
                 // console.log(screenShareFlag)
                 // console.log(users)
                 this.state.users[socketId] = users[socketId];
@@ -573,6 +577,8 @@ class Room extends Component {
         socket.on("update", this.updatePosition );
 
         socket.on('addUser', async (socketId, userName, characterNum, space) => {
+            console.log("socketId for addUser is", socketId);
+            if (this.state.users[socketId]) { return }
             let sameSpace = (space === curr_space) ? true : false
             this.state.users[socketId] = {userName: userName, characterNum: characterNum};
             //!------신규 유저니까 screenshare는 무조건 false로 ? 
@@ -926,6 +932,10 @@ class Room extends Component {
     }
 
     createTransport = async (direction) => {
+        while (!device) {
+            await this.sleep(100);
+        }
+
         let transport,
             transportOptions = await socket.request('createTransport', {
                 forceTcp: false,
@@ -1066,8 +1076,12 @@ class Room extends Component {
     }
 
     createRealConsumer = async (mediaTag, transport, peerId, transportId) => {
-        const Data = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
+        let Data = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
         // console.log(Data);
+        while (!Data) {
+            await this.sleep(100);
+            Data = await socket.request('consume', { rtpCapabilities: device.rtpCapabilities, mediaTag, peerId , transportId });
+        }
         let {
             producerId,
             id,
