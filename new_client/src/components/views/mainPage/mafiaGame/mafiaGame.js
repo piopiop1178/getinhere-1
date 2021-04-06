@@ -9,7 +9,8 @@ class mafiaGame extends Component {
     faceList: [],
     amIAlive: true,
     deadPlayers: [],
-    liveOrDieModalOnOff: false,
+    // liveOrDieModalOnOff: false,
+    liveOrDieModalOnOff: true, //! 일단 켜놓자
     myRole: '',
     alreadySendJoinMafiaGame: false,
   }
@@ -36,9 +37,7 @@ class mafiaGame extends Component {
       } else {
         characterNumber = this.props.characterNumberBySocketid[socketId]
         characterNumber = characterNumber ? characterNumber : 0;  // 반창고, 숫자 0을 못받아온다
-        console.log('characterNumber', characterNumber);
         characterNumber && (playerImage.src = this.props.characterList[characterNumber].src);
-        console.log('this.props.characterList[characterNumber].src', this.props.characterList[characterNumber].src)
       }
       playerImage.style.width = '50px'
       playerImage.style.height = '50px'
@@ -47,6 +46,19 @@ class mafiaGame extends Component {
       newPlayer.appendChild(playerNickName);
 
       console.log('thispropscharacterList', this.props.characterList);
+  }
+
+  leaveGame = () => {
+    this.setState({
+      isMafiaGameOn: false,
+      isMafiaGameStarted: false,
+      selectedPlayerSocketId: '',
+      amIAlive: true,
+      deadPlayers: [],
+      liveOrDieModalOnOff: false,
+      myRole: '',
+      alreadySendJoinMafiaGame: false,
+    })
   }
 
   joinMafiaGame = async () => {
@@ -88,17 +100,29 @@ class mafiaGame extends Component {
 
       });
       /* MG-15. 생사 투표 진행 */
-      this.socket.on("sendVoteResult", (deadPlayerSocketId) => {
-          console.log("MG-15 sendVoteResult", deadPlayerSocketId);
+      this.socket.on("sendVoteResult", (candidate) => {
+          console.log("MG-15 sendVoteResult", candidate);
           /* TODO: 생사 투표 진행 */
           // 결과 전달은 sendLiveOrDie 함수를 통해
-          if (deadPlayerSocketId == undefined) {
+          if (candidate == undefined) {
             return;
           } else {
+            // * 후보자가 존재하면, 후보자 사진과 이름을 모달창 가운데에 띄운다
             this.setState({liveOrDieModalOnOff: true}) // 생사투표모달 켜기
+            let characterNumber;
+            let candidateImage = document.querySelector('.liveOrDieMidalCandidateImage');
+            let candidateName =  document.querySelector('.liveOrDieMidalCandidateName');
+            if (this.state.faceList[candidate] != undefined) {
+              candidateImage.src = this.state.faceList[candidate].src;
+            } else {
+              characterNumber = this.props.characterNumberBySocketid[candidate]
+              characterNumber = characterNumber ? characterNumber : 0;  // 반창고, 숫자 0을 못받아온다
+              characterNumber && (candidateImage.src = this.props.characterList[characterNumber].src);
+            }
+            candidateName && (candidateName.innerText = this.props.nicknameBySocketid[candidate]);
+
             document.querySelector(`[data-live-or-die='live']`).disabled = false
             document.querySelector(`[data-live-or-die='die']`).disabled = false
-            console.log('생사투표모달켜기')
           }
       });
 
@@ -108,31 +132,53 @@ class mafiaGame extends Component {
           console.log(results, live, die, isGameEnd);
 
           // * voteBox 선택하고, 깔끔하게 내용 지워주기
-          let liveVoteBox = document.querySelector(`[data-live-or-die='live'`) 
-          let dieVoteBox  = document.querySelector(`[data-live-or-die='die'`)
-          liveVoteBox.innerHTML = '';
-          dieVoteBox.innerHTML = '';
+          //! 기존
+          // let liveVoteBox = document.querySelector(`[data-live-or-die='live'`) 
+          // let dieVoteBox  = document.querySelector(`[data-live-or-die='die'`)
+          //! liveOrDieVoter-live -die
+          let liveVoteBox = document.querySelector(`.liveOrDieVoter-live`) 
+          let dieVoteBox  = document.querySelector(`.liveOrDieVoter-die`)
+          // liveVoteBox.innerHTML = '';
+          // dieVoteBox.innerHTML = '';
           
           for(let liveVote of live) {
               let voteSpan = document.createElement('span');
-              voteSpan.style.fontSize = '1.2rem'
+              voteSpan.style.fontSize = '1.2rem';
+              voteSpan.id = `${liveVote}-liveOrDie`
               voteSpan.innerText = this.props.nicknameBySocketid[liveVote]  + ' '; //* 공백 추가
+              //! 기존
+              // liveVoteBox.parentElement.appendChild(voteSpan);
+              //! liveOrDieVoter-live -die
               liveVoteBox.appendChild(voteSpan);
           }
 
           for(let dieVote of die) {
               let voteSpan = document.createElement('span');
-              voteSpan.style.fontSize = '1.2rem'
+              voteSpan.style.fontSize = '1.2rem';
+              voteSpan.id = `${dieVote}-liveOrDie`
               voteSpan.innerText = this.props.nicknameBySocketid[dieVote]  + ' '; //* 공백 추가
+              //! 기존
+              // dieVoteBox.parentElement.appendChild(voteSpan);
+              //! liveOrDieVoter-live -die
               dieVoteBox.appendChild(voteSpan);
           }
 
           /* TODO: NightTurn 진행 할 경우 팝업 등 화면 전환 구현 */
           if (isGameEnd) {
             alert(`낮, 투표 결과: ${isGameEnd}의 승리로 끝났습니다`)
+            this.leaveGame();
           } else {
             // * 경기가 끝나지 않았으면, 5초 후에 모달창을 닫고, 밤이 시작된다
             setTimeout(()=> {
+             
+              // * main 화면 깨끝하게 비워주기
+              let myChoiceElement = document.getElementById(`${this.socket.id}-vote`);
+              myChoiceElement && myChoiceElement.remove(); // * 내가 선택한거 지워주기
+              for(let player of Object.keys(this.props.characterNumberBySocketid) ) {
+                let beforeChoicerSpan = document.getElementById(`${player}-vote`);
+                beforeChoicerSpan && beforeChoicerSpan.remove();
+              }
+
               this.setState({liveOrDieModalOnOff: false}); // 생사투표모달 끄기
             }, 10000)
             // this.socket.emit("startNight");
@@ -142,6 +188,8 @@ class mafiaGame extends Component {
       /* MG-20. 밤에 역할별 동작 수행 */
       this.socket.on("doNightAction", () => {
           // * main 화면 깨끝하게 비워주기
+          let myChoiceElement = document.getElementById(`${this.socket.id}-vote`);
+          myChoiceElement && myChoiceElement.remove(); // * 내가 선택한거 지워주기
           for(let player of Object.keys(this.props.characterNumberBySocketid) ) {
             let beforeChoicerSpan = document.getElementById(`${player}-vote`);
             beforeChoicerSpan && beforeChoicerSpan.remove();
@@ -189,11 +237,13 @@ class mafiaGame extends Component {
           alert("지난 밤 아무도 죽지 않았습니다")
         }
 
-        alert('nightOver Result isGameEnd = ', isGameEnd);
+        alert(`nightOver Result isGameEnd =  ${isGameEnd}`);
         if(isGameEnd == '시민') {
           alert("축하합니다🤸‍♀️🤸‍♂️ 시민의 승리로 끝났습니다")
+          this.leaveGame()
         } else if (isGameEnd == '마피아') {
           alert("축하합니다🤸‍♀️🤸‍♂️ 마피아의 승리로 끝났습니다")
+          this.leaveGame()
         }
       })
 
@@ -253,7 +303,6 @@ class mafiaGame extends Component {
       // confirmCandidate
       /* TODO: sendCandidate 불가능 하도록 처리 */
       if (this.state.selectedPlayerSocketId == false) {alert("'선택' 후 '확정'해 주세요"); return;}
-      console.log('확정 더이상 선택 불가');
       document.querySelector('.sendCandidate').disabled = true;
       document.querySelector('.confirmCandidate').disabled = true;
       // confirm 확정을 보낸다
@@ -365,7 +414,7 @@ class mafiaGame extends Component {
       top: '50%',
       left: '50%',
       transform: 'translate(-50%, -50%)',
-      border: '2px solid peru',
+      border: '3px solid peru',
       width: '50vw',
       height: '20vh',
       backgroundColor: 'goldenrod',
@@ -377,13 +426,34 @@ class mafiaGame extends Component {
       width: '100%',
     }
 
-    let liveOrDieModal = <div className='liveOrDieModal' style={liveOrDieModalStyle}>
-      <div className='live-or-die-vote-box' style={liveOrDieVoteBoxStyle}>
-        <button style={{fontSize: '2rem'}} onClick={this.sendLiveOrDie} data-live-or-die='live' > 👍 </button>시민  
-      </div>
-      <div className='live-or-die-vote-box' style={liveOrDieVoteBoxStyle}>
-        <button style={{fontSize: '2rem'}} onClick={this.sendLiveOrDie} data-live-or-die='die' > 👎 </button>마피아 
-      </div>
+    let candidateImageStyle = {
+      position: 'relative',
+      top: '0px',
+      left: '50%',
+      transform: 'translate(-50%, -100%)',
+      width: '100px',
+      height: '100px',
+      border: 'none',
+    }
+
+    let liveOrDieVoterStyle = {
+        display: 'flex',
+        justifyContent: 'center',
+        width: '100%',
+    }
+
+    let liveOrDieModal = 
+    <div className='liveOrDieModal' style={liveOrDieModalStyle}>
+        <img className='liveOrDieMidalCandidateImage' style={candidateImageStyle}></img>
+        <span className='liveOrDieMidalCandidateName'> </span>
+        <div className='live-or-die-vote-box' style={liveOrDieVoteBoxStyle}>
+            <button style={{fontSize: '2rem'}} onClick={this.sendLiveOrDie} data-live-or-die='live' > 👍 </button>살리자!  
+            <div className='liveOrDieVoter-live' style={liveOrDieVoterStyle}></div>
+        </div>
+        <div className='live-or-die-vote-box' style={liveOrDieVoteBoxStyle}>
+            <button style={{fontSize: '2rem'}} onClick={this.sendLiveOrDie} data-live-or-die='die' > 👎 </button>죽이자!
+            <div className='liveOrDieVoter-die' style={liveOrDieVoterStyle}></div>
+        </div>
     </div>
 
     if (this.state.isMafiaGameOn) {
