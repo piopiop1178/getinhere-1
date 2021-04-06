@@ -300,22 +300,18 @@ module.exports = (io) => {
     }
 
     function joinMafiaGame(socket, room) {
-      /* 4 ~ 6 순서는 클라이언트 로직에 맞춰서 변경 */
       /* MG-04. 기존 플레이어들에게 신규 플레이어를 추가하라고 알린다 */
       const players = room.mafiaGame.players;
-      // console.log("joinMafiaGame", players);
-      for (let socketId of Object.keys(players)){
-        console.log(socketId);
+      for (let socketId in players){
         players[socketId].socket.emit("addNewPlayer", socket.id);
       }
       /* MG-05. 마피아 게임에 신규 플레이어를 추가한다 */
-      room.addPlayerToMafiaGame(socket);
-      // /* MG-06. 마피아 게임 플레이어 목록을 신규 플레이어에게 전달한다 */
+      room.mafiaGame.addPlayer(socket);
+      /* MG-06. 마피아 게임 플레이어 목록을 신규 플레이어에게 전달한다 */
       socket.emit("sendCurrentPlayers", Object.keys(players));
       
       /* MG-09. 게임 시작 이벤트를 수신하여 게임 세팅을 하고 시작신호 전달*/
       socket.on('startMafiaGame', async () => {
-        console.log("MG-09 startMafiaGame");
         /* 역할 랜덤 추첨 및 전달 */
         await room.mafiaGame.init();
         await room.mafiaGame.raffleRoles();
@@ -335,7 +331,7 @@ module.exports = (io) => {
       socket.on("confirmCandidate", () => {
         console.log("MG-14 confirmCandidate", socket.id);
         /* 마피아 게임 객체에서 플레이어 선택 확정 정보 Update */
-        room.mafiaGame.confirmCandidate(socket.id);
+        room.mafiaGame.confirmCandidate();
       });
 
       /* MG-17. 생사 투표 확인 및 결과 전달 */
@@ -343,14 +339,13 @@ module.exports = (io) => {
         /* TODO: 생사 투표 결과 Update 
         * 완료되면 결과 전달 socket.emit("confirmLiveOrDie");
         * 게임 종료 여부 확인 */
-        console.log("sendLiveOrDie", liveOrDie);
+        console.log("MG-17 sendLiveOrDie", liveOrDie);
         room.mafiaGame.checkLiveOrDie(socket.id, liveOrDie);
       });
 
-      // /* MG-19. Night 턴 */
-      // socket.on("startNight", () => {
-      //   socket.emit("doAction"); 
-      // });
+      socket.on("leavePlayer", () => {
+        room.mafiaGame.removePlayer(socket.id);
+      });
     }
 }
 

@@ -201,9 +201,5 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
             return false;
         }
     }
-
-    addPlayerToMafiaGame(socket){
-        this.mafiaGame.addPlayer(socket);
-    }
 }
 module.exports = Room;
