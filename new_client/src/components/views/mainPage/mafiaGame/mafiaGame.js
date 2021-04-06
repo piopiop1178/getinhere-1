@@ -9,8 +9,8 @@ class mafiaGame extends Component {
     faceList: [],
     amIAlive: true,
     deadPlayers: [],
-    // liveOrDieModalOnOff: false,
-    liveOrDieModalOnOff: true, //! 일단 켜놓자
+    liveOrDieModalOnOff: false,
+    // liveOrDieModalOnOff: true, //! 일단 켜놓자
     myRole: '',
     alreadySendJoinMafiaGame: false,
   }

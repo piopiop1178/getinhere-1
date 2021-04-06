@@ -281,7 +281,7 @@ class MafiaGame{
         let result = undefined;
         if(this.liveOrDie[1] === this.checkCount){
             console.log('liveOrDie', liveOrDie)
-            if(this.liveOrDie[2]['live'] < this.liveOrDie[2]['die']){
+            if(this.liveOrDie[2]['live'].length < this.liveOrDie[2]['die'].length){
 
                 console.log("checkLiveOrDie: 누군가 죽음")
                 result = 'die';
