@@ -188,6 +188,7 @@ module.exports = (io) => {
 
         socket.on('endScreenShare-signal', (audio) => {
           socket.to(room.name).emit('endScreenShare', socket.id, audio);
+          room.users[socket.id].screenShare = 0;
         });
 
         socket.on('disconnect', async () => {          
