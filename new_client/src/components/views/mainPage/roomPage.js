@@ -598,7 +598,7 @@ class Room extends Component {
 
         socket.on('createScreenShareConsumer', async (socketId, audio) => {
             // let sameSpace = (users[socketId].space === curr_space) ? true : false
-            while (!recvTransport || !device || !document.getElementById(socketId || !device.loaded)) {
+            while (!recvTransport || !device || !document.getElementById(socketId) || !device.loaded) {
                 await this.sleep(100);
         }
 
