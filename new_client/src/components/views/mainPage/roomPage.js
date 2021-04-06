@@ -598,7 +598,6 @@ class Room extends Component {
 
         socket.on('createScreenShareConsumer', async (socketId, audio) => {
             // let sameSpace = (users[socketId].space === curr_space) ? true : false
-            console.log('aaaa');
             while (!recvTransport || !device || !document.getElementById(socketId) || !device.loaded) {
                 await this.sleep(100);
         }
@@ -1031,7 +1030,7 @@ class Room extends Component {
         //! For temporary use
     
         videoProducer = await sendTransport.produce({
-            track: localStream.getVideoTracks()[0],
+            track: localStream.getVideoTracks()[0].clone(),
             encodings : [
                 {maxBitrate: 100000},
                 // {maxBitrate: 200000}
@@ -1107,11 +1106,11 @@ class Room extends Component {
         return consumer;
     }
 
-    resumeConsumer = async (consumer, mediaTag) => {
+    resumeConsumer = async (consumer) => {
         if (consumer) {
             //   console.log('resume consumer', consumer.appData.peerId, consumer.appData.mediaTag);
             try {
-                await socket.request('resumeConsumer', { consumerId: consumer.id, mediaTag: mediaTag})
+                await socket.request('resumeConsumer', { consumerId: consumer.id })
                 // await sig('resume-consumer', { consumerId: consumer.id });
                 await consumer.resume();
             } catch (e) {
@@ -1120,10 +1119,10 @@ class Room extends Component {
         }
     }
 
-    pauseConsumer = async (consumer, mediaTag) => {
+    pauseConsumer = async (consumer) => {
         if (consumer) {
             try {
-                await socket.request('pauseConsumer', { consumerId: consumer.id, mediaTag: mediaTag })
+                await socket.request('pauseConsumer', { consumerId: consumer.id })
                 await consumer.pause()
             } catch (e) {
                 console.error(e)
@@ -1131,10 +1130,10 @@ class Room extends Component {
         }
     }
 
-    resumeProducer = async (producer, mediaTag) => {
+    resumeProducer = async (producer) => {
         if (producer) {
             try {
-                await socket.request('resumeProducer', { producerId: producer.id, mediaTag: mediaTag })
+                await socket.request('resumeProducer', { producerId: producer.id })
                 await producer.resume()
             } catch (e) {
                 console.error(e)
@@ -1142,10 +1141,10 @@ class Room extends Component {
         }
     }
 
-    pauseProducer = async (producer, mediaTag) => {
+    pauseProducer = async (producer) => {
         if (producer) {
             try {
-                await socket.request('pauseProducer', { producerId: producer.id, mediaTag: mediaTag})
+                await socket.request('pauseProducer', { producerId: producer.id })
                 await producer.pause()
             } catch (e) {
                 console.error(e)
@@ -1392,7 +1391,6 @@ class Room extends Component {
 
         await videoProducer.replaceTrack({track: localScreen.getVideoTracks()[0]});
 
-        //------------------DEBUG 조건문 필요한지? ---------------
         if (localScreen.getAudioTracks().length) {
             console.log('get audio!')
             screenAudioProducer = await sendTransport.produce({
@@ -1401,7 +1399,6 @@ class Room extends Component {
             });
             screenAudio = true;
         }
-        //------------------DEBUG---------------
 
         socket.emit('screenShare', screenAudio);
 
@@ -1411,14 +1408,11 @@ class Room extends Component {
 
         let localVideo = document.getElementById("localVideo")
         localVideo.srcObject = localScreen;
-        console.log(localStream.getTracks())
-        // localVideo.srcObject = localStream;
 
-        //!----------------NEED DEBUG 화면이 안돌아온다----------------------
         screenShareTrack.onended = async () => {
             console.log('screen share stopped');
             
-            await videoProducer.replaceTrack({track: localStream.getVideoTracks()[0]});
+            await videoProducer.replaceTrack({track: localStream.getVideoTracks()[0].clone()});
             let localVideo = document.getElementById("localVideo")
             localVideo.srcObject = localStream;
             if (screenAudio){
@@ -1429,7 +1423,6 @@ class Room extends Component {
 
             socket.emit('endScreenShare-signal', screenAudio);
         }
-        //!----------------NEED DEBUG 화면이 안돌아온다----------------------
     };
     //!--------prevent key???--------------------------------------
     dblclickhandler = (e) => {

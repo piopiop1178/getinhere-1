@@ -116,21 +116,21 @@ module.exports = (io) => {
 
         socket.on('resumeConsumer', async (data, callback) => {
             let { consumerId, mediaTag } = data,
-                consumer = room.roomState.consumers.find((c) => c.id === consumerId && c.appData.mediaTag === mediaTag);
+                consumer = room.roomState.consumers.find((c) => c.id === consumerId );
             await consumer.resume();
             callback();
         });
 
         socket.on('pauseConsumer', async (data, callback) => {
           let { consumerId, mediaTag } = data,
-              consumer = room.roomState.consumers.find((c) => c.id === consumerId && c.appData.mediaTag === mediaTag);
+              consumer = room.roomState.consumers.find((c) => c.id === consumerId );
             await consumer.pause();
             callback();
         })
 
         socket.on('resumeProducer', async (data, callback) => {
           let { producerId, mediaTag } = data,
-              producer = room.roomState.producers.find((p) => p.id === producerId && p.appData.mediaTag === mediaTag);
+              producer = room.roomState.producers.find((p) => p.id === producerId );
 
           await producer.resume();
           callback();
@@ -138,7 +138,7 @@ module.exports = (io) => {
 
       socket.on('pauseProducer', async (data, callback) => {
           let { producerId, mediaTag } = data,
-              producer = room.roomState.producers.find((p) => p.id === producerId && p.appData.mediaTag === mediaTag);
+              producer = room.roomState.producers.find((p) => p.id === producerId );
           await producer.pause();
           callback();
       })
