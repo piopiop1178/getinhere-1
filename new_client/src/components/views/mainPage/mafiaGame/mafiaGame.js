@@ -55,7 +55,7 @@ class mafiaGame extends Component {
     this.setState({
       isMafiaGameOn: false,
       isMafiaGameStarted: false,
-      dayToNightColor = () => document.querySelector('.mafiaGameFrame').style.backgroundColor = 'grey';
+      
       selectedPlayerSocketId: '',
       amIAlive: true,
       deadPlayers: [],
@@ -67,6 +67,7 @@ class mafiaGame extends Component {
   }
 
   nightToDayColor = () => document.querySelector('.mafiaGameFrame').style.backgroundColor = 'Beige';
+  dayToNightColor = () => document.querySelector('.mafiaGameFrame').style.backgroundColor = 'grey';
 
   dieFilter = (diePlayerSocketId) => {
     //* 죽은사람 화면에 표시해주기(greyscale, blur 효과), 해당사람 선택 못하도록 하기
