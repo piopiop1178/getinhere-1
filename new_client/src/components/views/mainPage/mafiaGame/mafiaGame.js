@@ -21,37 +21,41 @@ class mafiaGame extends Component {
 
   addCharacterInfoInGame = (socketId) => {
       let newPlayer = document.querySelector(`[data-player-number='${this.state.playerNumber+1}']`);
-      newPlayer.setAttribute("data-set-socketid", socketId);
-      newPlayer.dataset.socketid = socketId ? socketId : '00' ;
-      this.state.playerNumber += 1;
-      
-      /* 이미지 추가하기  1안, 2안, 둘다 잘 된다. 2안을 통해서 style을 조정할 수 있어 보인다. */
-      // newPlayer.parentNode.appendChild(this.state.faceList[socketId]); //tmp 1안: Image 객체를 바로 추가하기
 
-      let playerImage = document.createElement('img'); //tmp 2안: createElement로 img 만들어서 추가하기
-      let playerNickName = document.createElement('span'); //tmp 2안: createElement로 img 만들어서 추가하기
-      let characterNumber;
+      if(newPlayer) {
+          newPlayer.setAttribute("data-set-socketid", socketId);
+          newPlayer.dataset.socketid = socketId ? socketId : '00' ;
+          this.state.playerNumber += 1;
 
-      if (this.state.faceList[socketId] != undefined) {
-        playerImage.src = this.state.faceList[socketId].src;
-      } else {
-        characterNumber = this.props.characterNumberBySocketid[socketId]
-        characterNumber = characterNumber ? characterNumber : 0;  // 반창고, 숫자 0을 못받아온다
-        characterNumber && (playerImage.src = this.props.characterList[characterNumber].src);
+          /* 이미지 추가하기  1안, 2안, 둘다 잘 된다. 2안을 통해서 style을 조정할 수 있어 보인다. */
+          // newPlayer.parentNode.appendChild(this.state.faceList[socketId]); //tmp 1안: Image 객체를 바로 추가하기
+
+          let playerImage = document.createElement('img'); //tmp 2안: createElement로 img 만들어서 추가하기
+          let playerNickName = document.createElement('span'); //tmp 2안: createElement로 img 만들어서 추가하기
+          let characterNumber;
+
+          if (this.state.faceList[socketId] != undefined) {
+            playerImage.src = this.state.faceList[socketId].src;
+          } else {
+            characterNumber = this.props.characterNumberBySocketid[socketId]
+            characterNumber = characterNumber ? characterNumber : 0;  // 반창고, 숫자 0을 못받아온다
+            characterNumber && (playerImage.src = this.props.characterList[characterNumber].src);
+          }
+          playerImage.style.width = '50px'
+          playerImage.style.height = '50px'
+          playerNickName.innerText = this.props.nicknameBySocketid[socketId];
+          newPlayer.appendChild(playerImage);
+          newPlayer.appendChild(playerNickName);
+        
+          console.log('thispropscharacterList', this.props.characterList);
       }
-      playerImage.style.width = '50px'
-      playerImage.style.height = '50px'
-      playerNickName.innerText = this.props.nicknameBySocketid[socketId];
-      newPlayer.appendChild(playerImage);
-      newPlayer.appendChild(playerNickName);
-
-      console.log('thispropscharacterList', this.props.characterList);
   }
 
   leaveGame = () => {
     this.setState({
       isMafiaGameOn: false,
       isMafiaGameStarted: false,
+      dayToNightColor = () => document.querySelector('.mafiaGameFrame').style.backgroundColor = 'grey';
       selectedPlayerSocketId: '',
       amIAlive: true,
       deadPlayers: [],
@@ -62,13 +66,25 @@ class mafiaGame extends Component {
     this.socket.emit('leavePlayer');
   }
 
+  nightToDayColor = () => document.querySelector('.mafiaGameFrame').style.backgroundColor = 'Beige';
+
+  dieFilter = (diePlayerSocketId) => {
+    //* 죽은사람 화면에 표시해주기(greyscale, blur 효과), 해당사람 선택 못하도록 하기
+    let diePlayerButton  = document.querySelector(`[data-set-socketid='${diePlayerSocketId}'`); // * 소켓아이디로 찾은 button의 첫번째자식: 이미지
+    if(diePlayerButton) {
+        diePlayerButton.firstElementChild.style.filter = 'grayscale(80%) blur(5px)'
+        diePlayerButton.disabled = true;
+    }
+    // diePlayerButton && (diePlayerButton.firstElementChild.style.filter = 'grayscale(80%) blur(5px)')
+  }
+
   joinMafiaGame = async () => {
     /* MG-01. 마피아 게임 창을 띄운다 */
     /* MG-02. 마피아 게임을 위한 socket 세팅을 완료하고 게임 참여를 알린다 */
     await this.initMafiaGame();     // 마피아 게임을 위한 socket on
     this.socket.emit("joinMafiaGame", (response) => {
       if(response.status === true){
-        document.querySelector(`.startMafiaGame`).disabled = true;
+        document.querySelector(`.startMafiaGame`) && (document.querySelector(`.startMafiaGame`).disabled = true);
       }
     });   // 게임 참여 알림
   }
@@ -101,7 +117,7 @@ class mafiaGame extends Component {
           console.log('role from server', role);
           console.log('this.myRoleRef.current',this.myRoleRef.current);
           this.myRoleRef.current.textContent = role;
-          document.querySelector('.confirmCandidate').disabled = true;
+          document.querySelector('.confirmCandidate') && (document.querySelector('.confirmCandidate').disabled = true);
 
       });
       /* MG-15. 생사 투표 진행 */
@@ -110,6 +126,7 @@ class mafiaGame extends Component {
           /* TODO: 생사 투표 진행 */
           // 결과 전달은 sendLiveOrDie 함수를 통해
           if (candidate == undefined) {
+            alert("낮에는 아무도 죽지 않았습니다! 평화롭군요!");
             return;
           } else {
             // * 후보자가 존재하면, 후보자 사진과 이름을 모달창 가운데에 띄운다
@@ -127,8 +144,8 @@ class mafiaGame extends Component {
             candidateName && (candidateName.innerText = this.props.nicknameBySocketid[candidate]);
 
             if(this.state.amIAlive) { // * 살아 있을 때만 투표가능하다
-              document.querySelector(`[data-live-or-die='live']`).disabled = false
-              document.querySelector(`[data-live-or-die='die']`).disabled = false
+              document.querySelector(`[data-live-or-die='live']`) && (document.querySelector(`[data-live-or-die='live']`).disabled = false);
+              document.querySelector(`[data-live-or-die='die']`) && (document.querySelector(`[data-live-or-die='die']`).disabled = false);
             }
 
           }
@@ -140,12 +157,18 @@ class mafiaGame extends Component {
           console.log(results, live, die, isGameEnd);
 
           //* 내가 죽었으면, 설정해주기
-          if(isSomebodyDieSocketId == this.socket.id) {
+          if(isSomebodyDieSocketId == this.socket.id && results == 'die') {
             this.state.amIAlive = false;
             document.querySelector(`[data-live-or-die='live']`) && (document.querySelector(`[data-live-or-die='live']`).disabled = true);
             document.querySelector(`[data-live-or-die='die']`) && (document.querySelector(`[data-live-or-die='die']`).disabled  = true);
           }
 
+          //* 죽은사람 화면에 표시해주기(greyscale, blur 효과)
+          if(results == 'die')  this.dieFilter(isSomebodyDieSocketId);
+          // let deadManButton  = document.querySelector(`[data-set-socketid='${isSomebodyDieSocketId}'`); // * 소켓아이디로 찾은 button의 첫번째자식: 이미지
+          // deadManButton && (deadManButton.firstElementChild.style.filter = 'grayscale(80%) blur(5px)')
+
+          //$0.style.filter = 'grayscale(100%) blur(5px)'
 
           // * voteBox 선택하고, 깔끔하게 내용 지워주기
           //! 기존
@@ -184,6 +207,7 @@ class mafiaGame extends Component {
             alert(`낮, 투표 결과: ${isGameEnd}의 승리로 끝났습니다`)
             this.leaveGame();
           } else {
+            this.dayToNightColor();
             // * 경기가 끝나지 않았으면, 5초 후에 모달창을 닫고, 밤이 시작된다
             setTimeout(()=> {
              
@@ -191,10 +215,10 @@ class mafiaGame extends Component {
               let myChoiceElement = document.getElementById(`${this.socket.id}-vote`);
               myChoiceElement && myChoiceElement.remove(); // * 내가 선택한거 지워주기
               for(let player of Object.keys(this.props.characterNumberBySocketid) ) {
-                let beforeChoicerSpan = document.getElementById(`${player}-vote`);
-                beforeChoicerSpan && beforeChoicerSpan.remove();
+                  let beforeChoicerSpan = document.getElementById(`${player}-vote`);
+                  beforeChoicerSpan && beforeChoicerSpan.remove();
               }
-
+              
               this.setState({liveOrDieModalOnOff: false}); // 생사투표모달 끄기
             }, 10000)
             // this.socket.emit("startNight");
@@ -217,19 +241,16 @@ class mafiaGame extends Component {
           console.log('clientDoNightAction 시작')
           let myRole = this.state.myRole
           if (myRole == 'mafia') {
-            document.querySelector('.sendCandidate').disabled = false;
-            // document.querySelector('.confirmCandidate').disabled = false;
+            document.querySelector('.sendCandidate') && (document.querySelector('.sendCandidate').disabled = false);
             alert('밤이 되었습니다. 당신은 마피아. 지금 이 순간, 죽일 사람을 선택해주세요')
           } else if (myRole == 'police') {
-            document.querySelector('.sendCandidate').disabled = false;
-            // document.querySelector('.confirmCandidate').disabled = false;
+            document.querySelector('.sendCandidate') && (document.querySelector('.sendCandidate').disabled = false);
             alert('밤이 되었습니다. 당신은 경찰. 마피아로 의심가는 사람을 선택해주세요')
           } else if (myRole == 'doctor') {
-            document.querySelector('.sendCandidate').disabled = false;
-            // document.querySelector('.confirmCandidate').disabled = false;
+            document.querySelector('.sendCandidate') && (document.querySelector('.sendCandidate').disabled = false);
             alert('밤이 되었습니다. 당신은 의사. 이번 밤에 살리고 싶은 사람을 선택해주세요')
           } else {
-            alert('밤이 되었습니다. 당신은 시민. 밤 사이 누가 수상한지 잘 살펴보세요 ')
+            alert('밤이 되었습니다. 당신은 시민. 굿나잇')
           }
           
       });
@@ -249,18 +270,25 @@ class mafiaGame extends Component {
       this.socket.on("nightOver", (isSomebodyDieSocketId, isGameEnd) => {
         if(isSomebodyDieSocketId) {
           alert(`지난 밤 ${this.props.nicknameBySocketid[isSomebodyDieSocketId]}(이)가 죽었습니다`)
+          
+          //* 죽은사람 필터 씌우기
+          this.dieFilter(isSomebodyDieSocketId);
+
           if(isSomebodyDieSocketId == this.socket.id) {
             this.state.amIAlive = false;
-            document.querySelector(`[data-live-or-die='live']`).disabled = true;
-            document.querySelector(`[data-live-or-die='die']`).disabled  = true;
+            document.querySelector(`[data-live-or-die='live']`) && (document.querySelector(`[data-live-or-die='live']`).disabled = true);
+            document.querySelector(`[data-live-or-die='die']`)  && (document.querySelector(`[data-live-or-die='die']`).disabled  = true);
           }
 
         } else {
           alert("지난 밤 아무도 죽지 않았습니다")
         }
 
-        document.querySelector('.sendCandidate').disabled     = false;
-        document.querySelector('.confirmCandidate').disabled  = false;
+        alert("아침입니다~");
+        this.nightToDayColor();
+
+        document.querySelector('.sendCandidate')    && (document.querySelector('.sendCandidate').disabled     = false);
+        document.querySelector('.confirmCandidate') && (document.querySelector('.confirmCandidate').disabled  = false);
 
         if(isGameEnd == '시민') {
           alert("축하합니다🤸‍♀️🤸‍♂️ 시민의 승리로 끝났습니다")
@@ -317,7 +345,7 @@ class mafiaGame extends Component {
       console.log('Check sendCandidate socketID',this.state.selectedPlayerSocketId);
       // if (this.state.selectedPlayerSocketId == false) return;
       this.socket.emit("sendCandidate", this.state.selectedPlayerSocketId);
-      document.querySelector('.confirmCandidate').disabled = false;
+      document.querySelector('.confirmCandidate') && (document.querySelector('.confirmCandidate').disabled = false);
 
   }
 
@@ -327,8 +355,8 @@ class mafiaGame extends Component {
       // confirmCandidate
       /* TODO: sendCandidate 불가능 하도록 처리 */
       if (this.state.selectedPlayerSocketId == false) {alert("'선택' 후 '확정'해 주세요"); return;}
-      document.querySelector('.sendCandidate').disabled = true;
-      document.querySelector('.confirmCandidate').disabled = true;
+      document.querySelector('.sendCandidate')    &&  (document.querySelector('.sendCandidate').disabled = true);
+      document.querySelector('.confirmCandidate') &&  (document.querySelector('.confirmCandidate').disabled = true);
       // confirm 확정을 보낸다
       this.socket.emit("confirmCandidate");
   }
@@ -339,8 +367,8 @@ class mafiaGame extends Component {
       console.log('e.target.dataset.liveOrDie', e.target.dataset.liveOrDie);
       this.socket.emit("sendLiveOrDie", e.target.dataset.liveOrDie);
 
-      document.querySelector(`[data-live-or-die='live']`).disabled = true;
-      document.querySelector(`[data-live-or-die='die']`).disabled  = true;
+      document.querySelector(`[data-live-or-die='live']`) &&  (document.querySelector(`[data-live-or-die='live']`).disabled = true);
+      document.querySelector(`[data-live-or-die='die']`)  &&  (document.querySelector(`[data-live-or-die='die']`).disabled  = true);
       // 모달창 끄기
   }  
 
