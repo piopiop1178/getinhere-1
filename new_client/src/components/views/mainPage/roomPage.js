@@ -57,6 +57,10 @@ let constraints = {
 let localStream = null;
 let localScreen = null;
 
+//-------screenshare 확대 화면-------------
+let bigScreen = null;
+//-------screenshare 확대 화면-------------
+
 let peers = {}
 // let audioctx
 // audioctx = new AudioContext()
@@ -1431,29 +1435,38 @@ class Room extends Component {
     };
     //!--------prevent key???--------------------------------------
     dblclickhandler = (e) => {
-        if (e.target.classList.contains('vid')){
-            let room = document.getElementById('room')
-            e.target.classList.add('iframe-video');
-            e.target.classList.remove('vid');
-            room.appendChild(e.target)
-            this.setState({objects : 6})
-            // -----------------clear canvas---------------------
-            const contextCharacter = this.state.contextCharacter;
-            contextCharacter.clearRect(0, 0, window.innerWidth*2, window.innerHeight*2);
-            document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,51)';
-            // -----------------clear canvas---------------------
-            this.updatePositionSocketOff()
-        } else {
-            let videos = document.getElementById('videos')
+        let room = document.getElementById('room')
+        let videos = document.getElementById('videos')
+
+        if (e.target === bigScreen){
             e.target.classList.remove('iframe-video');
             e.target.classList.add('vid');
             videos.appendChild(e.target)
             this.setState({objects : 0})
             document.getElementById("character-layer").style.removeProperty("background-color");
             this.updatePositionSocketOn()
+            bigScreen = null;
+        } else {
+            if(bigScreen){
+                bigScreen.classList.remove('iframe-video');
+                bigScreen.classList.add('vid');
+                videos.appendChild(bigScreen)
+            } else {
+                const contextCharacter = this.state.contextCharacter;
+                contextCharacter.clearRect(0, 0, window.innerWidth*2, window.innerHeight*2);
+                document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,51)';
+            }
+            
+            e.target.classList.add('iframe-video');
+            e.target.classList.remove('vid');
+            room.appendChild(e.target)
+            this.setState({objects : 6})
+
+            bigScreen = e.target;
+            this.updatePositionSocketOff()
         }
+
     }
-    //!--------prevent key???--------------------------------------
 
     render() {
         let youtubePage;

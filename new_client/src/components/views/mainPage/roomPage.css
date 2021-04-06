@@ -1,8 +1,10 @@
 .iframe-video {
     /* font-family: Gaegu; */
     position: fixed;
-    width: 2000px;
-    height: 913px;
+    width: 87vw;
+    height: 78vh;
+    /* width: 2000px;
+    height: 913px; */
     bottom: 0px;
     z-index: 5; /* mainPage.css:video-box z-index:3 */
   }
