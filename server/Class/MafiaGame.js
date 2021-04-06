@@ -228,7 +228,7 @@ class MafiaGame{
                     for(let id in this.deadPlayers){
                         this.deadPlayers[id].socket.emit("checkMafia", this.players[this.candidate[this.police.id]].role === 'mafia');
                     }
-                    this.selectedCount[this.police.id]--;
+                    this.selectedCount[this.candidate[this.police.id]]--;
                 }
                 
                 /* 의사 */
@@ -238,7 +238,7 @@ class MafiaGame{
                     for(let id in this.deadPlayers){
                         this.deadPlayers[id].socket.emit("doctorPick", this.candidate[this.doctor.id]);
                     }
-                    this.selectedCount[this.doctor.id]--;
+                    this.selectedCount[this.candidate[this.doctor.id]]--;
                 }
 
                 /* 마피아 선택 */
@@ -289,7 +289,7 @@ class MafiaGame{
         }
         if(this.liveOrDie[1] === this.checkCount){
             let result = undefined;
-            console.log('liveOrDie', this.liveOrDie)
+            console.log('생사 투표 결과', this.liveOrDie)
             if(this.liveOrDie[2]['live'].length < this.liveOrDie[2]['die'].length){
                 console.log("checkLiveOrDie: 누군가 죽음")
                 result = 'die';
