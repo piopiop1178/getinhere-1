@@ -84,7 +84,14 @@ const LEFT = 'ArrowLeft', UP = 'ArrowUp', RIGHT = 'ArrowRight', DOWN = 'ArrowDow
 // let dist;
 
 let alcholSoundOnceFlag;
-let keyDownUpOnceFlag;
+let arrowDownOnceFlag;
+let arrowUpOnceFlag;
+let arrowRightOnceFlag;
+let arrowLeftOnceFlag;
+let arrowDownThisFlag;
+let arrowUpThisFlag;
+let arrowRightThisFlag;
+let arrowLeftThisFlag;
 let keyUpBuffer = {};
 let curr_space
 let changeSpace = true
@@ -287,10 +294,10 @@ class Room extends Component {
             }
 
             e.preventDefault()
-            if(e.code === UP    )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
-            if(e.code === RIGHT )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
-            if(e.code === DOWN  )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
-            if(e.code === LEFT  )    {socket.emit('keydown', e.code); keyDownUpOnceFlag = true;}
+            if(e.code === UP    && !arrowUpOnceFlag)    {socket.emit('keydown', e.code); arrowUpOnceFlag = true; arrowUpThisFlag = true;}
+            if(e.code === RIGHT && !arrowRightOnceFlag)    {socket.emit('keydown', e.code); arrowRightOnceFlag = true; arrowRightThisFlag = true;}
+            if(e.code === DOWN  && !arrowDownOnceFlag)    {socket.emit('keydown', e.code); arrowDownOnceFlag = true; arrowDownThisFlag = true;}
+            if(e.code === LEFT  && !arrowLeftOnceFlag)    {socket.emit('keydown', e.code); arrowLeftOnceFlag = true; arrowLeftThisFlag = true;}
 
         })
 
@@ -299,11 +306,40 @@ class Room extends Component {
                 return;
             }
 
-            if (keyDownUpOnceFlag) {
-                keyUpBuffer[e.code] = true;
-              } else {
-                socket.emit("keyup", e.code);
-              }
+            switch (e.code) {
+                case UP:
+                    if (arrowUpThisFlag) {
+                        keyUpBuffer[UP] = true;
+                    } else {
+                        arrowUpOnceFlag = false;
+                        socket.emit("keyup", UP);
+                    }
+                    break;
+                case RIGHT:
+                    if (arrowRightThisFlag) {
+                        keyUpBuffer[RIGHT] = true;
+                    } else {
+                        arrowRightOnceFlag = false;
+                        socket.emit("keyup", RIGHT);
+                    }
+                    break;
+                case DOWN:
+                    if (arrowDownThisFlag) {
+                        keyUpBuffer[DOWN] = true;
+                    } else {
+                        arrowDownOnceFlag = false;
+                        socket.emit("keyup", DOWN);
+                    }
+                    break;
+                case LEFT:
+                    if (arrowLeftThisFlag) {
+                        keyUpBuffer[LEFT] = true;
+                    } else {
+                        arrowLeftOnceFlag = false;
+                        socket.emit("keyup", LEFT);
+                    }
+                    break;
+            }
         });
         this.setState({
             roomName: this.props.roomName,
@@ -315,11 +351,14 @@ class Room extends Component {
     }
 
     updatePosition = (statuses, idArray) => {
-        keyDownUpOnceFlag = false;
-        if (keyUpBuffer[UP]) { socket.emit("keyup", UP); keyUpBuffer[UP] = false;} 
-        if (keyUpBuffer[RIGHT]) { socket.emit("keyup", RIGHT); keyUpBuffer[RIGHT] = false;} 
-        if (keyUpBuffer[DOWN]) { socket.emit("keyup", DOWN); keyUpBuffer[DOWN] = false;} 
-        if (keyUpBuffer[LEFT]) { socket.emit("keyup", LEFT); keyUpBuffer[LEFT] = false;} 
+        arrowUpThisFlag = false;
+        arrowRightThisFlag = false;
+        arrowDownThisFlag = false;
+        arrowLeftThisFlag = false;
+        if (keyUpBuffer[UP]) { arrowUpOnceFlag = false; socket.emit("keyup", UP); keyUpBuffer[UP] = false;} 
+        if (keyUpBuffer[RIGHT]) { arrowRightOnceFlag = false; socket.emit("keyup", RIGHT); keyUpBuffer[RIGHT] = false;} 
+        if (keyUpBuffer[DOWN]) { arrowDownOnceFlag = false; socket.emit("keyup", DOWN); keyUpBuffer[DOWN] = false;} 
+        if (keyUpBuffer[LEFT]) { arrowLeftOnceFlag = false; socket.emit("keyup", LEFT); keyUpBuffer[LEFT] = false;} 
 
         // const WIDTH = this.state.map._WIDTH;
         // const HEIGHT = this.state.map._HEIGHT;
