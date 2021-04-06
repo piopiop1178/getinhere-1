@@ -101,9 +101,10 @@ class MafiaGame{
     async turnStart() {
         this.turnInit();
         const turn = this.turn;
-        setTimeout(() => {
-            this.turnEnd(turn);
-        }, this.isDay ? dayTime : nightTime);
+        //! 타이머
+        // setTimeout(() => {
+        //     this.turnEnd(turn);
+        // }, this.isDay ? dayTime : nightTime);
     }
 
     turnInit(){
@@ -238,12 +239,17 @@ class MafiaGame{
                 for (let id in this.selectedCount){
                     mafiaPicks.push([id, this.selectedCount[id]]);
                 }
+
                 mafiaPicks.sort((a, b) => {
                     return b[1] - a[1];
                 });
+
+                console.log('mafiaPicks', mafiaPicks);
+
                 if(mafiaPicks.length === 1 || mafiaPicks[0][1] > mafiaPicks[1][1]){
                     mafiaPick = mafiaPicks[0][0];
                 }
+                
                 if(mafiaPick !== undefined){
                     if(mafiaPick === doctorPick){
                         mafiaPick = undefined;
@@ -263,16 +269,21 @@ class MafiaGame{
     checkLiveOrDie(socketId, liveOrDie){
         console.log("checkLiveOrDie", socketId, liveOrDie);
         if(liveOrDie === 'live'){
+            console.log("liveOrDie === 'live'")
             this.liveOrDie[1]++;
             this.liveOrDie[2]['live'].push(socketId);
         }
         else{
+            console.log("liveOrDie === 'die'")
             this.liveOrDie[1]++;
             this.liveOrDie[2]['die'].push(socketId);
         }
         let result = undefined;
         if(this.liveOrDie[1] === this.checkCount){
+            console.log('liveOrDie', liveOrDie)
             if(this.liveOrDie[2]['live'] < this.liveOrDie[2]['die']){
+
+                console.log("checkLiveOrDie: 누군가 죽음")
                 result = 'die';
                 this.die(this.liveOrDie[0]);
             }
@@ -283,6 +294,8 @@ class MafiaGame{
                 this.players[id].socket.emit("confirmLiveOrDie", result, this.liveOrDie[2]['live'], this.liveOrDie[2]['die'], this.checkGameOver());
             }
             this.turnEnd(this.turn);
+
+            //! 이거 5초 후에 실행하면 안되나?
             this.turnStart();
         }
     }
@@ -322,9 +335,11 @@ class MafiaGame{
         this.playerCount--;
         const role = this.deadPlayers[playerId].role;
         if(role === "mafia"){
+            console.log("die 마피아")
             delete this.mafias[playerId];
         }
         else{
+            console.log("die 시민")
             delete this.citizens[playerId];
         }
         if(role === "police"){

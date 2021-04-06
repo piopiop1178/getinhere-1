@@ -96,6 +96,8 @@ class mafiaGame extends Component {
             return;
           } else {
             this.setState({liveOrDieModalOnOff: true}) // 생사투표모달 켜기
+            document.querySelector(`[data-live-or-die='live']`).disabled = false
+            document.querySelector(`[data-live-or-die='die']`).disabled = false
             console.log('생사투표모달켜기')
           }
       });
@@ -104,17 +106,46 @@ class mafiaGame extends Component {
       this.socket.on("confirmLiveOrDie", (results, live, die, isGameEnd) => {
           console.log("confirmLiveOrDie");
           console.log(results, live, die, isGameEnd);
+
+          // * voteBox 선택하고, 깔끔하게 내용 지워주기
+          let liveVoteBox = document.querySelector(`[data-live-or-die='live'`) 
+          let dieVoteBox  = document.querySelector(`[data-live-or-die='die'`)
+          liveVoteBox.innerHTML = '';
+          dieVoteBox.innerHTML = '';
+          
+          for(let liveVote of live) {
+              let voteSpan = document.createElement('span');
+              voteSpan.style.fontSize = '1.2rem'
+              voteSpan.innerText = this.props.nicknameBySocketid[liveVote]  + ' '; //* 공백 추가
+              liveVoteBox.appendChild(voteSpan);
+          }
+
+          for(let dieVote of die) {
+              let voteSpan = document.createElement('span');
+              voteSpan.style.fontSize = '1.2rem'
+              voteSpan.innerText = this.props.nicknameBySocketid[dieVote]  + ' '; //* 공백 추가
+              dieVoteBox.appendChild(voteSpan);
+          }
+
           /* TODO: NightTurn 진행 할 경우 팝업 등 화면 전환 구현 */
-          this.setState({liveOrDieModalOnOff: false}); // 생사투표모달 끄기
           if (isGameEnd) {
-            alert(`${isGameEnd}의 승리로 끝났습니다`)
+            alert(`낮, 투표 결과: ${isGameEnd}의 승리로 끝났습니다`)
           } else {
+            // * 경기가 끝나지 않았으면, 5초 후에 모달창을 닫고, 밤이 시작된다
+            setTimeout(()=> {
+              this.setState({liveOrDieModalOnOff: false}); // 생사투표모달 끄기
+            }, 10000)
             // this.socket.emit("startNight");
           }
       });
 
       /* MG-20. 밤에 역할별 동작 수행 */
       this.socket.on("doNightAction", () => {
+          // * main 화면 깨끝하게 비워주기
+          for(let player of Object.keys(this.props.characterNumberBySocketid) ) {
+            let beforeChoicerSpan = document.getElementById(`${player}-vote`);
+            beforeChoicerSpan && beforeChoicerSpan.remove();
+          }
           // 이건 서버에서 잘 온다
           /* 각 역할 별 화면 구성하기 */
           /* 선택 및 확정은 시민 투표와 동일 */
@@ -124,17 +155,17 @@ class mafiaGame extends Component {
           if (myRole == 'mafia' || myRole == 'police' || myRole == 'doctor') {
             document.querySelector('.sendCandidate').disabled = false;
             // document.querySelector('.confirmCandidate').disabled = false;
-            alert('당신은 마피아입니다. 지금 이 순간, 죽일 사람을 선택해주세요')
+            alert('밤이 되었습니다. 당신은 마피아. 지금 이 순간, 죽일 사람을 선택해주세요')
           } else if (myRole == 'police') {
             document.querySelector('.sendCandidate').disabled = false;
             // document.querySelector('.confirmCandidate').disabled = false;
-            alert('당신은 경찰입니다. 마피아로 의심가는 사람을 선택해주세요')
+            alert('밤이 되었습니다. 당신은 경찰. 마피아로 의심가는 사람을 선택해주세요')
           } else if (myRole == 'doctor') {
             document.querySelector('.sendCandidate').disabled = false;
             // document.querySelector('.confirmCandidate').disabled = false;
-            alert('당신은 의사입니다. 이번 밤에 살리고 싶은 사람을 선택해주세요')
+            alert('밤이 되었습니다. 당신은 의사. 이번 밤에 살리고 싶은 사람을 선택해주세요')
           } else {
-            alert('당신은 시민입니다. 밤 사이 누가 수상한지 잘 살펴보세요 ')
+            alert('밤이 되었습니다. 당신은 시민. 밤 사이 누가 수상한지 잘 살펴보세요 ')
           }
           
       });
@@ -158,15 +189,29 @@ class mafiaGame extends Component {
           alert("지난 밤 아무도 죽지 않았습니다")
         }
 
-        if(isGameEnd) {
-          alert("게임 끝, 마피아의 승리로 끝났습니다")
+        alert('nightOver Result isGameEnd = ', isGameEnd);
+        if(isGameEnd == '시민') {
+          alert("축하합니다🤸‍♀️🤸‍♂️ 시민의 승리로 끝났습니다")
+        } else if (isGameEnd == '마피아') {
+          alert("축하합니다🤸‍♀️🤸‍♂️ 마피아의 승리로 끝났습니다")
         }
       })
 
-      this.socket.on("sendCandidateResult", (choicer, pointee) => {
+      this.socket.on("sendCandidateResult", (choicer, pointee) => { //! 서버에서 받아올 때, pointer pointee 가 제대로 안된듯. 아울러 
           console.log("after MG-12 or 22 sendCandidateResult", choicer, pointee);
-          document.querySelector(`[data-set-socketid='${pointee}'`).parentNode.lastElementChild.textContent = document.querySelector(`[data-set-socketid='${pointee}'`).parentNode.lastElementChild.textContent +' '+ pointee;
-          console.log(this.props.nicknameBySocketid(choicer), this.props.nicknameBySocketid(pointee))
+
+          // * choicer가 기존에 선택한게 있으면, 기존 선택 지워주기
+          let beforeChoicerSpan = document.getElementById(`${choicer}-vote`);
+          beforeChoicerSpan && beforeChoicerSpan.remove();
+
+          // * choicer의 span 만들어주기. 내용물은 본인의 이름
+          let choicerSpan = document.createElement('span');
+          choicerSpan.id = `${choicer}-vote`
+          choicerSpan.innerText = this.props.nicknameBySocketid[choicer] +' ';
+          
+          // * 지목받은사람(pointee)의 voteBox에 appendChild 해주기
+          let pointeeVoteBox = document.querySelector(`[data-set-socketid='${pointee}'`).parentNode.lastElementChild;
+          pointeeVoteBox.appendChild(choicerSpan);
       })
 
       /* MG-25. 게임 종료 시 결과 화면 출력 */
@@ -220,6 +265,9 @@ class mafiaGame extends Component {
       // socket.emit("sendLiveOrDie", liveOrDie);
       console.log('e.target.dataset.liveOrDie', e.target.dataset.liveOrDie);
       this.socket.emit("sendLiveOrDie", e.target.dataset.liveOrDie);
+
+      document.querySelector(`[data-live-or-die='live']`).disabled = true;
+      document.querySelector(`[data-live-or-die='die']`).disabled  = true;
       // 모달창 끄기
   }  
 
@@ -241,8 +289,9 @@ class mafiaGame extends Component {
           
           /* 게임종료 */
           } else if (this.state.isMafiaGameOn) {
-            this.setState({isMafiaGameOn: false})
-            console.log('mafiagame off');
+            alert('게임 못꺼요')
+            // this.setState({isMafiaGameOn: false})
+            // console.log('mafiagame off');
           }
       }
     })
