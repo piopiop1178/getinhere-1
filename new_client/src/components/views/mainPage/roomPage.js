@@ -1411,26 +1411,25 @@ class Room extends Component {
 
         let localVideo = document.getElementById("localVideo")
         localVideo.srcObject = localScreen;
-        localVideo.srcObject = localStream;
         console.log(localStream.getTracks())
         // localVideo.srcObject = localStream;
 
-        // screenShareTrack.onended = async () => {
-        //     console.log('screen share stopped');
-        //     let localVideo = document.getElementById("localVideo")
-        //     localVideo.srcObject = localStream;
-        //     console.log(localVideo.srcObject.getTracks())
-        //     if (screenAudio){
-        //         await socket.request('closeProducer', { producerId: screenAudioProducer.id })
-        //         this.closeProducer(screenAudioProducer)
-        //     }
-        //     screenAudioProducer = null;
+        //!----------------NEED DEBUG 화면이 안돌아온다----------------------
+        screenShareTrack.onended = async () => {
+            console.log('screen share stopped');
+            
+            await videoProducer.replaceTrack({track: localStream.getVideoTracks()[0]});
+            let localVideo = document.getElementById("localVideo")
+            localVideo.srcObject = localStream;
+            if (screenAudio){
+                await socket.request('closeProducer', { producerId: screenAudioProducer.id })
+                this.closeProducer(screenAudioProducer)
+            }
+            screenAudioProducer = null;
 
-        //     socket.emit('endScreenShare-signal', screenAudio);
-        //     //!------------add audio-----------------
-        //     // this.resumeProducer(audioProducer, 'cam-audio')
-        //     //!------------add audio-----------------
-        // }
+            socket.emit('endScreenShare-signal', screenAudio);
+        }
+        //!----------------NEED DEBUG 화면이 안돌아온다----------------------
     };
     //!--------prevent key???--------------------------------------
     dblclickhandler = (e) => {
