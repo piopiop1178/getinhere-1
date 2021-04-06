@@ -510,31 +510,31 @@ class Room extends Component {
             let audioConsumer = null;
             let videoConsumer = null;
 
-            if (screenShareFlag == 0){
-                audioConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
-                    c.appData.mediaTag === 'cam-audio'));
-                videoConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
-                    c.appData.mediaTag === 'cam-video'));
-                this.pauseConsumer(audioConsumer, 'cam-audio')
-                this.pauseConsumer(videoConsumer, 'cam-video')
-            } else if (screenShareFlag == 1){
-                videoConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
-                    c.appData.mediaTag === 'screen-video'));
-                this.pauseConsumer(videoConsumer, 'screen-video')
-            } else {
-                audioConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
-                    c.appData.mediaTag === 'screen-audio'));
-                videoConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
-                    c.appData.mediaTag === 'screen-video'));
-                this.pauseConsumer(audioConsumer, 'screen-audio')
-                this.pauseConsumer(videoConsumer, 'screen-video')
-            }
+            // if (screenShareFlag == 0){
+            //     audioConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
+            //         c.appData.mediaTag === 'cam-audio'));
+            //     videoConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
+            //         c.appData.mediaTag === 'cam-video'));
+            //     this.pauseConsumer(audioConsumer, 'cam-audio')
+            //     this.pauseConsumer(videoConsumer, 'cam-video')
+            // } else if (screenShareFlag == 1){
+            //     videoConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
+            //         c.appData.mediaTag === 'screen-video'));
+            //     this.pauseConsumer(videoConsumer, 'screen-video')
+            // } else {
+            //     audioConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
+            //         c.appData.mediaTag === 'screen-audio'));
+            //     videoConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
+            //         c.appData.mediaTag === 'screen-video'));
+            //     this.pauseConsumer(audioConsumer, 'screen-audio')
+            //     this.pauseConsumer(videoConsumer, 'screen-video')
+            // }
 
-            // consumers.forEach((consumer) => {
-            //     if (consumer.appData.peerId === socketId) {
-            //         this.pauseConsumer(consumer)
-            //     }
-            // })
+            consumers.forEach((consumer) => {
+                if (consumer.appData.peerId === socketId) {
+                    this.pauseConsumer(consumer)
+                }
+            })
 
             let videoEl = document.getElementById(socketId)
             if (videoEl) {
@@ -545,31 +545,31 @@ class Room extends Component {
             let audioConsumer = null;
             let videoConsumer = null;
 
-            if (screenShareFlag == 0){
-                audioConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
-                    c.appData.mediaTag === 'cam-audio'));
-                videoConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
-                    c.appData.mediaTag === 'cam-video'));
-                this.resumeConsumer(audioConsumer, 'cam-audio')
-                this.resumeConsumer(videoConsumer, 'cam-video')
-            } else if (screenShareFlag == 1){
-                videoConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
-                    c.appData.mediaTag === 'screen-video'));
-                this.resumeConsumer(videoConsumer, 'screen-video')
-            } else {
-                audioConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
-                    c.appData.mediaTag === 'screen-audio'));
-                videoConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
-                    c.appData.mediaTag === 'screen-video'));
-                this.resumeConsumer(audioConsumer, 'screen-audio')
-                this.resumeConsumer(videoConsumer, 'screen-video')
-            }
+            // if (screenShareFlag == 0){
+            //     audioConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
+            //         c.appData.mediaTag === 'cam-audio'));
+            //     videoConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
+            //         c.appData.mediaTag === 'cam-video'));
+            //     this.resumeConsumer(audioConsumer, 'cam-audio')
+            //     this.resumeConsumer(videoConsumer, 'cam-video')
+            // } else if (screenShareFlag == 1){
+            //     videoConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
+            //         c.appData.mediaTag === 'screen-video'));
+            //     this.resumeConsumer(videoConsumer, 'screen-video')
+            // } else {
+            //     audioConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
+            //         c.appData.mediaTag === 'screen-audio'));
+            //     videoConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
+            //         c.appData.mediaTag === 'screen-video'));
+            //     this.resumeConsumer(audioConsumer, 'screen-audio')
+            //     this.resumeConsumer(videoConsumer, 'screen-video')
+            // }
 
-            // consumers.forEach((consumer) => {
-            //     if (consumer.appData.peerId === socketId) {
-            //         this.resumeConsumer(consumer)
-            //     }
-            // })
+            consumers.forEach((consumer) => {
+                if (consumer.appData.peerId === socketId) {
+                    this.resumeConsumer(consumer)
+                }
+            })
 
             let videoEl = document.getElementById(socketId)
             if (videoEl) {
@@ -598,52 +598,48 @@ class Room extends Component {
 
         socket.on('createScreenShareConsumer', async (socketId, audio) => {
             // let sameSpace = (users[socketId].space === curr_space) ? true : false
+            console.log('aaaa');
             while (!recvTransport || !device || !document.getElementById(socketId) || !device.loaded) {
                 await this.sleep(100);
         }
 
             let screenAudioConsumer = null;
             
-            let screenVideoConsumer = await this.createRealConsumer('screen-video', recvTransport, socketId, recvTransport.id)
-
             if (audio){
                 screenAudioConsumer = await this.createRealConsumer('screen-audio', recvTransport, socketId, recvTransport.id)
                 await this.resumeConsumer(screenAudioConsumer, 'screen-audio');
             }
 
-            //!------------add audio-----------------
-            let audioConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
-                c.appData.mediaTag === 'cam-audio'));
-            
-            let new_stream = await this.addScreenVideoAudio(screenVideoConsumer, audioConsumer, screenAudioConsumer);
-            //!------------add audio-----------------
-
             let videoEl = document.getElementById(socketId)
 
             videoEl.addEventListener('dblclick', this.dblclickhandler)
+            let new_stream = videoEl.srcObject
+            if (audio){
+                await new_stream.addTrack(screenAudioConsumer.track);
+            }
 
-            await this.resumeConsumer(screenVideoConsumer, 'screen-video');
-
-            videoEl.srcObject = new_stream;             
+            // videoEl.srcObject = new_stream;             
         });
 
         socket.on('endScreenShare', async (socketId, audio) => {
             let videoEl = document.getElementById(socketId)
 
             videoEl.removeEventListener('dblclick', this.dblclickhandler)
+            let new_stream = null;
 
-            await this.closeClientTrackConsumer(socketId, 'screen-video')
             if (audio){
                 await this.closeClientTrackConsumer(socketId, 'screen-audio')
+                let original_tracks = videoEl.srcObject.getTracks();
+                let new_stream = await this.addTracks(original_tracks[0], original_tracks[1]);
             }
 
-            let audioConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
-                c.appData.mediaTag === 'cam-audio'));
+            // let audioConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
+            //     c.appData.mediaTag === 'cam-audio'));
 
-            let videoConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
-                c.appData.mediaTag === 'cam-video')); 
+            // let videoConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
+            //     c.appData.mediaTag === 'cam-video')); 
             
-            let original_stream = await this.addVideoAudio(videoConsumer, audioConsumer);
+            // let original_stream = await this.addVideoAudio(videoConsumer, audioConsumer);
             
             if (videoEl.classList.contains('iframe-video')){
                 videoEl.classList.remove('iframe-video');
@@ -655,7 +651,9 @@ class Room extends Component {
                 this.updatePositionSocketOn()
             }
 
-            videoEl.srcObject = original_stream;
+            if (audio){
+                videoEl.srcObject = new_stream;
+            }
         })
 
         socket.on('disconnect', async () => {
@@ -1232,6 +1230,13 @@ class Room extends Component {
         return stream
     }
 
+    addTracks = async (videoTrack, audioTrack) => {
+        const stream = new MediaStream();
+        await stream.addTrack(videoTrack);
+        await stream.addTrack(audioTrack);
+        return stream;
+    }
+
     addScreenVideoAudio = async (screenVideoConsumer, audioConsumer, screenAudioConsumer) => {
         const stream = new MediaStream();
         await stream.addTrack(screenVideoConsumer.track);
@@ -1383,14 +1388,9 @@ class Room extends Component {
             return;
         }
 
-        screenVideoProducer = await sendTransport.produce({
-            track: localScreen.getVideoTracks()[0],
-            encodings: [
-                {maxBitrate: 300000},
-                {maxBitrate: 500000}
-            ],
-            appData: {mediaTag: 'screen-video'}
-        });
+        let screenShareTrack = await localScreen.getVideoTracks()[0]
+
+        await videoProducer.replaceTrack({track: localScreen.getVideoTracks()[0]});
 
         //------------------DEBUG 조건문 필요한지? ---------------
         if (localScreen.getAudioTracks().length) {
@@ -1408,32 +1408,29 @@ class Room extends Component {
         //!------------add audio-----------------
         // this.pauseProducer(audioProducer, 'cam-audio')
         //!------------add audio-----------------
-        this.pauseProducer(videoProducer, 'cam-video')
 
-        const localVideo = document.getElementById("localVideo")
-            localVideo.srcObject = localScreen;
+        let localVideo = document.getElementById("localVideo")
+        localVideo.srcObject = localScreen;
+        localVideo.srcObject = localStream;
+        console.log(localStream.getTracks())
+        // localVideo.srcObject = localStream;
 
-            screenVideoProducer.track.onended = async () => {
-            console.log('screen share stopped');
-            localVideo.srcObject = localStream;
+        // screenShareTrack.onended = async () => {
+        //     console.log('screen share stopped');
+        //     let localVideo = document.getElementById("localVideo")
+        //     localVideo.srcObject = localStream;
+        //     console.log(localVideo.srcObject.getTracks())
+        //     if (screenAudio){
+        //         await socket.request('closeProducer', { producerId: screenAudioProducer.id })
+        //         this.closeProducer(screenAudioProducer)
+        //     }
+        //     screenAudioProducer = null;
 
-            await socket.request('closeProducer', { producerId: screenVideoProducer.id })
-            this.closeProducer(screenVideoProducer)
-            if (screenAudio){
-                await socket.request('closeProducer', { producerId: screenAudioProducer.id })
-                this.closeProducer(screenAudioProducer)
-            }
-            screenVideoProducer = null;
-            screenAudioProducer = null;
-
-            socket.emit('endScreenShare-signal', screenAudio);
-            //!------------add audio-----------------
-            // this.resumeProducer(audioProducer, 'cam-audio')
-            //!------------add audio-----------------
-            this.resumeProducer(videoProducer, 'cam-video')
-            //!--------------screenshare 끝나고 원래대로 돌아오는 코드 넣으면 됨-----
-            //! local 바꿀건지?? 
-        }
+        //     socket.emit('endScreenShare-signal', screenAudio);
+        //     //!------------add audio-----------------
+        //     // this.resumeProducer(audioProducer, 'cam-audio')
+        //     //!------------add audio-----------------
+        // }
     };
     //!--------prevent key???--------------------------------------
     dblclickhandler = (e) => {
@@ -1467,7 +1464,6 @@ class Room extends Component {
             bigScreen = e.target;
             this.updatePositionSocketOff()
         }
-
     }
 
     render() {
