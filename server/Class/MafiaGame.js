@@ -16,6 +16,7 @@ const nightTime = 30000;        // 20000
 
 class MafiaGame{
     constructor(){
+        this.isPlaying = false;
         this.isDay = false;
         this.players = {};   // players {socketId: {socket: socketObject, role:police}}
         this.citizens = {};
@@ -34,6 +35,7 @@ class MafiaGame{
     }
 
     async init(){
+        this.isPlaying = false;
         this.isDay = false;
         this.citizens = {};
         this.mafias = {};
@@ -140,6 +142,8 @@ class MafiaGame{
         console.log(this.turn, turn);
         if(this.checkGameOver() !== null){
             // 게임 종료 관련 구현 필요?
+            this.turnInit();
+            this.init();
         }
         else{
             if(this.isDay){
@@ -220,9 +224,9 @@ class MafiaGame{
             else{
                 /* 경찰 */
                 if(this.police !== undefined){
-                    this.police.emit("checkMafia", this.candidate[this.police.id].role === 'mafia');
+                    this.police.emit("checkMafia", this.players[this.candidate[this.police.id]].role === 'mafia');
                     for(let id in this.deadPlayers){
-                        this.deadPlayers[id].socket.emit("checkMafia", this.candidate[this.police.id].role === 'mafia');
+                        this.deadPlayers[id].socket.emit("checkMafia", this.players[this.candidate[this.police.id]].role === 'mafia');
                     }
                     this.selectedCount[this.police.id]--;
                 }
@@ -365,6 +369,12 @@ class MafiaGame{
     }
     set players(value){
         this._players = value;
+    }
+    get playerCount(){
+        return this._playerCount;
+    }
+    set playerCount(value){
+        this._playerCount = value;
     }
 }
 module.exports = MafiaGame;

@@ -216,10 +216,10 @@ class Room extends Component {
                 return;
             }
 
-            let st = localStorage.getItem('myStatus');
-            let parsed_status = JSON.parse(st);
-            let curr_x = parsed_status.x;
-            let curr_y = parsed_status.y;
+            // let st = localStorage.getItem('myStatus');
+            // let parsed_status = JSON.parse(st);
+            // let curr_x = parsed_status.x;
+            // let curr_y = parsed_status.y;
     
             /* 캐릭터 술 캔버스 설정 */
             if (e.code === "KeyB" && document.activeElement.tagName ==='BODY') {
