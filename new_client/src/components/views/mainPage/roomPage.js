@@ -1303,7 +1303,8 @@ class Room extends Component {
                     faceList={this.state.faceList} 
                     characterNumberBySocketid={this.state.characterNumberBySocketid} 
                     nicknameBySocketid={this.state.nicknameBySocketid}
-                    characterList = {this.state.characterList}  />
+                    characterList={this.props.characterList}  />
+                    
                 <div className="video-box">
                     <div id="videos" className="video-container"></div>
                 </div>

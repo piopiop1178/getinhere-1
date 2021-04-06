@@ -235,7 +235,7 @@ class MafiaGame{
             }
             else{
                 /* 경찰 */
-                this.police.socket.emit("checkMafia", this.candidate[this.police.id].role === 'mafia');
+                this.police &&this.police.socket.emit("checkMafia", this.candidate[this.police.id].role === 'mafia');
                 /* 의사 */
                 const doctorPick = this.candidate[this.doctor.id];
 

@@ -28,7 +28,8 @@ class faceMode extends Component {
       ctx.beginPath();
       ctx.arc(50, 50, 50, 0, Math.PI * 2);
       ctx.clip();
-      ctx.drawImage(photoBooth, videoWidth/3, videoHeight/5, videoWidth/3, videoWidth/3,  0, 0, 100, 100); 
+      ctx.drawImage(photoBooth, videoWidth/3, videoHeight/5, videoWidth/3, videoWidth/3,  0, 0, 100, 100);
+      // console.log('draw');
       requestAnimationFrame(drawHeadZone);
     })()
   }
