@@ -163,6 +163,9 @@ class Room extends Component {
         objects: 0, // 0: 기본상태, 1: 동영상 검색창, 2: 동영상 같이보기, 3: 게임하기, 4. 노래검색, 5. 노래재생
         faceList: [], //
         guidance: false,
+        // * mafia용
+        characterNumberBySocketid: [],
+        nicknameBySocketid: [],
     }
 
     addMyFace = () => {
@@ -174,6 +177,7 @@ class Room extends Component {
             }
             characterImage.src = this.props.faceMode //! 그리기
             this.state.faceList[socket.id] = characterImage; //! 리스트에 넣기
+            this.addCharacterInfoForMafiaGame(socket.id, null, this.state.userName);
         // }
         //! 내 얼굴 넣기 끝
     }
@@ -191,6 +195,7 @@ class Room extends Component {
             socket.emit('ready', this.props.roomName, this.props.userName, this.props.faceMode);    
         } else {
             socket.emit('ready', this.props.roomName, this.props.userName, this.props.characterNum);
+            this.addCharacterInfoForMafiaGame(socket, this.props.characterNum ,this.props.userName)
         }
         
         document.getElementById("chat-message").addEventListener("keyup", (e) => {
@@ -448,6 +453,7 @@ class Room extends Component {
                 this.state.users[socketId] = users[socketId];
                 this.addPeer(socketId, sameSpace);
                 await this.addFace(socketId, users[socketId].characterNum)
+                this.addCharacterInfoForMafiaGame(socketId, users[socketId].characterNum, users[socketId].userName)
             }
             let socketId = socket.id
             this.state.users[socketId] = {userName: this.props.userName, characterNum: this.props.characterNum};
@@ -458,6 +464,7 @@ class Room extends Component {
                 this.addMyFace()
             } else {
                 socket.emit('start', this.props.roomName, this.props.userName, this.props.characterNum, curr_space);
+                this.addCharacterInfoForMafiaGame(socketId, this.props.characterNum ,this.props.userName)
             }
         });
 
@@ -528,6 +535,7 @@ class Room extends Component {
             this.state.users[socketId] = {userName: userName, characterNum: characterNum};
             this.addPeer(socketId, sameSpace);
             await this.addFace(socketId, characterNum)
+            this.addCharacterInfoForMafiaGame(socketId, characterNum, userName)
         });
 
         socket.on('removeUser', (socketId) => {
@@ -618,6 +626,10 @@ class Room extends Component {
     }
 
     /* ---------------- 중요 ------------------- */
+    addCharacterInfoForMafiaGame = (socketId, characterNum, nickName) => {
+        if (characterNum) this.state.characterNumberBySocketid[socketId] = characterNum;
+        if (nickName) this.state.nicknameBySocketid[socketId] = nickName;
+    }
 
     /* 얼굴모드: 다른 유저들의 얼굴데이터를 내 로컬스토리지에 저장하는 함수 */
     addFace = async (socketId, characterNum) => {
@@ -1286,7 +1298,12 @@ class Room extends Component {
                 <div className="youtubePage">{youtubePage}</div>
                 {youtubeVideo}
                 {youtubeMusic}
-                <MafiaGame socket={this.props.socket} faceList={this.state.faceList} />
+                <MafiaGame 
+                    socket={this.props.socket}
+                    faceList={this.state.faceList} 
+                    characterNumberBySocketid={this.state.characterNumberBySocketid} 
+                    nicknameBySocketid={this.state.nicknameBySocketid}
+                    characterList = {this.state.characterList}  />
                 <div className="video-box">
                     <div id="videos" className="video-container"></div>
                 </div>

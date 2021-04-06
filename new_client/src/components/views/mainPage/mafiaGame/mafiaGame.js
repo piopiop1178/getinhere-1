@@ -11,10 +11,37 @@ class mafiaGame extends Component {
     deadPlayers: [],
     liveOrDieModalOnOff: false,
     myRole: '',
+    alreadySendJoinMafiaGame: false,
   }
   socket = this.props.socket;
+  
   myRoleRef = React.createRef();
   playerButtonRef = React.createRef();
+
+  addCharacterInfoInGame = (socketId) => {
+      let newPlayer = document.querySelector(`[data-player-number='${this.state.playerNumber+1}']`);
+      newPlayer.setAttribute("data-set-socketid", socketId);
+      newPlayer.dataset.socketid = socketId ? socketId : '00' ;
+      this.state.playerNumber += 1;
+      
+      /* 이미지 추가하기  1안, 2안, 둘다 잘 된다. 2안을 통해서 style을 조정할 수 있어 보인다. */
+      // newPlayer.parentNode.appendChild(this.state.faceList[socketId]); //tmp 1안: Image 객체를 바로 추가하기
+
+      let playerImage = document.createElement('img'); //tmp 2안: createElement로 img 만들어서 추가하기
+      let playerNickName = document.createElement('span'); //tmp 2안: createElement로 img 만들어서 추가하기
+      let characterNumber;
+
+      if (this.state.faceList[socketId] != undefined) {
+        playerImage.src = this.state.faceList[socketId].src;
+      } else {
+        characterNumber = this.props.characterNumberBySocketid[socketId]
+        playerImage.src = this.props.characterList[this.props.characterNumberBySocketid[socketId]].src;
+      }
+      playerImage.style.width = '50px'
+      playerNickName.innerText = this.props.nicknameBySocketid[socketId];
+      newPlayer.appendChild(playerImage);
+      newPlayer.appendChild(playerNickName);
+  }
 
   joinMafiaGame = async () => {
     /* MG-01. 마피아 게임 창을 띄운다 */
@@ -25,25 +52,19 @@ class mafiaGame extends Component {
 
   initMafiaGame = async () =>{
       /* MG-05. 신규 플레이어의 비디오를 추가한다 */
+      /* (내가 먼저 입장)새로 접속한 유저의 정보를 받음 */
       this.socket.on("addNewPlayer", (socketId) => {
           console.log("MG-05 addNewPlayer");
           /* 전달 받은 player의 비디오 UI 수정 socketId는 newPlayer의 this.socket.id */
-          let newPlayer = document.querySelector(`[data-player-number='${this.state.playerNumber+1}']`);
-          newPlayer.setAttribute("data-set-socketid", socketId);
-          console.log(newPlayer);
-          newPlayer.dataset.socketid = socketId ? socketId : '00' ;
-          this.state.playerNumber += 1;    
+          this.addCharacterInfoInGame(socketId)
       });
       /* MG-07. 마피아 게임 플레이어 목록을 받아서 게임 화면에 플레이어 비디오를 보여준다*/
+      /* (내가 나중에 입장) 기존에 존재하던 유저들의 정보를 받음 */
       this.socket.on("sendCurrentPlayers", (players) => {
           console.log("MG-07 sendCurrentPlayers", players);
           /* 전달 받은 player의 비디오 UI 수정, players는 socketId가 들어있는 배열 */
           for(let socketId of players) {
-            let newPlayer = document.querySelector(`[data-player-number='${this.state.playerNumber+1}']`);
-            console.log(newPlayer);
-              newPlayer.setAttribute("data-set-socketid", socketId);
-            newPlayer.dataset.socketid = socketId ? socketId : '00' ;
-            this.state.playerNumber += 1;    
+            this.addCharacterInfoInGame(socketId)
           }
       });
       /* MG-10. 마피아 게임을 위한 정보를 수신하고 투표 시작 */
@@ -51,16 +72,12 @@ class mafiaGame extends Component {
           console.log("MG-10 sendRole", role);
           // 자기 역할 저장 및 직업 확인 팝업
           // 회의 시작
-          // document.querySelector('.myRole').textContent = role;
           this.setState({amIAlive: true, isMafiaGameStarted: true, myRole: role}); // 게임 시작 시, 내 상태를 '생존'으로 바꾼다.
           // 순서 조심
           
           console.log('role from server', role);
           console.log('this.myRoleRef.current',this.myRoleRef.current);
           this.myRoleRef.current.textContent = role;
-
-          // this.setState({isMafiaGameStarted: true})
-          // this.setState({myRole: role})
       });
       /* MG-15. 생사 투표 진행 */
       this.socket.on("sendVoteResult", (deadPlayerSocketId) => {
@@ -205,10 +222,11 @@ class mafiaGame extends Component {
   }
 
   playerSelect = (e) => {
-    // console.log(e.target);
-    // console.log(e.target.dataset.socketid);
     // parentNode가 div이다. 
     // let beforeSelected = document.querySelector(`[data-socketid='${this.state.selectedPlayerSocketId}']`).parentNode;
+    if(e.target.parentNode.tagName == 'BUTTON') { // 이미지를 클릭하게 될 경우. event bubble 다루기
+      e.target = e.target.parentNode;
+    }
     let beforeSelected = document.querySelectorAll(`[data-socketid]`);
     for(let i of beforeSelected) {
       i.parentNode.style.border = '1px solid grey';
@@ -232,11 +250,14 @@ class mafiaGame extends Component {
       backgroundColor: 'Beige',
       zIndex: '10',
     }
-    let mafiaPlayerStyle = {
+    let playerContainerStyle = {
       width: '39vw',
       height: '14vh',
       border: '1px solid grey',
       margin: 'auto',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
     }
     let buttonStyle = {
       fontFamily: 'Gaegu',
@@ -252,8 +273,11 @@ class mafiaGame extends Component {
       fontSize: '1.2rem',
       // padding: '0rem 0.5rem',
       borderRadius: '15%',
-      backgroundColor: 'peru',
+      // backgroundColor: 'peru',
       margin: '0.5rem',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
     }
 
     let liveOrDieModalStyle = {
@@ -289,34 +313,34 @@ class mafiaGame extends Component {
           {/* {this.state.liveOrDieModal ? liveOrDieModal : <div></div> } */}
           {liveOrDieModal}
           {/* <div className="players-wrapper" style={{width: '100%'}}> */}
-              <div className='player-container' style={mafiaPlayerStyle}>
-                  <button className='player-button' data-player-number='1' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}>1번 플레이어</button>
+              <div className='player-container' style={playerContainerStyle}>
+                  <button className='player-button' data-player-number='1' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
               </div>
-              <div className='player-container' style={mafiaPlayerStyle}>
-                 <button className='player-button' data-player-number='2' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}>2번 플레이어</button>
+              <div className='player-container' style={playerContainerStyle}>
+                 <button className='player-button' data-player-number='2' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
               </div>
-              <div className='player-container' style={mafiaPlayerStyle}>
-                  <button className='player-button' data-player-number='3' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}>3번 플레이어</button>
+              <div className='player-container' style={playerContainerStyle}>
+                  <button className='player-button' data-player-number='3' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
               </div>
-              <div className='player-container' style={mafiaPlayerStyle}>
-                 <button className='player-button' data-player-number='4' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}>4번 플레이어</button>
+              <div className='player-container' style={playerContainerStyle}>
+                 <button className='player-button' data-player-number='4' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
               </div>
-              <div className='player-container' style={mafiaPlayerStyle}>
-                 <button className='player-button' data-player-number='5' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}>5번 플레이어</button>
+              <div className='player-container' style={playerContainerStyle}>
+                 <button className='player-button' data-player-number='5' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
               </div>
-              <div className='player-container' style={mafiaPlayerStyle}>
-                 <button className='player-button' data-player-number='6' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}>6번 플레이어</button>
+              <div className='player-container' style={playerContainerStyle}>
+                 <button className='player-button' data-player-number='6' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
               </div>
-              <div className='player-container' style={mafiaPlayerStyle}>
-                 <button className='player-button' data-player-number='7' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}>7번 플레이어</button>
+              <div className='player-container' style={playerContainerStyle}>
+                 <button className='player-button' data-player-number='7' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
               </div>
-              <div className='player-container' style={mafiaPlayerStyle}>
-                 <button className='player-button' data-player-number='8' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}>8번 플레이어</button>
+              <div className='player-container' style={playerContainerStyle}>
+                 <button className='player-button' data-player-number='8' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
               </div>
-              <div className='player-container' style={mafiaPlayerStyle}>
-                  <button className='player-button' data-player-number='9' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}>9번 플레이어</button>
+              <div className='player-container' style={playerContainerStyle}>
+                  <button className='player-button' data-player-number='9' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
               </div>
-              <div className='player-container' style={mafiaPlayerStyle}>
+              <div className='player-container' style={playerContainerStyle}>
                   {this.state.isMafiaGameStarted
                     ? <div>
                         <button style={buttonStyle} className='sendCandidate' onClick={this.sendCandidate}> 선택 </button>
