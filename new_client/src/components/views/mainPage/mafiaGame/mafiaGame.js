@@ -216,7 +216,7 @@ class mafiaGame extends Component {
           // 1. 다시금 선택할 수 있도록 하기
           console.log('clientDoNightAction 시작')
           let myRole = this.state.myRole
-          if (myRole == 'mafia' || myRole == 'police' || myRole == 'doctor') {
+          if (myRole == 'mafia') {
             document.querySelector('.sendCandidate').disabled = false;
             // document.querySelector('.confirmCandidate').disabled = false;
             alert('밤이 되었습니다. 당신은 마피아. 지금 이 순간, 죽일 사람을 선택해주세요')
@@ -259,7 +259,9 @@ class mafiaGame extends Component {
           alert("지난 밤 아무도 죽지 않았습니다")
         }
 
-        alert(`nightOver Result isGameEnd =  ${isGameEnd}`);
+        document.querySelector('.sendCandidate').disabled     = false;
+        document.querySelector('.confirmCandidate').disabled  = false;
+
         if(isGameEnd == '시민') {
           alert("축하합니다🤸‍♀️🤸‍♂️ 시민의 승리로 끝났습니다")
           this.leaveGame()
