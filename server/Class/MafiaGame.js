@@ -214,9 +214,6 @@ class MafiaGame{
             }
             else{
                 /* 경찰 */
-<<<<<<< HEAD
-                this.police &&this.police.socket.emit("checkMafia", this.candidate[this.police.id].role === 'mafia');
-=======
                 if(this.police !== undefined){
                     this.police.emit("checkMafia", this.candidate[this.police.id].role === 'mafia');
                     for(let id in this.deadPlayers){
@@ -225,7 +222,6 @@ class MafiaGame{
                     this.selectedCount[this.police.id]--;
                 }
                 
->>>>>>> 2b17fec08d9679e17563bd375868f5a487344506
                 /* 의사 */
                 let doctorPick = undefined;
                 if(this.doctor !== undefined){
@@ -240,13 +236,13 @@ class MafiaGame{
                 let mafiaPicks = [];
                 let mafiaPick = undefined;
                 for (let id in this.selectedCount){
-                    mafiaPicks.push = [id, selectCount[id]];
-                    mafiaPicks.sort((a, b) => {
-                        return b[1] - a[1];
-                    });
-                    if(mafiaPicks.length === 1 || mafiaPicks[0][1] > mafiaPicks[1][1]){
-                        mafiaPick = mafiaPicks[0][0];
-                    }
+                    mafiaPicks.push([id, this.selectedCount[id]]);
+                }
+                mafiaPicks.sort((a, b) => {
+                    return b[1] - a[1];
+                });
+                if(mafiaPicks.length === 1 || mafiaPicks[0][1] > mafiaPicks[1][1]){
+                    mafiaPick = mafiaPicks[0][0];
                 }
                 if(mafiaPick !== undefined){
                     if(mafiaPick === doctorPick){
@@ -328,10 +324,13 @@ class MafiaGame{
         if(role === "mafia"){
             delete this.mafias[playerId];
         }
-        else if(role === "police"){
+        else{
+            delete this.citizens[playerId];
+        }
+        if(role === "police"){
             this.police = undefined;
         }
-        else if(role === "doctor"){
+        if(role === "doctor"){
             this.doctor = undefined;
         }
     }
