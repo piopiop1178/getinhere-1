@@ -47,10 +47,10 @@ canvas {
   background-color: white;
   text-align: center;
   align-items: center;
-  top: 30%;
+  /* top: 30%;
   left: 40%;
   right: 40%;
-  bottom: 35%;
+  bottom: 35%; */
 }
 
 #preset {

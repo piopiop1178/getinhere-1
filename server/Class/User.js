@@ -1,12 +1,13 @@
 'use strict';
 
 class User{
-    constructor(socket, userName, characterNum){
+    constructor(socket, userName, characterNum, screenShare){
         this.socket = socket;
         this.keyPress = {};
         this.status = {};
         this.userName = userName;
         this.characterNum = characterNum;
+        this.screenShare = screenShare;
     }
 
     get username() {
@@ -49,6 +50,13 @@ class User{
         this._status = value;
     }
 
+    get screenShare () {
+        return this._screenShare;
+    }
+
+    set screenShare (value) {
+        this._screenShare = value;
+    }
     // this.status.x = Math.floor(Math.random()*map.TILE_WIDTH)*map.TILE_LENGTH;
     // this.status.y = Math.floor(Math.random()*map.TILE_HEIGHT)*map.TILE_LENGTH;
 

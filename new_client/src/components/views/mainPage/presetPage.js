@@ -30,6 +30,28 @@ export class LoadingPage extends Component {
     }
 }
 
+export class LoadingPage2 extends Component {
+    render() {
+        const landingPageStyle = {
+            display: "flex",
+            justifyContent: "center",
+            position: "fixed",
+            bottom: "0px",
+            left: "0px",
+            width: "87vw",
+            height: "78vh",
+            backgroundColor: "white",
+            zIndex: "5",
+        }
+
+        return (
+            <div className="loading" id="loading" style={landingPageStyle}>
+                <img src="/images/Spinner.gif"></img>
+            </div>
+        );
+    }
+}
+
 
 
 
@@ -100,6 +122,7 @@ export class PresetPage extends Component {
     
             let pc = document.querySelector('.photo-canvas');
         !pc ? this.props.finishPreset(this.state.userName, this.state.characterNum, null) : this.props.finishPreset(this.state.userName, this.state.characterNum, pc.toDataURL());
+        FaceMode.stopAnimation();
         });
     }
 
@@ -158,4 +181,4 @@ export class PresetPage extends Component {
 }
   
 
-export default {PresetPage, LoadingPage}
+export default {PresetPage, LoadingPage, LoadingPage2}
