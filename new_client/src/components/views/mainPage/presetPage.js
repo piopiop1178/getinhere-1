@@ -122,6 +122,7 @@ export class PresetPage extends Component {
     
             let pc = document.querySelector('.photo-canvas');
         !pc ? this.props.finishPreset(this.state.userName, this.state.characterNum, null) : this.props.finishPreset(this.state.userName, this.state.characterNum, pc.toDataURL());
+        FaceMode.stopAnimation();
         });
     }
 

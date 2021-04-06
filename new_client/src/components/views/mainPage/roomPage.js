@@ -723,6 +723,7 @@ class Room extends Component {
             let screenVideoConsumer = await this.createRealConsumer('screen-video', recvTransport, socket_id, recvTransport.id)
             await this.resumeConsumer(screenVideoConsumer, 'screen-video');
             newStream = await this.addScreenVideoAudio(screenVideoConsumer, audioConsumer, screenAudioConsumer);
+            newVid.addEventListener('dblclick', this.dblclickhandler)
             // newStream = await this.addVideoAudio(screenVideoConsumer, screenAudioConsumer);
         } else if (screenShareFlag === 2){
             let screenVideoConsumer = await this.createRealConsumer('screen-video', recvTransport, socket_id, recvTransport.id)
@@ -730,6 +731,7 @@ class Room extends Component {
             await this.resumeConsumer(screenVideoConsumer, 'screen-video');
             await this.resumeConsumer(screenAudioConsumer, 'screen-audio');
             newStream = await this.addScreenVideoAudio(screenVideoConsumer, audioConsumer, screenAudioConsumer);
+            newVid.addEventListener('dblclick', this.dblclickhandler)
             // newStream = await this.addVideoAudio(screenVideoConsumer, screenAudioConsumer);
         }
 
@@ -1034,7 +1036,7 @@ class Room extends Component {
             track: localStream.getVideoTracks()[0],
             encodings : [
                 {maxBitrate: 100000},
-                {maxBitrate: 200000}
+                // {maxBitrate: 200000}
             ],
             appData: { mediaTag: 'cam-video' }
         });
