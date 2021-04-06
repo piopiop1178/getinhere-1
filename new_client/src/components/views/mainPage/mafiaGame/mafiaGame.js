@@ -53,18 +53,29 @@ class mafiaGame extends Component {
 
   leaveGame = () => {
     this.setState({
-      isMafiaGameOn: false,
-      isMafiaGameStarted: false,
+      // isMafiaGameOn: false,
+      // isMafiaGameStarted: false,
       
-      selectedPlayerSocketId: '',
-      amIAlive: true,
-      deadPlayers: [],
-      liveOrDieModalOnOff: false,
-      myRole: '',
-      alreadySendJoinMafiaGame: false,
+      // selectedPlayerSocketId: '',
+      // amIAlive: true,
+      // deadPlayers: [],
+      // liveOrDieModalOnOff: false,
+      // myRole: '',
+      // alreadySendJoinMafiaGame: false,
+        isMafiaGameOn: false,
+        isMafiaGameStarted: false,
+        selectedPlayerSocketId: '',
+        playerNumber: 0,
+        // faceList: [],
+        amIAlive: true,
+        deadPlayers: [],
+        liveOrDieModalOnOff: false,
+        myRole: '',
+        alreadySendJoinMafiaGame: false,
     })
     this.socket.emit('leavePlayer');
-  }
+    // 소켓을 다 닫아주어야한다.
+    }
 
   nightToDayColor = () => document.querySelector('.mafiaGameFrame').style.backgroundColor = 'Beige';
   dayToNightColor = () => document.querySelector('.mafiaGameFrame').style.backgroundColor = 'grey';
@@ -82,7 +93,7 @@ class mafiaGame extends Component {
   joinMafiaGame = async () => {
     /* MG-01. 마피아 게임 창을 띄운다 */
     /* MG-02. 마피아 게임을 위한 socket 세팅을 완료하고 게임 참여를 알린다 */
-    await this.initMafiaGame();     // 마피아 게임을 위한 socket on
+    await // await this.initMafiaGame();     // 마피아 게임을 위한 socket on; //! 한번 처음에 그냥 소켓 만들기
     this.socket.emit("joinMafiaGame", (response) => {
       if(response.status === true){
         document.querySelector(`.startMafiaGame`) && (document.querySelector(`.startMafiaGame`).disabled = true);
@@ -373,14 +384,14 @@ class mafiaGame extends Component {
       // 모달창 끄기
   }  
 
-  componentDidMount = () => {
-  
+  componentDidMount = async () => {
+    await this.initMafiaGame(); //! 한번 처음에 그냥 소켓 만들기
+    
     this.state.faceList = this.props.faceList;
     window.addEventListener('keydown' ,(e)=> {
       
       if (e.code ==="KeyX"){
           let parsed = JSON.parse(localStorage.getItem('myStatus'))
-          console.log('x')
           /* 게임시작 */
           if (parsed.x >= 1680 && parsed.y <= 360 && !this.state.isMafiaGameOn) { 
             

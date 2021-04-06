@@ -35,6 +35,26 @@ class MafiaGame{
         this.checkCount = undefined;
     }
 
+    endGame = () => {
+        console.log('-----------엔드게임----------');
+        this.isPlaying = false;
+        this.isDay = false;
+        this.players = {};   // players {socketId: {socket: socketObject, role:police}}
+        this.citizens = {};
+        this.mafias = {};
+        this.police = undefined;
+        this.doctor = undefined;
+        this.playerCount = 0;
+        this.deadPlayers = {};
+        this.turn = 0;
+
+        this.candidate = {}; // {socketId: socketId}
+        this.selectedCount = {};
+        this.confirmCount = 0;
+        this.liveOrDie = [undefined, undefined, undefined];
+        this.checkCount = undefined;
+    }
+
     async init(){
         this.isPlaying = false;
         this.isDay = false;
@@ -143,8 +163,10 @@ class MafiaGame{
         console.log(this.turn, turn);
         if(this.checkGameOver() !== null){
             // 게임 종료 관련 구현 필요?
+            console.log("------------------게임 종료------------------", this.checkGameOver(), '승리');
             this.turnInit();
             this.init();
+            this.endGame();
         }
         else{
             if(this.isDay){

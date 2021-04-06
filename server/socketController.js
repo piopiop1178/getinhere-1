@@ -300,19 +300,8 @@ module.exports = (io) => {
           status : room.mafiaGame.playerCount > 1,
         })
       });
-    }
 
-    function joinMafiaGame(socket, room) {
-      /* MG-04. 기존 플레이어들에게 신규 플레이어를 추가하라고 알린다 */
-      const players = room.mafiaGame.players;
-      for (let socketId in players){
-        players[socketId].socket.emit("addNewPlayer", socket.id);
-      }
-      /* MG-05. 마피아 게임에 신규 플레이어를 추가한다 */
-      room.mafiaGame.addPlayer(socket);
-      /* MG-06. 마피아 게임 플레이어 목록을 신규 플레이어에게 전달한다 */
-      socket.emit("sendCurrentPlayers", Object.keys(players));
-      
+      //! 새로 잡은 위치
       /* MG-09. 게임 시작 이벤트를 수신하여 게임 세팅을 하고 시작신호 전달*/
       socket.on('startMafiaGame', async () => {
         /* 역할 랜덤 추첨 및 전달 */
@@ -349,6 +338,21 @@ module.exports = (io) => {
       socket.on("leavePlayer", () => {
         room.mafiaGame.removePlayer(socket.id);
       });
+
+    }
+
+    function joinMafiaGame(socket, room) {
+      /* MG-04. 기존 플레이어들에게 신규 플레이어를 추가하라고 알린다 */
+      const players = room.mafiaGame.players;
+      for (let socketId in players){
+        players[socketId].socket.emit("addNewPlayer", socket.id);
+      }
+      /* MG-05. 마피아 게임에 신규 플레이어를 추가한다 */
+      room.mafiaGame.addPlayer(socket);
+      /* MG-06. 마피아 게임 플레이어 목록을 신규 플레이어에게 전달한다 */
+      socket.emit("sendCurrentPlayers", Object.keys(players));
+      
+  
     }
 }
 
