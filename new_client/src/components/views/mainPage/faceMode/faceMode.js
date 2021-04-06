@@ -30,7 +30,7 @@ class faceMode extends Component {
       ctx.arc(50, 50, 50, 0, Math.PI * 2);
       ctx.clip();
       ctx.drawImage(photoBooth, videoWidth/3, videoHeight/5, videoWidth/3, videoWidth/3,  0, 0, 100, 100); 
-      console.log(`!! ${requestId}`)
+      // console.log(`!! ${requestId}`)
       requestId = requestAnimationFrame(drawHeadZone);
     }
 
@@ -38,7 +38,7 @@ class faceMode extends Component {
   }
 
   static stopAnimation(){
-    console.log(requestId - 1);
+    // console.log(requestId - 1);
     cancelAnimationFrame(requestId - 1);
     cancelAnimationFrame(requestId);
     cancelAnimationFrame(requestId + 1);
