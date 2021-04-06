@@ -59,6 +59,7 @@ class mafiaGame extends Component {
       myRole: '',
       alreadySendJoinMafiaGame: false,
     })
+    this.socket.emit('leavePlayer');
   }
 
   joinMafiaGame = async () => {
@@ -121,15 +122,26 @@ class mafiaGame extends Component {
             }
             candidateName && (candidateName.innerText = this.props.nicknameBySocketid[candidate]);
 
-            document.querySelector(`[data-live-or-die='live']`).disabled = false
-            document.querySelector(`[data-live-or-die='die']`).disabled = false
+            if(this.state.amIAlive) { // * 살아 있을 때만 투표가능하다
+              document.querySelector(`[data-live-or-die='live']`).disabled = false
+              document.querySelector(`[data-live-or-die='die']`).disabled = false
+            }
+
           }
       });
 
       /* MG-18. 생사 투표 결과 확인 및 Night 턴 전환 */
-      this.socket.on("confirmLiveOrDie", (results, live, die, isGameEnd) => {
+      this.socket.on("confirmLiveOrDie", (results, isSomebodyDieSocketId,  live, die, isGameEnd) => {
           console.log("confirmLiveOrDie");
           console.log(results, live, die, isGameEnd);
+
+          //* 내가 죽었으면, 설정해주기
+          if(isSomebodyDieSocketId == this.socket.id) {
+            this.state.amIAlive = false;
+            document.querySelector(`[data-live-or-die='live']`).disabled = true;
+            document.querySelector(`[data-live-or-die='die']`).disabled  = true;
+          }
+
 
           // * voteBox 선택하고, 깔끔하게 내용 지워주기
           //! 기존
@@ -230,9 +242,15 @@ class mafiaGame extends Component {
           }
       })
 
-      this.socket.on("nightOver", (isSomebodyDie, isGameEnd) => {
-        if(isSomebodyDie) {
-          alert("지난 밤 누군가가 죽었습니다")
+      this.socket.on("nightOver", (isSomebodyDieSocketId, isGameEnd) => {
+        if(isSomebodyDieSocketId) {
+          alert(`지난 밤 ${this.props.nicknameBySocketid[isSomebodyDieSocketId]}(이)가 죽었습니다`)
+          if(isSomebodyDieSocketId == this.socket.id) {
+            this.state.amIAlive = false;
+            document.querySelector(`[data-live-or-die='live']`).disabled = true;
+            document.querySelector(`[data-live-or-die='die']`).disabled  = true;
+          }
+
         } else {
           alert("지난 밤 아무도 죽지 않았습니다")
         }
