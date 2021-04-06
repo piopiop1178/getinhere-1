@@ -79,6 +79,7 @@ class MafiaGame{
     }
 
     raffleRoles = async () =>{
+        console.log("raffleRoles");
         let roles = [];
         for(let role in gameRoles[this.playerCount]){
             for(let i = 0; i < gameRoles[this.playerCount][role]; i++){
@@ -88,7 +89,6 @@ class MafiaGame{
         this.shuffle(roles);
         let i = 0;
         let role, socket;
-        console.log("raffleRoles");
         for(let socketId in this.players){
             role = roles[i++]
             this.players[socketId].role = role;
@@ -124,6 +124,7 @@ class MafiaGame{
     async turnStart() {
         this.turnInit();
         const turn = this.turn;
+        console.log(`${turn} 번째 턴 시작`);
         //! 타이머
         // setTimeout(() => {
         //     this.turnEnd(turn);
@@ -131,6 +132,7 @@ class MafiaGame{
     }
 
     turnInit(){
+        console.log("turnInit");
         this.isDay = !this.isDay;
         this.candidate = {};
         this.selectedCount = {};
@@ -164,31 +166,32 @@ class MafiaGame{
         if(this.checkGameOver() !== null){
             // 게임 종료 관련 구현 필요?
             console.log("------------------게임 종료------------------", this.checkGameOver(), '승리');
-            this.turnInit();
-            this.init();
+            // this.turnInit();
+            // this.init();
             this.endGame();
         }
         else{
             if(this.isDay){
-                console.log("emit doNightAction");
+                console.log("밤이 되었습니다");
                 for(let socketId in this.players){
                     this.players[socketId].socket.emit("doNightAction"); 
                 }
             }
             else{
-                console.log("emit turnEnd");
+                console.log("낮이 되었습니다");
                 for(let socketId in this.players){
                     this.players[socketId].socket.emit("turnEnd"); 
                 }
             }
+            this.turnStart();
         }
     }
 
     selectCandidate(socketId, candidateSocketId){
         if(!(socketId in this.players) && !(candidateSocketId in this.players)){
             console.log(!(socketId in this.players) && !(candidateSocketId in this.players));
+            return;
         }
-
         if(this.selectedCount[candidateSocketId] !== undefined){
             this.candidate[socketId] = candidateSocketId;
             console.log("selectCandidate", this.candidate);
@@ -241,7 +244,7 @@ class MafiaGame{
                 else{
                     console.log("candidate", undefined);
                     this.turnEnd(this.turn);
-                    this.turnStart();
+                    // this.turnStart();
                 }
             }
             else{
@@ -294,7 +297,7 @@ class MafiaGame{
                     this.players[id].socket.emit("nightOver", mafiaPick, this.checkGameOver())
                 }
                 this.turnEnd(this.turn);
-                this.turnStart();
+                // this.turnStart();
             }
         }
     };
@@ -328,7 +331,7 @@ class MafiaGame{
             this.turnEnd(this.turn);
 
             //! 이거 5초 후에 실행하면 안되나?
-            this.turnStart();
+            // this.turnStart();
         }
     }
 
@@ -359,6 +362,9 @@ class MafiaGame{
             this.playerCount--;
             if(this.selectedCount[socketId] !== undefined){
                 delete this.selectedCount[socketId];
+            }
+            for(let id in this.players){
+                this.players[id].socket.emit("removePlayer", socketId);
             }
         }
     }
