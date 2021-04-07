@@ -108,6 +108,10 @@ class MafiaGame{
                 this.citizens[socketId] = socket;
             }
         }
+        const mafiasId = Object.keys(this.mafias);
+        for(let id in this.mafias){
+            this.mafias[id].socket.emit("showMafia", mafiasId);
+        }
     }
 
     shuffle(array) {

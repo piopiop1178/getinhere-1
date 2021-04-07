@@ -25,6 +25,8 @@ import { Spring, animated } from 'react-spring'
 import Guidance from './guidance';
 import MafiaGame from './mafiaGame/mafiaGame';
 import './roomPage.css'
+import {withCookies, Cookies} from 'react-cookie';
+
 
 const uuuuu = new Youtube();
 
@@ -41,11 +43,7 @@ let socket;
 let reconnect_checker = false
 
 let constraints = {
-    audio: {
-        echoCancellation: false,
-        autoGainControl: false,
-        noiseSuppression: false
-    },
+    audio: true,
     video: {
         width: {
             max: 1280,
@@ -198,6 +196,8 @@ class Room extends Component {
     }
 
     componentDidMount = async () => {
+        
+
         socket = this.props.socket;
 
         /* Room 에서 사용할 socket on 정의 */
@@ -564,15 +564,6 @@ class Room extends Component {
             let videoEl = document.getElementById(socketId)
             if (videoEl) {
                 videoEl.style.display = 'none'
-                if (videoEl.classList.contains('iframe-video')){
-                    let videos = document.getElementById('videos');
-                    videoEl.classList.remove('iframe-video');
-                    videoEl.classList.add('vid');
-                    this.setState({objects : 0})
-                    videos.appendChild(videoEl)
-                    document.getElementById("character-layer").style.removeProperty("background-color");
-                    this.updatePositionSocketOn()
-                }
             }
         })
         socket.on('addInUser', (socketId) => {
@@ -715,14 +706,12 @@ class Room extends Component {
         let newVid = document.createElement('video')
         let videos = document.getElementById('videos')
 
-        if (screenShareFlag === 1) {
-            newVid.addEventListener('dblclick', this.dblclickhandler)
-        } else if (screenShareFlag === 2) {
+        if (screenShareFlag === 1){
             let screenAudioConsumer = await this.createRealConsumer('screen-audio', recvTransport, socket_id, recvTransport.id)
             await this.resumeConsumer(screenAudioConsumer, 'screen-audio');
             newVid.addEventListener('dblclick', this.dblclickhandler)
             await newStream.addTrack(screenAudioConsumer.track);
-        }
+        } 
 
         newVid.srcObject = newStream
         newVid.id = socket_id
@@ -731,11 +720,6 @@ class Room extends Component {
         newVid.className = "vid"
         videos.appendChild(newVid)
         
-        // if (screenShareFlag === 1){
-        //     let videoEl = document.getElementById(socket_id)
-        //     videoEl.addEventListener('dblclick', this.dblclickhandler)
-        // }
-
         if (sameSpace) {
             newVid.style.display = 'block'
         } else {
@@ -1355,7 +1339,6 @@ class Room extends Component {
     };
     //!--------prevent key???--------------------------------------
     dblclickhandler = (e) => {
-        console.log('dblclick!!')
         let room = document.getElementById('room')
         let videos = document.getElementById('videos')
 
