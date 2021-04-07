@@ -297,6 +297,11 @@ module.exports = (io) => {
         })
       });
 
+      // * 게임이 진행중인지 확인하는 코드
+      socket.on("isGamePlayed", async (data, callback) => {
+         callback(room.mafiaGame.isGamePlayed())
+      })
+
       //! 새로 잡은 위치
       /* MG-09. 게임 시작 이벤트를 수신하여 게임 세팅을 하고 시작신호 전달*/
       socket.on('startMafiaGame', async () => {
@@ -331,9 +336,9 @@ module.exports = (io) => {
         room.mafiaGame.checkLiveOrDie(socket.id, liveOrDie);
       });
 
-      // socket.on("leavePlayer", () => {
-      //   room.mafiaGame.removePlayer(socket.id);
-      // });
+      socket.on("leavePlayer", () => {
+        room.mafiaGame.removePlayer(socket.id);
+      });
 
     }
 

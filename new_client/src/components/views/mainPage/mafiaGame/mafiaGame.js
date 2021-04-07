@@ -17,6 +17,7 @@ class mafiaGame extends Component {
     alreadySendJoinMafiaGame: false,
     candidate: '',
     confirmClicked: false,
+    isDay: true,
   }
   socket = this.props.socket;
 
@@ -131,7 +132,6 @@ class mafiaGame extends Component {
   joinMafiaGame = async () => {
     /* MG-01. 마피아 게임 창을 띄운다 */
     /* MG-02. 마피아 게임을 위한 socket 세팅을 완료하고 게임 참여를 알린다 */
-    // await this.initMafiaGame();     // 마피아 게임을 위한 socket on; //! 한번 처음에 그냥 소켓 만들기
     this.socket.emit("joinMafiaGame", (response) => {
       if(response.status === true){
         document.querySelector(`.startMafiaGame`) && (document.querySelector(`.startMafiaGame`).disabled = true);
@@ -141,9 +141,9 @@ class mafiaGame extends Component {
 
   initMafiaGame = async () =>{
       this.socket.on("showMafia", (mafiasId) => {
-        let mafiaString;
+        let mafiaString = '';
         for(let mafiaId of mafiasId) {
-          mafiaString += this.props.nicknameBySocketid[mafiaId];
+          mafiaString += `  ${this.props.nicknameBySocketid[mafiaId]}`;
         }
         if (mafiasId.length == 1) {
           return
@@ -223,7 +223,9 @@ class mafiaGame extends Component {
       /* MG-18. 생사 투표 결과 확인 및 Night 턴 전환 */
       this.socket.on("confirmLiveOrDie", (results, isSomebodyDieSocketId,  live, die, isGameEnd) => {
           console.log("confirmLiveOrDie");
-          
+          //*죽은사람리스트추가
+          results == 'die' && isSomebodyDieSocketId && (this.state.deadPlayers.push(isSomebodyDieSocketId))
+
           this.removePlayersChoices() //화면 청소
           // *영상 원위치 및 candidate 없애기
           let candidateVideo = document.getElementById(this.state.candidate);
@@ -279,6 +281,7 @@ class mafiaGame extends Component {
       /* MG-20. 밤에 역할별 동작 수행 */
       // 밤 시작
       this.socket.on("doNightAction", () => {
+          this.state.isDay = false;
           this.state.confirmClicked = false;
            
           this.dayToNightColor(); // * 밤으로 디자인 변경
@@ -291,21 +294,22 @@ class mafiaGame extends Component {
           console.log('clientDoNightAction 시작')
           let myRole = this.state.myRole
           if (myRole == 'mafia' && this.state.amIAlive) { // * 살아 있을 때만 투표가능하다) 
-            document.querySelector('.sendCandidate') && (document.querySelector('.sendCandidate').disabled = false);
+            // document.querySelector('.sendCandidate') && (document.querySelector('.sendCandidate').disabled = false);
             // alert('밤이 되었습니다. 당신은 마피아. 죽일 사람을 선택해주세요')
             swal("밤이 되었습니다", "당신은 마피아. 죽일 사람을 선택해주세요", "info");
           } else if (myRole == 'police' && this.state.amIAlive) {
-            document.querySelector('.sendCandidate') && (document.querySelector('.sendCandidate').disabled = false);
+            // document.querySelector('.sendCandidate') && (document.querySelector('.sendCandidate').disabled = false);
             // alert('밤이 되었습니다. 당신은 경찰. 마피아로 의심가는 사람을 선택해주세요')
             swal("밤이 되었습니다", "당신은 경찰. 마피아로 의심가는 사람을 선택해주세요", "info");
           } else if (myRole == 'doctor' && this.state.amIAlive) {
-            document.querySelector('.sendCandidate') && (document.querySelector('.sendCandidate').disabled = false);
+            // document.querySelector('.sendCandidate') && (document.querySelector('.sendCandidate').disabled = false);
             // alert('밤이 되었습니다. 당신은 의사. 살리고 싶은 사람을 선택해주세요')
             swal("밤이 되었습니다", "당신은 의사. 살리고 싶은 사람을 선택해주세요", "info");
 
           } else {
             // alert('밤이 되었습니다');
             swal("밤이 되었습니다", "수상한 사람을 찾아보세요", "info");
+            document.querySelector('.confirmCandidate') && (document.querySelector('.confirmCandidate').disabled = true);
           }
           
       });
@@ -330,10 +334,13 @@ class mafiaGame extends Component {
 
       //낮 시작
       this.socket.on("nightOver", (isSomebodyDieSocketId, isGameEnd) => {
+        this.state.isDay = true;
         this.state.confirmClicked = false;
         this.removePlayersChoices(); // * 내 선택 지워주기
         this.nightToDayColor();
         if(isSomebodyDieSocketId) {
+          this.state.deadPlayers.push(isSomebodyDieSocketId)
+
           // alert(`지난 밤 ${this.props.nicknameBySocketid[isSomebodyDieSocketId]}(이)가 죽었습니다`)
           swal(`${this.props.nicknameBySocketid[isSomebodyDieSocketId]}`, `(이)가 지난 밤 죽었습니다`, "error");
           //* 죽은사람 필터 씌우기
@@ -414,7 +421,7 @@ class mafiaGame extends Component {
             isMafiaGameStarted: false,
             selectedPlayerSocketId: '',
             playerNumber: 0,
-            faceList: [],
+            // faceList: [],
             amIAlive: true,
             deadPlayers: [],
             liveOrDieModalOnOff: false,
@@ -430,17 +437,17 @@ class mafiaGame extends Component {
   startMafiaGame = async () => {
       /* MG-08. 마피아 게임 start 버튼 클릭할 때 실행되어 서버에 게임 시작 이벤트 전달 후 대기
        * TODO: 2명 이하 일 경우 start 할 수 없도록 처리 */
-      // if (this.state.playerNumber <= 2) {
-      //   alert("3인 이상이 모여야 게임을 할 수 있어요");
-      // } else {
-      //   this.setState({amIAlive: true}); // 게임 시작 시, 내 상태를 '생존'으로 바꾼다.
-      //   this.setState({isMafiaGameStarted: true})
-      //   this.socket.emit("startMafiaGame");
-      // }
+      if (this.state.playerNumber <= 2) {
+        swal("3인 이상이 모여야 게임을 할 수 있어요");
+      } else {
+        this.setState({amIAlive: true}); // 게임 시작 시, 내 상태를 '생존'으로 바꾼다.
+        this.setState({isMafiaGameStarted: true})
+        this.socket.emit("startMafiaGame");
+      }
  
-      this.setState({amIAlive: true}); // 게임 시작 시, 내 상태를 '생존'으로 바꾼다.
-      this.setState({isMafiaGameStarted: true})
-      this.socket.emit("startMafiaGame");
+      // this.setState({amIAlive: true}); // 게임 시작 시, 내 상태를 '생존'으로 바꾼다.
+      // this.setState({isMafiaGameStarted: true})
+      // this.socket.emit("startMafiaGame");
   }
 
   sendCandidate = () => {
@@ -483,45 +490,68 @@ class mafiaGame extends Component {
     await this.initMafiaGame(); //! 한번 처음에 그냥 소켓 만들기
     
     this.state.faceList = this.props.faceList;
-    window.addEventListener('keydown' ,(e)=> {
+    window.addEventListener('keydown' , async (e)=> {
       
       if (e.code ==="KeyX" && document.activeElement.tagName != "INPUT"){
           let parsed = JSON.parse(localStorage.getItem('myStatus'))
           /* 게임시작 */
-          if (parsed.x >= 1680 && parsed.y <= 360 && !this.state.isMafiaGameOn) { 
-            
-            console.log('mafiagame on');
-          
-            this.setState({isMafiaGameOn: true})
-            this.joinMafiaGame();
-          
+          if (parsed.x >= 1680 && parsed.y <= 360 ) { 
+            if (!this.state.isMafiaGameOn) {
+                
+
+                //* 이미 게임이 진행중이면, 리턴하기
+                let isGameplay = await this.socket.request("isGamePlayed");
+                if(isGameplay) {
+                  swal("이미 게임이 진행중입니다"); 
+                  return;
+                }
+
+
+                this.setState({isMafiaGameOn: true})
+                this.joinMafiaGame();
+            } else if (this.state.isMafiaGameOn) {
+                let con = window.confirm('게임을 나가시겠습니까? (모든 참여자들 게임이 종료됨)');
+                if (con == true) {
+                    this.socket.emit('leavePlayer')
+                    this.setState({
+                        isMafiaGameOn: false,
+                        isMafiaGameStarted: false,
+                        selectedPlayerSocketId: '',
+                        playerNumber: 0,
+                        // faceList: [],
+                        amIAlive: true,
+                        deadPlayers: [],
+                        liveOrDieModalOnOff: false,
+                        // liveOrDieModalOnOff: true, //! 일단 켜놓자
+                        myRole: '',
+                        alreadySendJoinMafiaGame: false,
+                        candidate: '',
+                        confirmClicked: false,
+                  })
+                }
+            }
           /* 게임종료 */
-          } else if (this.state.isMafiaGameOn) {
-            alert('게임 못꺼요')
           }
       }
     })
   }
 
   playerSelect = (e) => { //playerSelection
-    if(this.state.confirmClicked == true) return;
+    let selectedSocketId = e.currentTarget.firstElementChild.dataset.socketid;
+    
+    if(this.state.isDay == false && this.state.myRole == 'citizen') return; //* 밤이고 시민이면, 선택못함
+    if(this.state.confirmClicked == true) return; // * confirm눌렀으면, 선택못함
+    if (this.state.deadPlayers.includes(selectedSocketId)) {return;} // *이미 죽었으면, 선택 못함
     e.stopPropagation(); // 이벤트버블링 막기
-    // if(e.target.className == "player-container") { //div를 클릭하게 될 경우, e.target을 자식인 button으로 옮겨주기
-    //   e.target = e.target.firstElementChild; // 첫번째 자식(버튼)으로 옮겨준다
-    // } else if(e.target.parentNode.tagName == 'BUTTON') { // 이미지를 클릭하게 될 경우. event bubble 다루기 div > button > img 순서다
-    //   e.target = e.target.parentNode; // 부모가 버튼이면, 버튼으로 옮겨준다
-    // } else if(e.target.clssName == 'vote-box') {
-    //   e.target = e.target.parentNode.firstElementChild;
-    // }
-
     let beforeSelected = document.querySelectorAll(`[data-socketid]`);
     for(let i of beforeSelected) {
       i.parentNode.style.border = this.playerContainerBorderStyle;
     }
     
+    
     // selected design
     e.currentTarget.style.border = this.selectedPlayerBorderStyle;
-    this.state.selectedPlayerSocketId = e.currentTarget.firstElementChild.dataset.socketid;
+    this.state.selectedPlayerSocketId = selectedSocketId;
     console.log('-----------1 ', e.currentTarget.firstElementChild.dataset.socketid)
     console.log('-----------2 ', e.currentTarget.firstElementChild)
     this.sendCandidate();

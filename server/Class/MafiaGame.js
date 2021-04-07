@@ -38,8 +38,10 @@ class MafiaGame{
 
     endGame = (socketId) => {
         console.log('-----------엔드게임----------');
-        if(this.isPlaying === true && socketId in this.players){
+        // if(this.isPlaying === true && socketId in this.players){
+        if(socketId in this.players){
             for(let id in this.players){
+                console.log('게임 끝 emit')
                 this.players[id].socket.emit("gameShutdown", socketId);
             }
         }
@@ -59,6 +61,10 @@ class MafiaGame{
         this.confirmCount = 0;
         this.liveOrDie = [undefined, undefined, undefined];
         this.checkCount = undefined;
+    }
+
+    isGamePlayed() {
+        return this.isPlaying;
     }
 
     async init(){
@@ -365,29 +371,48 @@ class MafiaGame{
     }
 
     removePlayer(socketId){
-        if(this.players[socketId] !== undefined){
-            const role = this.players[socketId].role;
-            if(role === "mafia"){
-                delete this.mafias[socketId];
+        // if(this.players[socketId] !== undefined){
+        //     const role = this.players[socketId].role;
+        //     if(role === "mafia"){
+        //         delete this.mafias[socketId];
+        //     }
+        //     else if(role === "police"){
+        //         this.police = undefined;
+        //     }
+        //     else if(role === "doctor"){
+        //         this.doctor = undefined;
+        //     }
+        //     delete this.players[socketId];
+        //     this.playerCount--;
+        //     if(this.selectedCount[socketId] !== undefined){
+        //         delete this.selectedCount[socketId];
+        //     }
+        //     /* 플레이어가 나갔는데 죽은 사람이 아니면 */
+        //     if(!(socketId in this.deadPlayers)){
+            
+            
+            
+            for(let id in this.players){
+                this.players[id].socket.emit("gameShutdown", socketId);
             }
-            else if(role === "police"){
-                this.police = undefined;
-            }
-            else if(role === "doctor"){
-                this.doctor = undefined;
-            }
-            delete this.players[socketId];
-            this.playerCount--;
-            if(this.selectedCount[socketId] !== undefined){
-                delete this.selectedCount[socketId];
-            }
-            /* 플레이어가 나갔는데 죽은 사람이 아니면 */
-            if(!(socketId in this.deadPlayers)){
-                for(let id in this.players){
-                    this.players[id].socket.emit("gameShutdown", socketId);
-                }
-            }
-        }
+            //     }
+            // }
+        this.isPlaying = false;
+        this.isDay = false;
+        this.players = {};   // players {socketId: {socket: socketObject, role:police}}
+        this.citizens = {};
+        this.mafias = {};
+        this.police = undefined;
+        this.doctor = undefined;
+        this.playerCount = 0;
+        this.deadPlayers = {};
+        this.turn = 0;
+
+        this.candidate = {}; // {socketId: socketId}
+        this.selectedCount = {};
+        this.confirmCount = 0;
+        this.liveOrDie = [undefined, undefined, undefined];
+        this.checkCount = undefined;
     }
     die(playerId){
         this.deadPlayers[playerId] = this.players[playerId];
