@@ -1,19 +1,15 @@
 import React, { Component } from 'react';
-import {LoadingPage} from '../presetPage';
+
 import './iframe.css'
+import IframeGame from './iframeGame';
 
 class IframePage extends Component {
   state = {
-    iframeLoadingIsDone: false,
+    gameNumber: 0,
   }
 
-  iframeRef = React.createRef();
-
   componentDidMount = () => {
-      // console.log('iframe.js is on')
-      this.props.updatePositionSocketOff()
-      const myIframe = this.iframeRef.current;
-      myIframe.onload = () => {this.setState({iframeLoadingIsDone: true})}
+    this.props.updatePositionSocketOff()
   }
 
   closeIframe = () => {
@@ -21,36 +17,50 @@ class IframePage extends Component {
     this.props.closeIframe();
   }
 
-  
-
   inviteCodeButton = () => {
     document.querySelector('#iframe-game').src = document.querySelector('.invite-code-input').value;
     document.querySelector('.invite-code-input').value = "";
   }
 
+  returnMenu= () => {
+      this.setState({gameNumber : 0})
+  }
+
+  runGame1 = () => {
+    this.setState({gameNumber : 1})
+  }
+  runGame2 = () => {
+    this.setState({gameNumber : 2})
+  }
+  runGame3 = () => {
+    this.setState({gameNumber : 3})
+  }
+  runGame4 = () => {
+    this.setState({gameNumber : 4})
+  }
+  runGame5 = () => {
+    this.setState({gameNumber : 5})
+  }
+  runGame6 = () => {
+    this.setState({gameNumber : 6})
+  }
+
   render() {
-    let loadingPage;
-    let renderPage;
-    if (!this.state.iframeLoadingIsDone){
-      loadingPage = <LoadingPage/>
-    } else {
-      loadingPage = <></>
-    }
-      renderPage = 
-      <div className='iframe-wrapper'>
-        <div className="invite-code-wrapper">
-          <input type="text" className="invite-code-input" placeholder="   초대 코드를 입력해주세요  Input your Invite Code"/> 
-          <button className="invite-code-button" onClick={this.inviteCodeButton}> JOIN </button>
-          <span className="iframe-game-guide"> 초대 코드 입력 후 Play 버튼을 눌러주세요! </span>
-          <button className='iframe-close-button' onClick={this.closeIframe}>돌아가기</button>
-        </div>
-        <iframe id='iframe-game' ref={this.iframeRef} src="https://skribbl.io" ></iframe>
-      </div>
-    
     return (
       <>
-      {loadingPage}
-      {renderPage}
+        <div className='iframe-wrapper'>
+            <div><button className="go-to-iframegamemenu-button" onClick={this.returnMenu}>다른 게임하기</button></div>
+            <div><button className='iframe-close-button' onClick={this.closeIframe}>돌아가기</button></div>
+            <IframeGame
+                gameNumber={this.state.gameNumber}
+                runGame1={this.runGame1}
+                runGame2={this.runGame2}
+                runGame3={this.runGame3}
+                runGame4={this.runGame4}
+                runGame5={this.runGame5}
+                runGame6={this.runGame6}
+                />
+        </div>
       </>
     )
   }

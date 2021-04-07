@@ -197,6 +197,7 @@ select {
   margin-left: 25vw;
   position: fixed;
   line-height: 1.8rem;
+  z-index: 10;
 }
 .guidanceImg {
   width: 40vw;

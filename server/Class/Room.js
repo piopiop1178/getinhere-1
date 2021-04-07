@@ -110,7 +110,7 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
         // console.log(this.users);
         for(let socketId in this.users){
             let user = this.users[socketId];
-            userDatas[socketId] = {userName: user.userName, characterNum: user.characterNum, space: user.status.space}
+            userDatas[socketId] = {userName: user.userName, characterNum: user.characterNum, space: user.status.space, screenShare: user.screenShare}
         }
         return userDatas;
     }
