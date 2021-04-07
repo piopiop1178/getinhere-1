@@ -382,9 +382,11 @@ class MafiaGame{
         }
         if(role === "police"){
             this.police = undefined;
+            console.log('--die-- police', this.police)
         }
         if(role === "doctor"){
             this.doctor = undefined;
+            console.log('--die-- doctor', this.doctor)
         }
     }
 

@@ -41,8 +41,8 @@ class mafiaGame extends Component {
             characterNumber = characterNumber ? characterNumber : 0;  // 반창고, 숫자 0을 못받아온다
             characterNumber && (playerImage.src = this.props.characterList[characterNumber].src);
           }
-          playerImage.style.width = '50px'
-          playerImage.style.height = '50px'
+          playerImage.style.width = '60px'
+          playerImage.style.height = '60px'
           playerNickName.innerText = this.props.nicknameBySocketid[socketId];
           newPlayer.appendChild(playerImage);
           newPlayer.appendChild(playerNickName);
@@ -67,7 +67,7 @@ class mafiaGame extends Component {
         selectedPlayerSocketId: '',
         playerNumber: 0,
         // faceList: [],
-        amIAlive: true,
+        // amIAlive: true,
         deadPlayers: [],
         liveOrDieModalOnOff: false,
         myRole: '',
@@ -140,7 +140,7 @@ class mafiaGame extends Component {
           /* TODO: 생사 투표 진행 */
           // 결과 전달은 sendLiveOrDie 함수를 통해
           if (candidate == undefined) {
-            alert("낮에는 아무도 죽지 않았습니다! 평화롭군요!");
+            alert("낮에 아무도 죽지 않았습니다!");
             return;
           } else {
             // * 후보자가 존재하면, 후보자 사진과 이름을 모달창 가운데에 띄운다
@@ -173,6 +173,7 @@ class mafiaGame extends Component {
           //* 내가 죽었으면, 설정해주기
           if(isSomebodyDieSocketId == this.socket.id && results == 'die') {
             this.state.amIAlive = false;
+            this.setState({amIAlive: false})
             document.querySelector(`[data-live-or-die='live']`) && (document.querySelector(`[data-live-or-die='live']`).disabled = true);
             document.querySelector(`[data-live-or-die='die']`) && (document.querySelector(`[data-live-or-die='die']`).disabled  = true);
           }
@@ -257,15 +258,15 @@ class mafiaGame extends Component {
           let myRole = this.state.myRole
           if (myRole == 'mafia' && this.state.amIAlive) { // * 살아 있을 때만 투표가능하다) 
             document.querySelector('.sendCandidate') && (document.querySelector('.sendCandidate').disabled = false);
-            alert('밤이 되었습니다. 당신은 마피아. 지금 이 순간, 죽일 사람을 선택해주세요')
+            alert('밤이 되었습니다. 당신은 마피아. 죽일 사람을 선택해주세요')
           } else if (myRole == 'police' && this.state.amIAlive) {
             document.querySelector('.sendCandidate') && (document.querySelector('.sendCandidate').disabled = false);
             alert('밤이 되었습니다. 당신은 경찰. 마피아로 의심가는 사람을 선택해주세요')
           } else if (myRole == 'doctor' && this.state.amIAlive) {
             document.querySelector('.sendCandidate') && (document.querySelector('.sendCandidate').disabled = false);
-            alert('밤이 되었습니다. 당신은 의사. 이번 밤에 살리고 싶은 사람을 선택해주세요')
+            alert('밤이 되었습니다. 당신은 의사. 살리고 싶은 사람을 선택해주세요')
           } else {
-            alert('밤이 되었습니다. 당신은 시민. 굿나잇')
+            alert('밤이 되었습니다')
           }
           
       });
@@ -273,38 +274,43 @@ class mafiaGame extends Component {
       this.socket.on("checkMafia", (isMafia) => {
           if(this.state.myRole == "police") {
             if(isMafia) {
-              alert(`경찰이선택한 ${this.props.nicknameBySocketid[this.state.selectedPlayerSocketId]}(은)는 마피아가 맞습니다`);
+              setTimeout(()=> {
+                alert(`경찰이 선택한 ${this.props.nicknameBySocketid[this.state.selectedPlayerSocketId]}(은)는 마피아가 맞습니다`);
+              }, 300)
             } else {
-              alert(`경찰이선택한 ${this.props.nicknameBySocketid[this.state.selectedPlayerSocketId]}(은)는 마피아가 아닙니다`);
-            }
+              setTimeout(()=> {
+                alert(`경찰이 선택한 ${this.props.nicknameBySocketid[this.state.selectedPlayerSocketId]}(은)는 마피아가 아닙니다`);
+              }, 300)
+             }
           } else {
-            return;
+             return;
           }
       })
 
       this.socket.on("nightOver", (isSomebodyDieSocketId, isGameEnd) => {
+        this.nightToDayColor();
         if(isSomebodyDieSocketId) {
           alert(`지난 밤 ${this.props.nicknameBySocketid[isSomebodyDieSocketId]}(이)가 죽었습니다`)
-          
           //* 죽은사람 필터 씌우기
           this.dieFilter(isSomebodyDieSocketId);
-
           //* 내가 죽었으면, 설정해주기
           if(isSomebodyDieSocketId == this.socket.id) {
+            console.log('죽었습니다');
             this.state.amIAlive = false;
+            this.setState({amIAlive: false});
             document.querySelector(`[data-live-or-die='live']`) && (document.querySelector(`[data-live-or-die='live']`).disabled = true);
             document.querySelector(`[data-live-or-die='die']`)  && (document.querySelector(`[data-live-or-die='die']`).disabled  = true);
+            // document.querySelector('.confirmCandidate') && (document.querySelector('.sendCandidate').disabled = true);
+            // document.querySelector('.confirmCandidate') && (document.querySelector('.confirmCandidate').disabled = true);
           }
-
         } else {
           alert("지난 밤 아무도 죽지 않았습니다")
         }
 
-        alert("아침입니다~");
-        this.nightToDayColor();
-
-        document.querySelector('.sendCandidate')    && (document.querySelector('.sendCandidate').disabled     = false);
-        document.querySelector('.confirmCandidate') && (document.querySelector('.confirmCandidate').disabled  = false);
+        if(this.state.amIAlive) {
+          document.querySelector('.sendCandidate')    && (document.querySelector('.sendCandidate').disabled = false);
+          document.querySelector('.confirmCandidate') && (document.querySelector('.confirmCandidate').disabled = false);
+        }
 
         if(isGameEnd == '시민') {
           alert("축하합니다🤸‍♀️🤸‍♂️ 시민의 승리로 끝났습니다")

@@ -61,10 +61,10 @@ class User{
     // this.status.y = Math.floor(Math.random()*map.TILE_HEIGHT)*map.TILE_LENGTH;
 
     createCharacter(map){
-        // this.status.x = Math.floor(Math.random()*13)*map.TILE_LENGTH;
-        // this.status.y = Math.floor( 8 + Math.random()*12)*map.TILE_LENGTH;
-        this.status.x = 1680;
-        this.status.y = 300;
+        this.status.x = Math.floor(Math.random()*13)*map.TILE_LENGTH;
+        this.status.y = Math.floor( 8 + Math.random()*12)*map.TILE_LENGTH;
+        // this.status.x = 1680;
+        // this.status.y = 300;
         this.status.space = this.calcSpace(this.status.x, this.status.y);
         this.status.height = map.CHAR_SIZE;
         this.status.width = map.CHAR_SIZE;
