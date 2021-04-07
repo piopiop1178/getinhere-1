@@ -25,7 +25,6 @@ import { Spring, animated } from 'react-spring'
 import Guidance from './guidance';
 import MafiaGame from './mafiaGame/mafiaGame';
 import './roomPage.css'
-// import Cookies from 'universal-cookie';
 
 
 const uuuuu = new Youtube();
@@ -202,10 +201,6 @@ class Room extends Component {
     }
 
     componentDidMount = async () => {
-        // const cookies = new Cookies();
-        // const count = cookies.get('count', {path : '/'});
-        // console.log(count);
-        // cookies.set('count', '0', {path : '/'});
         socket = this.props.socket;
 
         /* Room 에서 사용할 socket on 정의 */
