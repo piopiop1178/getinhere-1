@@ -6,6 +6,7 @@ import './mainPage.css'
 
 import {io} from 'socket.io-client';
 import socketPromise from './socket.io-promise';
+// import Cookies from 'universal-cookie';
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -36,6 +37,18 @@ class Mainpage extends Component {
     mainRef = React.createRef();
 
     componentDidMount = async () => {
+        // const cookies = new Cookies();
+        // const count = cookies.get('count', {path : '/'});
+        // console.log(count);
+        // console.log(count === '1');
+        // if(count === '1'){
+        //     this.goBack("이미 접속되어 있습니다");
+        // }
+        // cookies.set('count', '1', {path : '/'});
+        // window.onbeforeunload = () => {
+        //     cookies.set('count', '0', {path : '/'});
+        // };
+
         let checkRoomName = true;
         await axios.get('/api/checkRoomName', {
             params: {

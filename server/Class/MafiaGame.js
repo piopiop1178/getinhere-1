@@ -34,6 +34,7 @@ class MafiaGame{
         this.confirmCount = 0;
         this.liveOrDie = [undefined, undefined, undefined];
         this.checkCount = undefined;
+        this.checkPlayer = {};
     }
 
     endGame = (socketId) => {
@@ -74,6 +75,9 @@ class MafiaGame{
     }
 
     addPlayer(socket){
+        if(this.isPlaying === true){
+            return;
+        }
         console.log("addPlayer");
         if (this.players[socket.id] !== undefined){
             console.log(`player(${socket.id}) is already exist`);
@@ -148,6 +152,7 @@ class MafiaGame{
         this.isDay = !this.isDay;
         this.candidate = {};
         this.selectedCount = {};
+        this.checkPlayer = {};
         for(let id in this.players){
             this.selectedCount[id] = 0;
         }
@@ -155,14 +160,22 @@ class MafiaGame{
         if(this.isDay === true){
             this.liveOrDie = [undefined, undefined, undefined];
             this.checkCount = this.playerCount;
+            for(let id of Object.keys(this.players)){
+                this.checkPlayer[id] = id;
+            }
         }
         else{
             this.checkCount = Object.keys(this.mafias).length;
+            for(let id of Object.keys(this.mafias)){
+                this.checkPlayer[id] = id;
+            }
             if(this.police !== undefined){
                 this.checkCount++;
+                this.checkPlayer[this.police.id] = this.police.id;
             }
             if(this.doctor !== undefined){
                 this.checkCount++;
+                this.checkPlayer[this.doctor.id] = this.doctor.id;
             }
         }
     }
@@ -231,6 +244,9 @@ class MafiaGame{
 
     confirmCandidate(socketId){
         this.confirmCount++;
+        if(socketId in this.checkPlayer){
+            delete this.checkPlayer[socketId];
+        }
 
         for(let id in this.players){
             console.log("playerClickConfirm");
@@ -238,7 +254,8 @@ class MafiaGame{
         }
 
         console.log("confirmCandidate", this.confirmCount, this.checkCount);
-        if(this.confirmCount === this.checkCount){
+        if(Object.keys(this.checkPlayer).length == 0){
+        // if(this.confirmCount === this.checkCount){
             for(let id in this.candidate){
                 this.selectedCount[this.candidate[id]]++;
             }
