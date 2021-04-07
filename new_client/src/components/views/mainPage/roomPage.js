@@ -566,12 +566,12 @@ class Room extends Component {
             let videoEl = document.getElementById(socketId)
 
             videoEl.addEventListener('dblclick', this.dblclickhandler)
+
             let new_stream = videoEl.srcObject
             if (audio){
                 await new_stream.addTrack(screenAudioConsumer.track);
+                videoEl.srcObject = new_stream;             
             }
-
-            // videoEl.srcObject = new_stream;             
         });
 
         socket.on('endScreenShare', async (socketId, audio) => {
@@ -582,17 +582,9 @@ class Room extends Component {
 
             if (audio){
                 await this.closeClientTrackConsumer(socketId, 'screen-audio')
-                let original_tracks = videoEl.srcObject.getTracks();
-                let new_stream = await this.addTracks(original_tracks[0], original_tracks[1]);
+                let originalStream = videoEl.srcObject;
+                new_stream = await this.addTracks(originalStream.getAudioTracks()[0], originalStream.getVideoTracks()[0]);
             }
-
-            // let audioConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
-            //     c.appData.mediaTag === 'cam-audio'));
-
-            // let videoConsumer = consumers.find((c) => (c.appData.peerId === socketId &&
-            //     c.appData.mediaTag === 'cam-video')); 
-            
-            // let original_stream = await this.addVideoAudio(videoConsumer, audioConsumer);
             
             if (videoEl.classList.contains('iframe-video')){
                 videoEl.classList.remove('iframe-video');
@@ -606,6 +598,7 @@ class Room extends Component {
 
             if (audio){
                 videoEl.srcObject = new_stream;
+                console.log(videoEl.srcObject)
             }
         })
 
@@ -967,8 +960,8 @@ class Room extends Component {
         videoProducer = await sendTransport.produce({
             track: localStream.getVideoTracks()[0].clone(),
             encodings : [
-                {maxBitrate: 100000},
-                // {maxBitrate: 200000}
+                {maxBitrate: 200000},
+                {maxBitrate: 400000}
             ],
             appData: { mediaTag: 'cam-video' }
         });
