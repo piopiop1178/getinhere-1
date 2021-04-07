@@ -41,7 +41,11 @@ let socket;
 let reconnect_checker = false
 
 let constraints = {
-    audio: true,
+    audio: {
+        echoCancellation: false,
+        autoGainControl: false,
+        noiseSuppression: false
+    },
     video: {
         width: {
             max: 1280,
