@@ -199,7 +199,7 @@ module.exports = (io) => {
           await closeTransport(room.roomState, target_transport) 
           io.to(room.name).emit('removeUser', socket.id);
           RoomManager.removeSocketFromRoom(socket, room.name);
-          room.mafiaGame.removePlayer(socket.id);
+          room.mafiaGame.endGame(socket.id);
         });
     }
 
@@ -331,9 +331,9 @@ module.exports = (io) => {
         room.mafiaGame.checkLiveOrDie(socket.id, liveOrDie);
       });
 
-      socket.on("leavePlayer", () => {
-        room.mafiaGame.removePlayer(socket.id);
-      });
+      // socket.on("leavePlayer", () => {
+      //   room.mafiaGame.removePlayer(socket.id);
+      // });
 
     }
 
