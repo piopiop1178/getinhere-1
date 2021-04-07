@@ -714,15 +714,16 @@ class Room extends Component {
         let videos = document.getElementById('videos')
 
         if (screenShareFlag === 1){
+            newVid.addEventListener('dblclick', this.dblclickhandler)
+        } else if (screenShareFlag === 2){
             let screenAudioConsumer = await this.createRealConsumer('screen-audio', recvTransport, socket_id, recvTransport.id)
             await this.resumeConsumer(screenAudioConsumer, 'screen-audio');
             newVid.addEventListener('dblclick', this.dblclickhandler)
             await newStream.addTrack(screenAudioConsumer.track);
-        } 
+        }
 
         newVid.srcObject = newStream
         newVid.id = socket_id
-        // newVid.playsinline = false
         newVid.autoplay = true
         newVid.className = "vid"
         videos.appendChild(newVid)
@@ -732,6 +733,7 @@ class Room extends Component {
         } else {
             newVid.style.display = 'none'
         }
+        console.log(newStream.getTracks())
         peers[socket_id] = null;
     }    
 
@@ -1051,9 +1053,11 @@ class Room extends Component {
         
         let videoConsumer = await this.createRealConsumer('cam-video', recvTransport, peerId, transportId)
         let audioConsumer = await this.createRealConsumer('cam-audio', recvTransport, peerId, transportId)
-    
+        console.log(`createConsumer!! ${peerId}, ${sameSpace}`)
+        console.log(videoConsumer.track)
+
         let stream = await this.addVideoAudio(videoConsumer, audioConsumer);
-    
+        
         while (recvTransport.connectionState !== 'connected') {
         //   console.log('  transport connstate', recvTransport.connectionState );
             await this.sleep(100);
@@ -1082,7 +1086,7 @@ class Room extends Component {
             kind,
             rtpParameters,
         } = Data;
-    
+        console.log(`${mediaTag}, ${peerId}, ${producerId}, ${id}, ${kind}`)
         let codecOptions = {};
         const consumer = await transport.consume({
             id,
@@ -1094,6 +1098,10 @@ class Room extends Component {
         });
     
         consumers.push(consumer);
+        if(mediaTag === 'cam-video'){
+            console.log('i realconsumer')
+            console.log(consumer.track)
+        }
         return consumer;
     }
 
@@ -1212,11 +1220,13 @@ class Room extends Component {
     addVideoAudio = async (videoConsumer, audioConsumer) => {
         const stream = new MediaStream();
         await stream.addTrack(videoConsumer.track);
-
+        
         if (audioConsumer){
             await stream.addTrack(audioConsumer.track);
         }
-
+        console.log('addVideoAudio')
+        console.log(videoConsumer.track)
+        console.log(audioConsumer.track)
         return stream
     }
 
@@ -1224,6 +1234,9 @@ class Room extends Component {
         const stream = new MediaStream();
         await stream.addTrack(videoTrack);
         await stream.addTrack(audioTrack);
+        console.log('addTracks!')
+        console.log(videoTrack)
+        console.log(audioTrack)
         return stream;
     }
 

@@ -108,7 +108,7 @@ module.exports = (io) => {
                 (p) => p.appData.mediaTag === data.mediaTag &&
                        p.appData.peerId === data.peerId
             );
-
+            console.log(producer.appData.mediaTag, producer.appData.peerId)
             const roomState = room.roomState;
             // console.log(roomState);
             callback(await createConsumer(router, transport, roomState, producer, data.rtpCapabilities, data.mediaTag));
