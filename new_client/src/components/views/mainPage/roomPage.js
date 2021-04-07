@@ -1421,12 +1421,12 @@ class Room extends Component {
                 <div className="youtubePage">{youtubePage}</div>
                 {youtubeVideo}
                 {youtubeMusic}
-                <MafiaGame 
+                {/* <MafiaGame 
                     socket={this.props.socket}
                     faceList={this.state.faceList} 
                     characterNumberBySocketid={this.state.characterNumberBySocketid} 
                     nicknameBySocketid={this.state.nicknameBySocketid}
-                    characterList={this.props.characterList}  />
+                    characterList={this.props.characterList}  /> */}
                     
                 <div className="video-box">
                     <div id="videos" className="video-container"></div>
@@ -1439,6 +1439,13 @@ class Room extends Component {
                         <button id="vidButton" className="settings" onClick={this.toggleVid}>Video Enabled</button> */}
                     </div>
                 </div>
+                <MafiaGame 
+                    socket={this.props.socket}
+                    faceList={this.state.faceList} 
+                    characterNumberBySocketid={this.state.characterNumberBySocketid} 
+                    nicknameBySocketid={this.state.nicknameBySocketid}
+                    characterList={this.props.characterList}  />
+                    
                 <div className="chat-box" id="chat-box">
                     <div className="message-box" id="message-box">
                         <div className="message-other">

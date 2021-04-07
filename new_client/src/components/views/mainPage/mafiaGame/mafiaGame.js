@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+let swal = window.swal;
+
 
 class mafiaGame extends Component {
   state = {
@@ -15,9 +17,48 @@ class mafiaGame extends Component {
     alreadySendJoinMafiaGame: false,
   }
   socket = this.props.socket;
-  
+
+  sendCandidateButton = document.querySelector('.sendCandidate');
+  confirmCandidateButton = document.querySelector('.confirmCandidate');
+
   myRoleRef = React.createRef();
   playerButtonRef = React.createRef();
+  nightToDayColor = () => document.querySelector('.mafiaGameFrame').style.backgroundColor = 'Beige';
+  dayToNightColor = () => document.querySelector('.mafiaGameFrame').style.backgroundColor = 'DarkSlateBlue';
+  //style
+  playerContainerBorderStyle = '1px solid peru'
+  playerChoiceSpanStyle = "color:black;font-weight:bold; margin: 2px; padding: 2px; margin:2px; border-radius: 5px; "
+  confirmChoiceSpanStyle = "color:green;font-weight:bold; border: 2px solid green; border-radius: 5px; padding: 2px; margin: 2px; background-color:white;"
+  mafiaPlayerImageSize = '70px';
+  engToKorRoles = {
+    "citizen": "시민",
+    "mafia": "마피아",
+    "police": "경찰관",
+    "doctor": "의사", 
+  }
+  
+  
+  returnRoleExplanationByPlayerNumber = (playerNum) => {
+    switch(playerNum) {
+      case 2:
+        return '구성) 시민 1명, 마피아 1명';
+      case 3:
+        return "구성) 시민 2명, 마피아 1명"
+      case 4:
+        return "구성) 시민 1명, 마피아 1명, 경찰 1명, 의사 1명"
+      case 5:
+        return "구성) 시민 2명, 마피아 1명, 경찰 1명, 의사 1명"
+      case 6:
+        return "구성) 시민 2명, 마피아 2명, 경찰 1명, 의사 1명"
+      case 7:
+        return "구성) 시민 3명, 마피아 2명, 경찰 1명, 의사 1명"
+      case 8:
+        return "구성) 시민 4명, 마피아 2명, 경찰 1명, 의사 1명"
+      case 9:
+        return "구성) 시민 5명, 마피아 3명, 경찰 1명, 의사 1명"
+    }
+  }
+
 
   addCharacterInfoInGame = (socketId) => {
       let newPlayer = document.querySelector(`[data-player-number='${this.state.playerNumber+1}']`);
@@ -27,11 +68,8 @@ class mafiaGame extends Component {
           newPlayer.dataset.socketid = socketId ? socketId : '00' ;
           this.state.playerNumber += 1;
 
-          /* 이미지 추가하기  1안, 2안, 둘다 잘 된다. 2안을 통해서 style을 조정할 수 있어 보인다. */
-          // newPlayer.parentNode.appendChild(this.state.faceList[socketId]); //tmp 1안: Image 객체를 바로 추가하기
-
-          let playerImage = document.createElement('img'); //tmp 2안: createElement로 img 만들어서 추가하기
-          let playerNickName = document.createElement('span'); //tmp 2안: createElement로 img 만들어서 추가하기
+          let playerImage = document.createElement('img');
+          let playerNickName = document.createElement('span');
           let characterNumber;
 
           if (this.state.faceList[socketId] != undefined) {
@@ -41,8 +79,8 @@ class mafiaGame extends Component {
             characterNumber = characterNumber ? characterNumber : 0;  // 반창고, 숫자 0을 못받아온다
             characterNumber && (playerImage.src = this.props.characterList[characterNumber].src);
           }
-          playerImage.style.width = '60px'
-          playerImage.style.height = '60px'
+          playerImage.style.width = this.mafiaPlayerImageSize;
+          playerImage.style.height = this.mafiaPlayerImageSize;
           playerNickName.innerText = this.props.nicknameBySocketid[socketId];
           newPlayer.appendChild(playerImage);
           newPlayer.appendChild(playerNickName);
@@ -53,21 +91,10 @@ class mafiaGame extends Component {
 
   leaveGame = () => {
     this.setState({
-      // isMafiaGameOn: false,
-      // isMafiaGameStarted: false,
-      
-      // selectedPlayerSocketId: '',
-      // amIAlive: true,
-      // deadPlayers: [],
-      // liveOrDieModalOnOff: false,
-      // myRole: '',
-      // alreadySendJoinMafiaGame: false,
         isMafiaGameOn: false,
         isMafiaGameStarted: false,
         selectedPlayerSocketId: '',
         playerNumber: 0,
-        // faceList: [],
-        // amIAlive: true,
         deadPlayers: [],
         liveOrDieModalOnOff: false,
         myRole: '',
@@ -77,10 +104,7 @@ class mafiaGame extends Component {
     // 소켓을 다 닫아주어야한다.
     }
 
-  nightToDayColor = () => document.querySelector('.mafiaGameFrame').style.backgroundColor = 'Beige';
-  dayToNightColor = () => document.querySelector('.mafiaGameFrame').style.backgroundColor = 'DarkSlateBlue';
-  playerContainerBorderStyle = '1px solid peru'
-  playerChoiceSpanStyle = "color:black;font-weight:bold; margin: 2px; "
+
 
   removePlayersChoices = () => {
     // * main 화면 깨끝하게 비워주기
@@ -99,7 +123,6 @@ class mafiaGame extends Component {
         diePlayerButton.firstElementChild.style.filter = 'grayscale(80%) blur(5px)'
         diePlayerButton.disabled = true;
     }
-    // diePlayerButton && (diePlayerButton.firstElementChild.style.filter = 'grayscale(80%) blur(5px)')
   }
 
   joinMafiaGame = async () => {
@@ -134,30 +157,41 @@ class mafiaGame extends Component {
       this.socket.on("sendRole", (role) => {
           console.log("MG-10 sendRole", role);
           // 자기 역할 저장 및 직업 확인 팝업
+          swal(`${this.engToKorRoles[role]}`, `당신은 ${this.engToKorRoles[role]}입니다. \n ${this.returnRoleExplanationByPlayerNumber(this.state.playerNumber)}`)
           // 회의 시작
           this.setState({amIAlive: true, isMafiaGameStarted: true, myRole: role}); // 게임 시작 시, 내 상태를 '생존'으로 바꾼다.
           // 순서 조심
           
-          console.log('role from server', role);
-          console.log('this.myRoleRef.current',this.myRoleRef.current);
-          this.myRoleRef.current.textContent = role;
+          this.myRoleRef.current.textContent = this.engToKorRoles[role];
           document.querySelector('.confirmCandidate') && (document.querySelector('.confirmCandidate').disabled = true);
 
       });
-      /* MG-15. 생사 투표 진행 */
+      /* MG-15. 생사 투표 진행 */ //최후변론 최종변론
       this.socket.on("sendVoteResult", (candidate) => {
           console.log("MG-15 sendVoteResult", candidate);
           /* TODO: 생사 투표 진행 */
           // 결과 전달은 sendLiveOrDie 함수를 통해
           if (candidate == undefined) {
-            alert("낮에 아무도 죽지 않았습니다!");
+            // alert("낮에 아무도 죽지 않았습니다!");
+            swal("낮에 아무도 죽지 않았습니다!", "");
             return;
           } else {
-            // * 후보자가 존재하면, 후보자 사진과 이름을 모달창 가운데에 띄운다
             this.setState({liveOrDieModalOnOff: true}) // 생사투표모달 켜기
+            if(this.state.amIAlive == false) { // 내가 죽어있으면, 선택 못하도록 하기
+              document.querySelector(`[data-live-or-die='live']`) && (document.querySelector(`[data-live-or-die='live']`).disabled = true);
+              document.querySelector(`[data-live-or-die='die']`) && (document.querySelector(`[data-live-or-die='die']`).disabled = true);
+            } else { // * 살아 있을 때만 투표가능하다
+              document.querySelector(`[data-live-or-die='live']`) && (document.querySelector(`[data-live-or-die='live']`).disabled = false);
+              document.querySelector(`[data-live-or-die='die']`) && (document.querySelector(`[data-live-or-die='die']`).disabled = false);
+            }
+            // * 후보자가 존재하면, 후보자 사진과 이름을 모달창 가운데에 띄운다
             let characterNumber;
             let candidateImage = document.querySelector('.liveOrDieModalCandidateImage');
             let candidateName =  document.querySelector('.liveOrDieModalCandidateName');
+            // * 후보자 비디오 위치 옮겨버리기
+            let candidateVideo = document.getElementById(candidate);
+            candidateVideo && candidateVideo.setAttribute("style", "position: fixed; left: 40%; top: 40%; transform: translate(-50%, -50%);")
+
             if (this.state.faceList[candidate] != undefined) {
               candidateImage.src = this.state.faceList[candidate].src;
             } else {
@@ -165,13 +199,8 @@ class mafiaGame extends Component {
               characterNumber = characterNumber ? characterNumber : 0;  // 반창고, 숫자 0을 못받아온다
               characterNumber && (candidateImage.src = this.props.characterList[characterNumber].src);
             }
-            candidateName && (candidateName.innerText = this.props.nicknameBySocketid[candidate]);
-
-            if(this.state.amIAlive) { // * 살아 있을 때만 투표가능하다
-              document.querySelector(`[data-live-or-die='live']`) && (document.querySelector(`[data-live-or-die='live']`).disabled = false);
-              document.querySelector(`[data-live-or-die='die']`) && (document.querySelector(`[data-live-or-die='die']`).disabled = false);
-            }
-
+            // candidateName && (candidateName.innerText = this.props.nicknameBySocketid[candidate]);
+            candidateName && (candidateName.innerText = `${this.props.nicknameBySocketid[candidate]} 최후변론`);
           }
       });
 
@@ -179,6 +208,7 @@ class mafiaGame extends Component {
       this.socket.on("confirmLiveOrDie", (results, isSomebodyDieSocketId,  live, die, isGameEnd) => {
           console.log("confirmLiveOrDie");
           console.log(results, live, die, isGameEnd);
+          this.removePlayersChoices() //화면 청소
 
           //* 내가 죽었으면, 설정해주기
           if(isSomebodyDieSocketId == this.socket.id && results == 'die') {
@@ -190,24 +220,12 @@ class mafiaGame extends Component {
 
           //* 죽은사람 화면에 표시해주기(greyscale, blur 효과)
           if(results == 'die')  this.dieFilter(isSomebodyDieSocketId);
-          // let deadManButton  = document.querySelector(`[data-set-socketid='${isSomebodyDieSocketId}'`); // * 소켓아이디로 찾은 button의 첫번째자식: 이미지
-          // deadManButton && (deadManButton.firstElementChild.style.filter = 'grayscale(80%) blur(5px)')
 
-          //$0.style.filter = 'grayscale(100%) blur(5px)'
-
-          // * voteBox 선택하고, 깔끔하게 내용 지워주기
-          //! 기존
-          // let liveVoteBox = document.querySelector(`[data-live-or-die='live'`) 
-          // let dieVoteBox  = document.querySelector(`[data-live-or-die='die'`)
-          //! liveOrDieVoter-live -die
           let liveVoteBox = document.querySelector(`.liveOrDieVoter-live`) 
           let dieVoteBox  = document.querySelector(`.liveOrDieVoter-die`)
-          // liveVoteBox.innerHTML = '';
-          // dieVoteBox.innerHTML = '';
           
           for(let liveVote of live) {
               let voteSpan = document.createElement('span');
-              voteSpan.style.fontSize = '1.2rem';
               voteSpan.id = `${liveVote}-liveOrDie`
               voteSpan.innerText = this.props.nicknameBySocketid[liveVote];
               voteSpan.setAttribute('style', this.playerChoiceSpanStyle);
@@ -216,7 +234,6 @@ class mafiaGame extends Component {
 
           for(let dieVote of die) {
               let voteSpan = document.createElement('span');
-              voteSpan.style.fontSize = '1.2rem';
               voteSpan.id = `${dieVote}-liveOrDie`
               voteSpan.innerText = this.props.nicknameBySocketid[dieVote];
               voteSpan.setAttribute('style', this.playerChoiceSpanStyle);
@@ -225,14 +242,15 @@ class mafiaGame extends Component {
 
           /* TODO: NightTurn 진행 할 경우 팝업 등 화면 전환 구현 */
           if (isGameEnd) {
-            alert(`낮, 투표 결과: ${isGameEnd}의 승리로 끝났습니다`)
+            // alert(`낮, 투표 결과: ${isGameEnd}의 승리로 끝났습니다`);
+            swal(`${isGameEnd} 승리!`, `낮, 투표 결과: ${isGameEnd}의 승리로 끝났습니다`);
             this.leaveGame();
           } else {
             // * 경기가 끝나지 않았으면, 5초 후에 모달창을 닫고, 밤이 시작된다
             setTimeout(()=> {
               this.removePlayersChoices() //화면 청소
               this.setState({liveOrDieModalOnOff: false}); // 생사투표모달 끄기
-            }, 10000)
+            }, 8000)
             // this.socket.emit("startNight");
           }
       });
@@ -251,15 +269,20 @@ class mafiaGame extends Component {
           let myRole = this.state.myRole
           if (myRole == 'mafia' && this.state.amIAlive) { // * 살아 있을 때만 투표가능하다) 
             document.querySelector('.sendCandidate') && (document.querySelector('.sendCandidate').disabled = false);
-            alert('밤이 되었습니다. 당신은 마피아. 죽일 사람을 선택해주세요')
+            // alert('밤이 되었습니다. 당신은 마피아. 죽일 사람을 선택해주세요')
+            swal("밤이 되었습니다", "당신은 마피아. 죽일 사람을 선택해주세요", "info");
           } else if (myRole == 'police' && this.state.amIAlive) {
             document.querySelector('.sendCandidate') && (document.querySelector('.sendCandidate').disabled = false);
-            alert('밤이 되었습니다. 당신은 경찰. 마피아로 의심가는 사람을 선택해주세요')
+            // alert('밤이 되었습니다. 당신은 경찰. 마피아로 의심가는 사람을 선택해주세요')
+            swal("밤이 되었습니다", "당신은 경찰. 마피아로 의심가는 사람을 선택해주세요", "info");
           } else if (myRole == 'doctor' && this.state.amIAlive) {
             document.querySelector('.sendCandidate') && (document.querySelector('.sendCandidate').disabled = false);
-            alert('밤이 되었습니다. 당신은 의사. 살리고 싶은 사람을 선택해주세요')
+            // alert('밤이 되었습니다. 당신은 의사. 살리고 싶은 사람을 선택해주세요')
+            swal("밤이 되었습니다", "당신은 의사. 살리고 싶은 사람을 선택해주세요", "info");
+
           } else {
-            alert('밤이 되었습니다')
+            // alert('밤이 되었습니다');
+            swal("밤이 되었습니다", "수상한 사람을 찾아보세요", "info");
           }
           
       });
@@ -268,11 +291,13 @@ class mafiaGame extends Component {
           if(this.state.myRole == "police") {
             if(isMafia) {
               setTimeout(()=> {
-                alert(`경찰이 선택한 ${this.props.nicknameBySocketid[this.state.selectedPlayerSocketId]}(은)는 마피아가 맞습니다`);
+                // alert(`경찰이 선택한 ${this.props.nicknameBySocketid[this.state.selectedPlayerSocketId]}(은)는 마피아가 맞습니다`);
+                swal(`${this.props.nicknameBySocketid[this.state.selectedPlayerSocketId]}`, `(은)는 마피아가 맞습니다`, "success");
               }, 300)
             } else {
               setTimeout(()=> {
-                alert(`경찰이 선택한 ${this.props.nicknameBySocketid[this.state.selectedPlayerSocketId]}(은)는 마피아가 아닙니다`);
+                // alert(`경찰이 선택한 ${this.props.nicknameBySocketid[this.state.selectedPlayerSocketId]}(은)는 마피아가 아닙니다`);
+                swal(`${this.props.nicknameBySocketid[this.state.selectedPlayerSocketId]}`, `(은)는 마피아가 아닙니다`, "error");
               }, 300)
              }
           } else {
@@ -288,7 +313,8 @@ class mafiaGame extends Component {
 
         this.nightToDayColor();
         if(isSomebodyDieSocketId) {
-          alert(`지난 밤 ${this.props.nicknameBySocketid[isSomebodyDieSocketId]}(이)가 죽었습니다`)
+          // alert(`지난 밤 ${this.props.nicknameBySocketid[isSomebodyDieSocketId]}(이)가 죽었습니다`)
+          swal(`${this.props.nicknameBySocketid[isSomebodyDieSocketId]}`, `(이)가 지난 밤 죽었습니다`, "error");
           //* 죽은사람 필터 씌우기
           this.dieFilter(isSomebodyDieSocketId);
           //* 내가 죽었으면, 설정해주기
@@ -302,7 +328,7 @@ class mafiaGame extends Component {
             // document.querySelector('.confirmCandidate') && (document.querySelector('.confirmCandidate').disabled = true);
           }
         } else {
-          alert("지난 밤 아무도 죽지 않았습니다")
+          swal("지난 밤 아무도 죽지 않았습니다", "")
         }
 
         if(this.state.amIAlive) {
@@ -311,10 +337,20 @@ class mafiaGame extends Component {
         }
 
         if(isGameEnd == '시민') {
-          alert("축하합니다🤸‍♀️🤸‍♂️ 시민의 승리로 끝났습니다")
+          if(this.state.myRole !== 'mafia') {
+            // alert("축하합니다🤸‍♀️🤸‍♂️ 시민의 승리로 끝났습니다")
+            swal("승리", "시민의 승리로 끝났습니다", 'success')
+          } else {
+            swal("패배", "시민의 승리로 끝났습니다", 'error')
+          } 
           this.leaveGame()
         } else if (isGameEnd == '마피아') {
-          alert("축하합니다🤸‍♀️🤸‍♂️ 마피아의 승리로 끝났습니다")
+          if(this.state.myRole == 'mafia') {
+            // alert("축하합니다🤸‍♀️🤸‍♂️ 마피아의 승리로 끝났습니다")
+            swal("승리", "마피아의 승리로 끝났습니다", "success");
+          } else {
+            swal("패배", "마피아의 승리로 끝났습니다", "error");
+          }
           this.leaveGame()
         }
       })
@@ -344,9 +380,9 @@ class mafiaGame extends Component {
       this.socket.on("playerClickConfirm", (socketId) => {
         console.log("playerClickConfirm");
         let choicerSpan = document.getElementById(`${socketId}-vote`);
-        choicerSpan && (choicerSpan.setAttribute("style", "color:green;font-weight:bold; border: 2px solid green; border-radius: 5px; padding: 2px; background-color:white;"));
+        choicerSpan && (choicerSpan.setAttribute("style", this.confirmChoiceSpanStyle));
       });
-
+      
       /* 게임 강제종료 by 살아있는 누군가가 게임을 나감 */
       this.socket.on("gameShutdown", ()=> {
           alert("누군가 마피아게임을 나갔습니다. \n강제종료됩니다.");
@@ -398,7 +434,7 @@ class mafiaGame extends Component {
       /* MG-23. Night 턴에서 후보 확정 정보 전달 */
       // confirmCandidate
       /* TODO: sendCandidate 불가능 하도록 처리 */
-      if (this.state.selectedPlayerSocketId == false) {alert("'선택' 후 '확정'해 주세요"); return;}
+      if (this.state.selectedPlayerSocketId == false) {alert("'사람 선택' 후 '선택' 후 '확정'해 주세요"); return;}
       document.querySelector('.sendCandidate')    &&  (document.querySelector('.sendCandidate').disabled = true);
       document.querySelector('.confirmCandidate') &&  (document.querySelector('.confirmCandidate').disabled = true);
       // confirm 확정을 보낸다
@@ -422,7 +458,7 @@ class mafiaGame extends Component {
     this.state.faceList = this.props.faceList;
     window.addEventListener('keydown' ,(e)=> {
       
-      if (e.code ==="KeyX"){
+      if (e.code ==="KeyX" && document.activeElement.tagName != "INPUT"){
           let parsed = JSON.parse(localStorage.getItem('myStatus'))
           /* 게임시작 */
           if (parsed.x >= 1680 && parsed.y <= 360 && !this.state.isMafiaGameOn) { 
@@ -442,22 +478,25 @@ class mafiaGame extends Component {
     })
   }
 
-  playerSelect = (e) => {
-    // parentNode가 div이다. 
-    // let beforeSelected = document.querySelector(`[data-socketid='${this.state.selectedPlayerSocketId}']`).parentNode;
-    if(e.target.parentNode.tagName == 'BUTTON') { // 이미지를 클릭하게 될 경우. event bubble 다루기
+  playerSelect = (e) => { //playerSelection
+    if(e.target.tagName == "DIV") { //div를 클릭하게 될 경우, e.target을 자식인 button으로 옮겨주기
+      e.target = e.target.firstElementChild;
+    } else if(e.target.parentNode.tagName == 'BUTTON') { // 이미지를 클릭하게 될 경우. event bubble 다루기 div > button > img 순서다
       e.target = e.target.parentNode;
     }
+
     let beforeSelected = document.querySelectorAll(`[data-socketid]`);
     for(let i of beforeSelected) {
-      // i.parentNode.style.border = '1px solid peru';
       i.parentNode.style.border = this.playerContainerBorderStyle;
     }
 
-    // beforeSelected.style.border = '1px solid grey';
-    e.target.parentNode.style.border = '2px solid orange';
+    // selected design
+    e.target.parentNode.style.border = '4px solid red';
+    this.state.selectedPlayerSocketId = e.target.dataset.socketid;
+    this.sendCandidate();
     this.setState({selectedPlayerSocketId: `${e.target.dataset.socketid}`});
-    // console.log(this.state.selectedPlayerSocketId);
+    // this.sendCandidateButton && (this.sendCandidateButton.style.border = "2px solid green")
+    
   }
 
   render() {
@@ -470,7 +509,7 @@ class mafiaGame extends Component {
       position: 'fixed',
       bottom: '0px',
       backgroundColor: 'Beige',
-      zIndex: '10',
+      // zIndex: '10',
     }
     let playerContainerStyle = {
       width: '39vw',
@@ -524,8 +563,8 @@ class mafiaGame extends Component {
     }
 
     let candidateImageStyle = {
-      position: 'relative',
-      top: '0px',
+      position: 'fixed',
+      // top: '40%',
       left: '50%',
       transform: 'translate(-50%, -100%)',
       width: '100px',
@@ -534,13 +573,16 @@ class mafiaGame extends Component {
     }
   
     let candidateNameStyle = {
-      position: 'absolute',
+      fontFamily: 'Gaegu',
+      position: 'fixed',
       display: 'block',
-      top: '0px',
+      top: '-10%',
       left: '50%',
+      fontSize: '1rem',
       transform: 'translate(-50%, -10%)',
       borderRadius: '10%',
-      backgroundColor: 'white',
+      backgroundColor: 'Beige',
+      border: '1px solid green'
     }
 
     let liveOrDieVoterStyle = {
@@ -568,46 +610,46 @@ class mafiaGame extends Component {
           {this.state.liveOrDieModalOnOff ? liveOrDieModal : <div></div> }
           {/* {liveOrDieModal} */}
           {/* <div className="players-wrapper" style={{width: '100%'}}> */}
-              <div className='player-container' style={playerContainerStyle}>
+              <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
                   <button className='player-button' data-player-number='1' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
                   <div className="vote-box"></div>
               </div>
-              <div className='player-container' style={playerContainerStyle}>
+              <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
                  <button className='player-button' data-player-number='2' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
                  <div className="vote-box"></div>
               </div>
-              <div className='player-container' style={playerContainerStyle}>
+              <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
                   <button className='player-button' data-player-number='3' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
                   <div className="vote-box"></div>
               </div>
-              <div className='player-container' style={playerContainerStyle}>
+              <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
                  <button className='player-button' data-player-number='4' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
                  <div className="vote-box"></div>
               </div>
-              <div className='player-container' style={playerContainerStyle}>
+              <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
                  <button className='player-button' data-player-number='5' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
                  <div className="vote-box"></div>
               </div>
-              <div className='player-container' style={playerContainerStyle}>
+              <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
                  <button className='player-button' data-player-number='6' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
                  <div className="vote-box"></div>
               </div>
-              <div className='player-container' style={playerContainerStyle}>
+              <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
                  <button className='player-button' data-player-number='7' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
                  <div className="vote-box"></div>
               </div>
-              <div className='player-container' style={playerContainerStyle}>
+              <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
                  <button className='player-button' data-player-number='8' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
                  <div className="vote-box"></div>
               </div>
-              <div className='player-container' style={playerContainerStyle}>
+              <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
                   <button className='player-button' data-player-number='9' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
               </div>
               <div className='player-container' style={playerContainerStyle}>
                   {this.state.isMafiaGameStarted
                     ? <div>
-                        <button style={buttonStyle} className='sendCandidate' onClick={this.sendCandidate}> 선택 </button>
-                        <button style={buttonStyle} className='confirmCandidate' onClick={this.confirmCandidate}> 확정 </button> 
+                        {/* <button style={buttonStyle} className='sendCandidate' onClick={this.sendCandidate}>선택</button> */}
+                        <button style={buttonStyle} className='confirmCandidate' onClick={this.confirmCandidate}>확정</button> 
                         <span>My Role:<span className="myRole" ref={this.myRoleRef}></span></span>
                       </div>
                     : <button style={buttonStyle} className='startMafiaGame' onClick={this.startMafiaGame}> 게임 시작 </button>}
