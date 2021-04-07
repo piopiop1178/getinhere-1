@@ -390,8 +390,10 @@ class mafiaGame extends Component {
           choicerSpan.setAttribute('style', this.playerChoiceSpanStyle);
           
           // * 지목받은사람(pointee)의 voteBox에 appendChild 해주기
-          let pointeeVoteBox = document.querySelector(`[data-set-socketid='${pointee}'`).parentNode.lastElementChild;
-          pointeeVoteBox.appendChild(choicerSpan);
+          if (document.querySelector(`[data-set-socketid='${pointee}'`)) {
+            let pointeeVoteBox = document.querySelector(`[data-set-socketid='${pointee}'`).parentNode.lastElementChild;
+            pointeeVoteBox.appendChild(choicerSpan);
+          }
       })
 
       /* MG-25. 게임 종료 시 결과 화면 출력 */
@@ -406,7 +408,7 @@ class mafiaGame extends Component {
       
       /* 게임 강제종료 by 살아있는 누군가가 게임을 나감 */
       this.socket.on("gameShutdown", ()=> {
-          alert("누군가 마피아게임을 나갔습니다. \n강제종료됩니다.");
+          // alert("누군가 마피아게임을 나갔습니다. \n강제종료됩니다.");
           this.setState({
             isMafiaGameOn: false,
             isMafiaGameStarted: false,
