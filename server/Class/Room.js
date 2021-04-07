@@ -126,7 +126,9 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
         const UP = 'ArrowUp';
         const RIGHT = 'ArrowRight'
         const DOWN = 'ArrowDown';
-        setInterval(() => {
+        let recursion;
+        setTimeout( recursion = () => {
+        // setInterval(() => {
             let idArray = []; 
             let statuses = {};
             for (const user of Object.values(this.users)) {
@@ -158,6 +160,7 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
                 statuses[user.socket.id] = status_pair;
             }
             io.to(this.name).emit('update', statuses, idArray);
+            setTimeout(recursion, 150);
             }, 150);    // 원래 50
     }
 

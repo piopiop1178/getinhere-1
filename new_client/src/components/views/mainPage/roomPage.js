@@ -166,6 +166,12 @@ function onPlayerStateChange(event) {
     }
 }
 
+// requestanimation 관련 전연변수 선언
+let animationFlag = true;
+let idArrayGlobal;
+let statusesGlobal;
+
+
 class Room extends Component {
     state = {
         roomName: "",
@@ -357,45 +363,21 @@ class Room extends Component {
         });        
     }
 
-    updatePosition = (statuses, idArray) => {
-        arrowUpThisFlag = false;
-        arrowRightThisFlag = false;
-        arrowDownThisFlag = false;
-        arrowLeftThisFlag = false;
-        if (keyUpBuffer[UP]) { arrowUpOnceFlag = false; socket.emit("keyup", UP); keyUpBuffer[UP] = false;} 
-        if (keyUpBuffer[RIGHT]) { arrowRightOnceFlag = false; socket.emit("keyup", RIGHT); keyUpBuffer[RIGHT] = false;} 
-        if (keyUpBuffer[DOWN]) { arrowDownOnceFlag = false; socket.emit("keyup", DOWN); keyUpBuffer[DOWN] = false;} 
-        if (keyUpBuffer[LEFT]) { arrowLeftOnceFlag = false; socket.emit("keyup", LEFT); keyUpBuffer[LEFT] = false;} 
-
-        // const WIDTH = this.state.map._WIDTH;
-        // const HEIGHT = this.state.map._HEIGHT;
+    // requestAnimationFrame관련 함수
+    drawCharacter = (statuses, idArray) =>{
+        statuses = statusesGlobal;
+        idArray = idArrayGlobal;
         const contextCharacter = this.state.contextCharacter;
         let myStatus = statuses[socket.id].status;
 
-        curr_space = this.calcSpace(socket.id, myStatus.x, myStatus.y)
-        if ((myStatus.space !== curr_space) && changeSpace) {
-            changeSpace = false
-            socket.emit('spaceChange', myStatus.space, curr_space)
-        }
-
-        this.storelocalStorage(myStatus);
         this.updateWindowCenter(myStatus);
         contextCharacter.clearRect(myStatus.x - window.innerWidth, myStatus.y - window.innerHeight, window.innerWidth*2, window.innerHeight*2); //TODO 내가 보는곳만 하기
         contextCharacter.beginPath();
         idArray.forEach((id) => {
-            // Audio volume change
-            // if (id !== socket.id && gains[id] != undefined) {
-            //     dist = this.calcDistance(statuses[id].status, statuses[socket.id].status)
-            //     gains[id].gain.value = dist >= 10 ? 0 : (1 - 0.1*dist)
-            // }
-
             // 다른 캐릭터가 내 화면 밖으로 나가면 그려주지않고 넘어간다
             if (Math.abs(myStatus.x - statuses[id].status.x) > window.innerWidth && Math.abs(myStatus.y - statuses[id].status.y) > window.innerHeight) {
                 return;
             }
-
-            // let drawImageSrc = statuses[id].characterNum != -1 ? this.props.characterList[statuses[id].characterNum] : this.state.faceList[statuses[id].id]
-            // if (!drawImageSrc) {return;}
 
             if(statuses[id].characterNum == -1) {
                 if(!this.state.faceList[statuses[id].id]) {return;}
@@ -416,9 +398,7 @@ class Room extends Component {
                     statuses[id].status.height + 6,
                 );
             }
-
-
-            // 술 이모티콘 삽입 코드
+        
             if (statuses[id].status.alchol) {
                 let alchol;
 
@@ -460,8 +440,37 @@ class Room extends Component {
                 statuses[id].status.x,
                 statuses[id].status.y + 90,
             );
-        });
-        changeSpace = true
+        })
+        requestAnimationFrame(()=>{this.drawCharacter(statuses, idArray)});
+    }
+
+    updatePosition = (statuses, idArray) => {
+        arrowUpThisFlag = false;
+        arrowRightThisFlag = false;
+        arrowDownThisFlag = false;
+        arrowLeftThisFlag = false;
+        if (keyUpBuffer[UP]) { arrowUpOnceFlag = false; socket.emit("keyup", UP); keyUpBuffer[UP] = false;} 
+        if (keyUpBuffer[RIGHT]) { arrowRightOnceFlag = false; socket.emit("keyup", RIGHT); keyUpBuffer[RIGHT] = false;} 
+        if (keyUpBuffer[DOWN]) { arrowDownOnceFlag = false; socket.emit("keyup", DOWN); keyUpBuffer[DOWN] = false;} 
+        if (keyUpBuffer[LEFT]) { arrowLeftOnceFlag = false; socket.emit("keyup", LEFT); keyUpBuffer[LEFT] = false;} 
+        
+        let myStatus = statuses[socket.id].status;
+        statusesGlobal = statuses;
+        idArrayGlobal = idArray;
+        this.storelocalStorage(myStatus);
+
+        if (animationFlag) {
+            requestAnimationFrame(()=>{this.drawCharacter(statuses, idArrayGlobal)})
+        }
+        animationFlag = false;
+        
+        curr_space = this.calcSpace(socket.id, myStatus.x, myStatus.y)
+        if ((myStatus.space !== curr_space) && changeSpace) {
+            changeSpace = false
+            socket.emit('spaceChange', myStatus.space, curr_space)
+        }
+
+        changeSpace = true;
     }
 
     updatePositionSocketOff = () => {
