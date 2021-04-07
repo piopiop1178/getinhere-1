@@ -104,12 +104,12 @@ window.onpopstate = function(event) {
 };
 
 // youtube synchro play
-var tag = document.createElement('script');
+let tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
-var firstScriptTag = document.getElementsByTagName('script')[0];
+let firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-var player1;
-var player2;
+let player1;
+let player2;
 function onYouTubeIframeAPIReady1(video_id) {
     player1 = new window.YT.Player("player1", {
         height: '100%',
@@ -155,7 +155,7 @@ function onYouTubeIframeAPIReady2(video_id) {
 function onPlayerReady(event) {
     event.target.setVolume(40);
 }
-var done = false;
+let done = false;
 function onPlayerStateChange(event) {
     if (event.data == window.YT.PlayerState.PLAYING && !done) {
         // setTimeout(player.unMute(), 1000);
@@ -167,6 +167,7 @@ function onPlayerStateChange(event) {
 let animationFlag = true;
 let idArrayGlobal;
 let statusesGlobal;
+let count = 0;
 
 
 class Room extends Component {
@@ -362,6 +363,8 @@ class Room extends Component {
 
     // requestAnimationFrame관련 함수
     drawCharacter = (statuses, idArray) =>{
+        count++;
+        if ( count % 9 === 0){
         statuses = statusesGlobal;
         idArray = idArrayGlobal;
         const contextCharacter = this.state.contextCharacter;
@@ -438,7 +441,8 @@ class Room extends Component {
                 statuses[id].status.y + 90,
             );
         })
-        // requestAnimationFrame(()=>{this.drawCharacter(statuses, idArray)});
+        }
+        requestAnimationFrame(()=>{this.drawCharacter(statuses, idArray)});
     }
 
     updatePosition = (statuses, idArray) => {
@@ -456,11 +460,11 @@ class Room extends Component {
         idArrayGlobal = idArray;
         this.storelocalStorage(myStatus);
 
-        // if (animationFlag) {
-            // requestAnimationFrame(()=>{this.drawCharacter(statuses, idArrayGlobal)})
-        this.drawCharacter(statuses, idArrayGlobal)
-        // }
-        // animationFlag = false;
+        // this.drawCharacter(statuses, idArrayGlobal)
+        if (animationFlag) {
+            requestAnimationFrame(()=>{this.drawCharacter(statuses, idArrayGlobal)})
+        }
+        animationFlag = false;
         
         curr_space = this.calcSpace(socket.id, myStatus.x, myStatus.y)
         if ((myStatus.space !== curr_space) && changeSpace) {
