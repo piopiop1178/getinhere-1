@@ -201,6 +201,7 @@ module.exports = (io) => {
           // console.log('disconnect!');
           io.to(room.name).emit('removeUser', socket.id);
           RoomManager.removeSocketFromRoom(socket, room.name);
+          room.mafiaGame.removePlayer(socket.id);
         });
         // console.log("initWebRTC End");
     }

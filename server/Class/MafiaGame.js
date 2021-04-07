@@ -369,8 +369,11 @@ class MafiaGame{
             if(this.selectedCount[socketId] !== undefined){
                 delete this.selectedCount[socketId];
             }
-            for(let id in this.players){
-                this.players[id].socket.emit("removePlayer", socketId);
+            /* 플레이어가 나갔는데 죽은 사람이 아니면 */
+            if(!(socketId in this.deadPlayers)){
+                for(let id in this.players){
+                    this.players[id].socket.emit("gameShutdown", socketId);
+                }
             }
         }
     }
