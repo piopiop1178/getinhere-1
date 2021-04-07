@@ -205,7 +205,9 @@ class MafiaGame{
             if(this.isDay){
                 console.log("밤이 되었습니다");
                 for(let socketId in this.players){
-                    this.players[socketId].socket.emit("doNightAction"); 
+                    setTimeout(()=>{
+                        this.players[socketId].socket.emit("doNightAction"); 
+                    }, 6000) // 6초후 밤으로 전환
                 }
             }
             else{
@@ -260,8 +262,8 @@ class MafiaGame{
         }
 
         console.log("confirmCandidate", this.confirmCount, this.checkCount);
-        if(Object.keys(this.checkPlayer).length == 0){
-        // if(this.confirmCount === this.checkCount){
+        // if(Object.keys(this.checkPlayer).length == 0){
+        if(this.confirmCount === this.checkCount){
             for(let id in this.candidate){
                 this.selectedCount[this.candidate[id]]++;
             }

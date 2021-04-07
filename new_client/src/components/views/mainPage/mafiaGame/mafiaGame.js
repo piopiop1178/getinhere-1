@@ -240,6 +240,12 @@ class mafiaGame extends Component {
             document.querySelector(`[data-live-or-die='live']`) && (document.querySelector(`[data-live-or-die='live']`).disabled = true);
             document.querySelector(`[data-live-or-die='die']`) && (document.querySelector(`[data-live-or-die='die']`).disabled  = true);
           }
+          //* 투표 결과 알려주기
+          if(results =='die') {
+            swal(`투표 결과 ${this.props.nicknameBySocketid[isSomebodyDieSocketId]} (이)가 죽었습니다`,"잠시 후 밤이 됩니다.")
+          } else if (results == 'live') {
+            swal(`투표 결과 ${this.props.nicknameBySocketid[isSomebodyDieSocketId]} (이)가 살았습니다`,"잠시 후 밤이 됩니다.")
+          }
 
           //* 죽은사람 화면에 표시해주기(greyscale, blur 효과)
           if(results == 'die')  this.dieFilter(isSomebodyDieSocketId);
@@ -273,7 +279,7 @@ class mafiaGame extends Component {
             setTimeout(()=> {
               this.removePlayersChoices() //화면 청소
               this.setState({liveOrDieModalOnOff: false}); // 생사투표모달 끄기
-            }, 5000)
+            }, 6000)
             // this.socket.emit("startNight");
           }
       });
@@ -367,19 +373,23 @@ class mafiaGame extends Component {
         if(isGameEnd == '시민') {
           if(this.state.myRole !== 'mafia') {
             // alert("축하합니다🤸‍♀️🤸‍♂️ 시민의 승리로 끝났습니다")
-            swal("승리", "시민의 승리로 끝났습니다", 'success')
+            swal("승리", "시민의 승리로 끝났습니다")
           } else {
-            swal("패배", "시민의 승리로 끝났습니다", 'error')
+            swal("패배", "시민의 승리로 끝났습니다")
           } 
-          this.leaveGame()
+          setTimeout(()=>{
+            this.leaveGame()
+          }, 3000)
         } else if (isGameEnd == '마피아') {
           if(this.state.myRole == 'mafia') {
             // alert("축하합니다🤸‍♀️🤸‍♂️ 마피아의 승리로 끝났습니다")
-            swal("승리", "마피아의 승리로 끝났습니다", "success");
+            swal("승리", "마피아의 승리로 끝났습니다");
           } else {
-            swal("패배", "마피아의 승리로 끝났습니다", "error");
+            swal("패배", "마피아의 승리로 끝났습니다");
           }
-          this.leaveGame()
+          setTimeout(()=>{
+            this.leaveGame()
+          }, 3000)
         }
       })
 
@@ -537,6 +547,7 @@ class mafiaGame extends Component {
   }
 
   playerSelect = (e) => { //playerSelection
+    if(this.state.amIAlive == false) return;
     let selectedSocketId = e.currentTarget.firstElementChild.dataset.socketid;
     
     if(this.state.isDay == false && this.state.myRole == 'citizen') return; //* 밤이고 시민이면, 선택못함
