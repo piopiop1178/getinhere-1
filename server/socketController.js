@@ -116,21 +116,21 @@ module.exports = (io) => {
 
         socket.on('resumeConsumer', async (data, callback) => {
             let { consumerId, mediaTag } = data,
-                consumer = room.roomState.consumers.find((c) => c.id === consumerId && c.appData.mediaTag === mediaTag);
+                consumer = room.roomState.consumers.find((c) => c.id === consumerId );
             await consumer.resume();
             callback();
         });
 
         socket.on('pauseConsumer', async (data, callback) => {
           let { consumerId, mediaTag } = data,
-              consumer = room.roomState.consumers.find((c) => c.id === consumerId && c.appData.mediaTag === mediaTag);
+              consumer = room.roomState.consumers.find((c) => c.id === consumerId );
             await consumer.pause();
             callback();
         })
 
         socket.on('resumeProducer', async (data, callback) => {
           let { producerId, mediaTag } = data,
-              producer = room.roomState.producers.find((p) => p.id === producerId && p.appData.mediaTag === mediaTag);
+              producer = room.roomState.producers.find((p) => p.id === producerId );
 
           await producer.resume();
           callback();
@@ -138,7 +138,7 @@ module.exports = (io) => {
 
       socket.on('pauseProducer', async (data, callback) => {
           let { producerId, mediaTag } = data,
-              producer = room.roomState.producers.find((p) => p.id === producerId && p.appData.mediaTag === mediaTag);
+              producer = room.roomState.producers.find((p) => p.id === producerId );
           await producer.pause();
           callback();
       })
@@ -180,8 +180,8 @@ module.exports = (io) => {
         });
 
         socket.on('screenShare', (audio) => {
-          //if audio set screenShare 2 / if not set screenShare 1
-          room.users[socket.id].screenShare = audio ? 2 : 1;
+          //if audio set screenShare 1 / if not 0
+          room.users[socket.id].screenShare = audio ? 1 : 0;
           socket.to(room.name).emit('createScreenShareConsumer', socket.id, audio);
           // socket.emit('createScreenShareConsumer', socket.id);
         });
@@ -278,18 +278,16 @@ module.exports = (io) => {
     function initSpaceChange(socket, room) {
         socket.on('spaceChange', (oldSpace, newSpace) => {
             room.users[socket.id].status.space = newSpace
-            let myScreenShareFlag = room.users[socket.id].screenShare
 
             Object.values(room.users).forEach((user) => {
                 /* Need to be changed to send emit with list of changed users */
-                let userScreenShareFlag = user.screenShare;
                 if (user.status.space === oldSpace) {
-                    user.socket.emit('removeOutUser', socket.id, myScreenShareFlag)
-                    socket.emit('removeOutUser', user.socket.id, userScreenShareFlag)
+                    user.socket.emit('removeOutUser', socket.id)
+                    socket.emit('removeOutUser', user.socket.id)
                 }
                 else if (user.status.space === newSpace && user.socket.id != socket.id) {
-                    user.socket.emit('addInUser', socket.id, myScreenShareFlag)
-                    socket.emit('addInUser', user.socket.id, userScreenShareFlag)
+                    user.socket.emit('addInUser', socket.id)
+                    socket.emit('addInUser', user.socket.id)
                 }
             })
         })
