@@ -80,7 +80,17 @@ class mafiaGame extends Component {
   nightToDayColor = () => document.querySelector('.mafiaGameFrame').style.backgroundColor = 'Beige';
   dayToNightColor = () => document.querySelector('.mafiaGameFrame').style.backgroundColor = 'DarkSlateBlue';
   playerContainerBorderStyle = '1px solid peru'
+  playerChoiceSpanStyle = "color:black;font-weight:bold; margin: 2px; "
 
+  removePlayersChoices = () => {
+    // * main 화면 깨끝하게 비워주기
+    let myChoiceElement = document.getElementById(`${this.socket.id}-vote`);
+    myChoiceElement && myChoiceElement.remove(); // * 내가 선택한거 지워주기
+    for(let player of Object.keys(this.props.characterNumberBySocketid) ) {
+      let beforeChoicerSpan = document.getElementById(`${player}-vote`);
+      beforeChoicerSpan && beforeChoicerSpan.remove();
+    }
+  }
 
   dieFilter = (diePlayerSocketId) => {
     //* 죽은사람 화면에 표시해주기(greyscale, blur 효과), 해당사람 선택 못하도록 하기
@@ -199,10 +209,8 @@ class mafiaGame extends Component {
               let voteSpan = document.createElement('span');
               voteSpan.style.fontSize = '1.2rem';
               voteSpan.id = `${liveVote}-liveOrDie`
-              voteSpan.innerText = this.props.nicknameBySocketid[liveVote]  + ' '; //* 공백 추가
-              //! 기존
-              // liveVoteBox.parentElement.appendChild(voteSpan);
-              //! liveOrDieVoter-live -die
+              voteSpan.innerText = this.props.nicknameBySocketid[liveVote];
+              voteSpan.setAttribute('style', this.playerChoiceSpanStyle);
               liveVoteBox.appendChild(voteSpan);
           }
 
@@ -210,10 +218,8 @@ class mafiaGame extends Component {
               let voteSpan = document.createElement('span');
               voteSpan.style.fontSize = '1.2rem';
               voteSpan.id = `${dieVote}-liveOrDie`
-              voteSpan.innerText = this.props.nicknameBySocketid[dieVote]  + ' '; //* 공백 추가
-              //! 기존
-              // dieVoteBox.parentElement.appendChild(voteSpan);
-              //! liveOrDieVoter-live -die
+              voteSpan.innerText = this.props.nicknameBySocketid[dieVote];
+              voteSpan.setAttribute('style', this.playerChoiceSpanStyle);
               dieVoteBox.appendChild(voteSpan);
           }
 
@@ -224,15 +230,7 @@ class mafiaGame extends Component {
           } else {
             // * 경기가 끝나지 않았으면, 5초 후에 모달창을 닫고, 밤이 시작된다
             setTimeout(()=> {
-             
-              // * main 화면 깨끝하게 비워주기
-              let myChoiceElement = document.getElementById(`${this.socket.id}-vote`);
-              myChoiceElement && myChoiceElement.remove(); // * 내가 선택한거 지워주기
-              for(let player of Object.keys(this.props.characterNumberBySocketid) ) {
-                  let beforeChoicerSpan = document.getElementById(`${player}-vote`);
-                  beforeChoicerSpan && beforeChoicerSpan.remove();
-              }
-              
+              this.removePlayersChoices() //화면 청소
               this.setState({liveOrDieModalOnOff: false}); // 생사투표모달 끄기
             }, 10000)
             // this.socket.emit("startNight");
@@ -241,15 +239,10 @@ class mafiaGame extends Component {
 
       /* MG-20. 밤에 역할별 동작 수행 */
       this.socket.on("doNightAction", () => {
-          // * 밤으로 디자인 변경
+          // * 밤으로 디자인 변경 // *화면 청소
           this.dayToNightColor();
-          // * main 화면 깨끝하게 비워주기
-          let myChoiceElement = document.getElementById(`${this.socket.id}-vote`);
-          myChoiceElement && myChoiceElement.remove(); // * 내가 선택한거 지워주기
-          for(let player of Object.keys(this.props.characterNumberBySocketid) ) {
-            let beforeChoicerSpan = document.getElementById(`${player}-vote`);
-            beforeChoicerSpan && beforeChoicerSpan.remove();
-          }
+          this.removePlayersChoices() 
+          
           // 이건 서버에서 잘 온다
           /* 각 역할 별 화면 구성하기 */
           /* 선택 및 확정은 시민 투표와 동일 */
@@ -288,6 +281,11 @@ class mafiaGame extends Component {
       })
 
       this.socket.on("nightOver", (isSomebodyDieSocketId, isGameEnd) => {
+        // * 내 선택 지워주기
+
+
+
+
         this.nightToDayColor();
         if(isSomebodyDieSocketId) {
           alert(`지난 밤 ${this.props.nicknameBySocketid[isSomebodyDieSocketId]}(이)가 죽었습니다`)
@@ -331,7 +329,8 @@ class mafiaGame extends Component {
           // * choicer의 span 만들어주기. 내용물은 본인의 이름
           let choicerSpan = document.createElement('span');
           choicerSpan.id = `${choicer}-vote`
-          choicerSpan.innerText = this.props.nicknameBySocketid[choicer] +' ';
+          choicerSpan.innerText = this.props.nicknameBySocketid[choicer];
+          choicerSpan.setAttribute('style', this.playerChoiceSpanStyle);
           
           // * 지목받은사람(pointee)의 voteBox에 appendChild 해주기
           let pointeeVoteBox = document.querySelector(`[data-set-socketid='${pointee}'`).parentNode.lastElementChild;
