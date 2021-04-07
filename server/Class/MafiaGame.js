@@ -35,8 +35,13 @@ class MafiaGame{
         this.checkCount = undefined;
     }
 
-    endGame = () => {
+    endGame = (socketId) => {
         console.log('-----------엔드게임----------');
+        if(this.isPlaying === true && socketId in this.players){
+            for(let id in this.players){
+                this.players[id].socket.emit("gameShutdown", socketId);
+            }
+        }
         this.isPlaying = false;
         this.isDay = false;
         this.players = {};   // players {socketId: {socket: socketObject, role:police}}
@@ -56,7 +61,7 @@ class MafiaGame{
     }
 
     async init(){
-        this.isPlaying = false;
+        this.isPlaying = true;
         this.isDay = false;
         this.citizens = {};
         this.mafias = {};
@@ -172,7 +177,7 @@ class MafiaGame{
             console.log("------------------게임 종료------------------", this.checkGameOver(), '승리');
             // this.turnInit();
             // this.init();
-            this.endGame();
+            this.endGame(undefined);
         }
         else{
             if(this.isDay){
@@ -401,6 +406,13 @@ class MafiaGame{
             this.doctor = undefined;
             console.log('--die-- doctor', this.doctor)
         }
+    }
+    get isPlaying(){
+        return this._isPlaying;
+    }
+
+    set isPlaying(value){
+        this._isPlaying = value;
     }
 
     get isDay(){

@@ -28,6 +28,7 @@
     "simple-peer": "^9.9.3",
     "socket.io": "^4.0.0",
     "socket.io-promise": "^1.1.2",
+    "universal-cookie": "^4.0.4",
     "uuid": "^8.3.2"
   }
 }
