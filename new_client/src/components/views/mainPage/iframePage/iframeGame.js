@@ -15,7 +15,7 @@ const IframeGame = ({gameNumber, runGame1, runGame2, runGame3, runGame4, runGame
         iFrameGameMain =
             <div onLoad={()=> setLoadingdone(true)} className='select-game-container'>
                 <button className='select-game-button' onClick={()=>runGame1()}>캐치마인드</button>
-                <button className='select-game-button' onClick={()=>runGame2()}>공 튕기기</button>
+                <button className='select-game-button' onClick={()=>runGame2()}>구멍 키우기</button>
                 <button className='select-game-button' onClick={()=>runGame3()}>뱀 키우기</button>
                 <button className='select-game-button' onClick={()=>runGame4()}>땅따먹기</button>
                 <button className='select-game-button' onClick={()=>runGame5()}>팀 전투게임</button>
@@ -34,7 +34,7 @@ const IframeGame = ({gameNumber, runGame1, runGame2, runGame3, runGame4, runGame
         </>
     }
     else if (gameNumber === 2){
-        iFrameGameMain = <iframe onLoad={()=> setLoadingdone(true)} id='iframe-game' src="https://bonk.io" ></iframe> 
+        iFrameGameMain = <iframe onLoad={()=> setLoadingdone(true)} id='iframe-game' src="https://hole-io.com" ></iframe> 
     }
     else if (gameNumber === 3){
         iFrameGameMain = <iframe onLoad={()=> setLoadingdone(true)} id='iframe-game' src="https://powerline.io" ></iframe> 

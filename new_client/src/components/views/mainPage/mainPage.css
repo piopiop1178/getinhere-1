@@ -150,6 +150,13 @@ canvas {
   justify-content: center;
 }
 
+.upper-toggles {
+  font-size: 20px;
+  display: flex;
+  justify-content: end;
+}
+
+.screen-toggle,
 .chat-toggle,
 .invite-toggle,
 .etc-toggle {
@@ -158,6 +165,7 @@ canvas {
   border-radius: 20%;
 }
 
+.screen-toggle,
 .chat-toggle:hover,
 .invite-toggle:hover,
 .etc-toggle:hover {
