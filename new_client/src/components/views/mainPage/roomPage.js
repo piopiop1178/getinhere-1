@@ -441,7 +441,7 @@ class Room extends Component {
                 statuses[id].status.y + 90,
             );
         })
-        requestAnimationFrame(()=>{this.drawCharacter(statuses, idArray)});
+        // requestAnimationFrame(()=>{this.drawCharacter(statuses, idArray)});
     }
 
     updatePosition = (statuses, idArray) => {
@@ -459,10 +459,11 @@ class Room extends Component {
         idArrayGlobal = idArray;
         this.storelocalStorage(myStatus);
 
-        if (animationFlag) {
-            requestAnimationFrame(()=>{this.drawCharacter(statuses, idArrayGlobal)})
-        }
-        animationFlag = false;
+        // if (animationFlag) {
+            // requestAnimationFrame(()=>{this.drawCharacter(statuses, idArrayGlobal)})
+        this.drawCharacter(statuses, idArrayGlobal)
+        // }
+        // animationFlag = false;
         
         curr_space = this.calcSpace(socket.id, myStatus.x, myStatus.y)
         if ((myStatus.space !== curr_space) && changeSpace) {
