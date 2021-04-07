@@ -368,7 +368,7 @@ class Room extends Component {
         const contextCharacter = this.state.contextCharacter;
         let myStatus = statuses[socket.id].status;
 
-        curr_space = this.calcSpace(myStatus.x, myStatus.y)
+        curr_space = this.calcSpace(socket.id, myStatus.x, myStatus.y)
         if ((myStatus.space !== curr_space) && changeSpace) {
             changeSpace = false
             socket.emit('spaceChange', myStatus.space, curr_space)
@@ -971,8 +971,11 @@ class Room extends Component {
         return Math.sqrt(Math.pow((status1.x - status2.x)/CHAR_SIZE, 2) + Math.pow((status1.y - status2.y)/CHAR_SIZE, 2))
     }
 
-    calcSpace = (x, y) => { // caculate curr_space
-        if (y > 360) {
+    calcSpace = (socketId, x, y) => { // caculate curr_space
+        if (x == 0 && y == 0) {
+            return socketId
+        }
+        else if (y > 360) {
             return 1;
         }
         else if (x <= 780) {
