@@ -339,8 +339,24 @@ class mafiaGame extends Component {
 
       /* MG-25. 게임 종료 시 결과 화면 출력 */
       this.socket.on("gameOver", () => {
-        
       });
+
+      /* 게임 강제종료 by 살아있는 누군가가 게임을 나감 */
+      this.socket.on("gameShutdown", ()=> {
+          alert("누군가 마피아게임을 나갔습니다. \n강제종료됩니다.");
+          this.setState({
+            isMafiaGameOn: false,
+            isMafiaGameStarted: false,
+            selectedPlayerSocketId: '',
+            playerNumber: 0,
+            faceList: [],
+            amIAlive: true,
+            deadPlayers: [],
+            liveOrDieModalOnOff: false,
+            myRole: '',
+            alreadySendJoinMafiaGame: false,
+          })
+      } )
   }
 
   startMafiaGame = async () => {
