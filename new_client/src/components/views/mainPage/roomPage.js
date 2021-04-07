@@ -259,9 +259,9 @@ class Room extends Component {
                 socket.emit("testSocketDisconnect")
             }
 
-            if (e.code === "KeyE") {
-                this.screenShare()
-            }
+            // if (e.code === "KeyE") {
+            //     this.screenShare()
+            // }
     
             /* 동영상, 게임하기, 노래 등 */
             // 게임하는 2번 방
@@ -1445,6 +1445,9 @@ class Room extends Component {
                     <div id="videos" className="video-container"></div>
                 </div>
                 <div className="local-video-box">
+                    <div className="upper-toggles">
+                        <div className="screen-toggle" onClick={this.screenShare}>💻</div>
+                    </div>
                     <ToggleButton guidanceOnOff ={this.guidanceOnOff} />
                     <video id="localVideo" autoPlay muted></video>
                     <div className="setting-container">
