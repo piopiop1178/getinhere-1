@@ -327,7 +327,7 @@ module.exports = (io) => {
       socket.on("confirmCandidate", () => {
         console.log("MG-14 confirmCandidate", socket.id);
         /* 마피아 게임 객체에서 플레이어 선택 확정 정보 Update */
-        room.mafiaGame.confirmCandidate();
+        room.mafiaGame.confirmCandidate(socket.id);
       });
 
       /* MG-17. 생사 투표 확인 및 결과 전달 */

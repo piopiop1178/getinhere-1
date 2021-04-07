@@ -340,7 +340,12 @@ class mafiaGame extends Component {
 
       /* MG-25. 게임 종료 시 결과 화면 출력 */
       this.socket.on("gameOver", () => {
-        
+      });
+      
+      this.socket.on("playerClickConfirm", (socketId) => {
+        console.log("playerClickConfirm");
+        let choicerSpan = document.getElementById(`${socketId}-vote`);
+        choicerSpan && (choicerSpan.setAttribute("style", "color:green;font-weight:bold; border: 2px solid green; border-radius: 5px; padding: 2px; background-color:white;"));
       });
   }
 

@@ -217,8 +217,14 @@ class MafiaGame{
         }
     }    
 
-    confirmCandidate(){
+    confirmCandidate(socketId){
         this.confirmCount++;
+
+        for(let id in this.players){
+            console.log("playerClickConfirm");
+            this.players[id].socket.emit("playerClickConfirm", socketId);
+        }
+
         console.log("confirmCandidate", this.confirmCount, this.checkCount);
         if(this.confirmCount === this.checkCount){
             for(let id in this.candidate){
@@ -227,8 +233,8 @@ class MafiaGame{
             console.log(this.selectedCount);
             if(this.isDay){
                 let sortedArray = [];
-                for(let socketId in this.selectedCount){
-                    sortedArray.push([socketId, this.selectedCount[socketId]]);
+                for(let id in this.selectedCount){
+                    sortedArray.push([id, this.selectedCount[id]]);
                 }
                 sortedArray.sort((a, b) => {
                     return b[1] - a[1];
