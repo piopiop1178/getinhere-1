@@ -25,7 +25,7 @@ import { Spring, animated } from 'react-spring'
 import Guidance from './guidance';
 import MafiaGame from './mafiaGame/mafiaGame';
 import './roomPage.css'
-import Cookies from 'universal-cookie';
+// import Cookies from 'universal-cookie';
 
 
 const uuuuu = new Youtube();
