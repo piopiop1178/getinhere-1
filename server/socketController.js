@@ -180,10 +180,9 @@ module.exports = (io) => {
         });
 
         socket.on('screenShare', (audio) => {
-          //if audio set screenShare 1 / if not 0
-          room.users[socket.id].screenShare = audio ? 1 : 0;
+          //if audio set screenShare 2 / if not 1
+          room.users[socket.id].screenShare = audio ? 2 : 1;
           socket.to(room.name).emit('createScreenShareConsumer', socket.id, audio);
-          // socket.emit('createScreenShareConsumer', socket.id);
         });
 
         socket.on('endScreenShare-signal', (audio) => {
@@ -198,12 +197,10 @@ module.exports = (io) => {
           target_transport = Object.values(room.roomState.transports).find(
               (p) => p.appData.socket_id === socket.id);
           await closeTransport(room.roomState, target_transport) 
-          // console.log('disconnect!');
           io.to(room.name).emit('removeUser', socket.id);
           RoomManager.removeSocketFromRoom(socket, room.name);
           room.mafiaGame.removePlayer(socket.id);
         });
-        // console.log("initWebRTC End");
     }
 
     function initKeyEvent(socket, room){
@@ -227,7 +224,6 @@ module.exports = (io) => {
         socket.on('testSocketDisconnect', () => {
             socket.disconnect()
         })
-        // console.log("initKeyEvent End");
     }
     
     function initMusic(socket, room){
@@ -241,15 +237,12 @@ module.exports = (io) => {
                 io.to(room.name).emit('music_off');
             }
         })
-        // console.log("initMusic End");
     }
 
     function initChat(socket, room) {
         socket.on('chat', (name, message) => {
-            // console.log(name, message);
             socket.broadcast.to(room.name).emit('chat', name, message);
         });
-        // console.log("initChat End");
     }
 
         /* 캐릭터 술 캔버스 설정 */
