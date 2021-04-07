@@ -15,6 +15,8 @@ class mafiaGame extends Component {
     // liveOrDieModalOnOff: true, //! 일단 켜놓자
     myRole: '',
     alreadySendJoinMafiaGame: false,
+    candidate: '',
+    confirmClicked: false,
   }
   socket = this.props.socket;
 
@@ -30,6 +32,7 @@ class mafiaGame extends Component {
   playerChoiceSpanStyle = "color:black;font-weight:bold; margin: 2px; padding: 2px; margin:2px; border-radius: 5px; "
   confirmChoiceSpanStyle = "color:green;font-weight:bold; border: 2px solid green; border-radius: 5px; padding: 2px; margin: 2px; background-color:white;"
   mafiaPlayerImageSize = '70px';
+  selectedPlayerBorderStyle = '3px solid red'
   engToKorRoles = {
     "citizen": "시민",
     "mafia": "마피아",
@@ -45,9 +48,9 @@ class mafiaGame extends Component {
       case 3:
         return "구성) 시민 2명, 마피아 1명"
       case 4:
-        return "구성) 시민 1명, 마피아 1명, 경찰 1명, 의사 1명"
+        return "구성) 시민 2명, 마피아 1명, 경찰 1명"
       case 5:
-        return "구성) 시민 2명, 마피아 1명, 경찰 1명, 의사 1명"
+        return "구성) 시민 3명, 마피아 1명, 경찰 1명"
       case 6:
         return "구성) 시민 2명, 마피아 2명, 경찰 1명, 의사 1명"
       case 7:
@@ -137,6 +140,18 @@ class mafiaGame extends Component {
   }
 
   initMafiaGame = async () =>{
+      this.socket.on("showMafia", (mafiasId) => {
+        let mafiaString;
+        for(let mafiaId of mafiasId) {
+          mafiaString += this.props.nicknameBySocketid[mafiaId];
+        }
+        if (mafiasId.length == 1) {
+          return
+        } else {
+          swal('쉿! 마피아명단', `${mafiaString}`);
+        }
+      })
+
       /* MG-05. 신규 플레이어의 비디오를 추가한다 */
       /* (내가 먼저 입장)새로 접속한 유저의 정보를 받음 */
       this.socket.on("addNewPlayer", (socketId) => {
@@ -189,7 +204,8 @@ class mafiaGame extends Component {
             let candidateImage = document.querySelector('.liveOrDieModalCandidateImage');
             let candidateName =  document.querySelector('.liveOrDieModalCandidateName');
             // * 후보자 비디오 위치 옮겨버리기
-            let candidateVideo = document.getElementById(candidate);
+            this.state.candidate = candidate;
+            let candidateVideo = document.getElementById(this.state.candidate);
             candidateVideo && candidateVideo.setAttribute("style", "position: fixed; left: 40%; top: 40%; transform: translate(-50%, -50%);")
 
             if (this.state.faceList[candidate] != undefined) {
@@ -207,8 +223,13 @@ class mafiaGame extends Component {
       /* MG-18. 생사 투표 결과 확인 및 Night 턴 전환 */
       this.socket.on("confirmLiveOrDie", (results, isSomebodyDieSocketId,  live, die, isGameEnd) => {
           console.log("confirmLiveOrDie");
-          console.log(results, live, die, isGameEnd);
+          
           this.removePlayersChoices() //화면 청소
+          // *영상 원위치 및 candidate 없애기
+          let candidateVideo = document.getElementById(this.state.candidate);
+          candidateVideo && candidateVideo.setAttribute("style", "");
+          this.state.candidate = '';
+
 
           //* 내가 죽었으면, 설정해주기
           if(isSomebodyDieSocketId == this.socket.id && results == 'die') {
@@ -250,16 +271,18 @@ class mafiaGame extends Component {
             setTimeout(()=> {
               this.removePlayersChoices() //화면 청소
               this.setState({liveOrDieModalOnOff: false}); // 생사투표모달 끄기
-            }, 8000)
+            }, 5000)
             // this.socket.emit("startNight");
           }
       });
 
       /* MG-20. 밤에 역할별 동작 수행 */
+      // 밤 시작
       this.socket.on("doNightAction", () => {
-          // * 밤으로 디자인 변경 // *화면 청소
-          this.dayToNightColor();
-          this.removePlayersChoices() 
+          this.state.confirmClicked = false;
+           
+          this.dayToNightColor(); // * 밤으로 디자인 변경
+          this.removePlayersChoices() // *화면 청소
           
           // 이건 서버에서 잘 온다
           /* 각 역할 별 화면 구성하기 */
@@ -305,12 +328,10 @@ class mafiaGame extends Component {
           }
       })
 
+      //낮 시작
       this.socket.on("nightOver", (isSomebodyDieSocketId, isGameEnd) => {
-        // * 내 선택 지워주기
-
-
-
-
+        this.state.confirmClicked = false;
+        this.removePlayersChoices(); // * 내 선택 지워주기
         this.nightToDayColor();
         if(isSomebodyDieSocketId) {
           // alert(`지난 밤 ${this.props.nicknameBySocketid[isSomebodyDieSocketId]}(이)가 죽었습니다`)
@@ -395,8 +416,11 @@ class mafiaGame extends Component {
             amIAlive: true,
             deadPlayers: [],
             liveOrDieModalOnOff: false,
+            // liveOrDieModalOnOff: true, //! 일단 켜놓자
             myRole: '',
             alreadySendJoinMafiaGame: false,
+            candidate: '',
+            confirmClicked: false,
           })
       } )
   }
@@ -439,6 +463,7 @@ class mafiaGame extends Component {
       document.querySelector('.confirmCandidate') &&  (document.querySelector('.confirmCandidate').disabled = true);
       // confirm 확정을 보낸다
       this.socket.emit("confirmCandidate");
+      this.state.confirmClicked = true;
   }
 
   sendLiveOrDie = (e) => {
@@ -471,31 +496,40 @@ class mafiaGame extends Component {
           /* 게임종료 */
           } else if (this.state.isMafiaGameOn) {
             alert('게임 못꺼요')
-            // this.setState({isMafiaGameOn: false})
-            // console.log('mafiagame off');
           }
       }
     })
   }
 
   playerSelect = (e) => { //playerSelection
-    if(e.target.tagName == "DIV") { //div를 클릭하게 될 경우, e.target을 자식인 button으로 옮겨주기
-      e.target = e.target.firstElementChild;
-    } else if(e.target.parentNode.tagName == 'BUTTON') { // 이미지를 클릭하게 될 경우. event bubble 다루기 div > button > img 순서다
-      e.target = e.target.parentNode;
-    }
+    if(this.state.confirmClicked == true) return;
+    e.stopPropagation(); // 이벤트버블링 막기
+    // if(e.target.className == "player-container") { //div를 클릭하게 될 경우, e.target을 자식인 button으로 옮겨주기
+    //   e.target = e.target.firstElementChild; // 첫번째 자식(버튼)으로 옮겨준다
+    // } else if(e.target.parentNode.tagName == 'BUTTON') { // 이미지를 클릭하게 될 경우. event bubble 다루기 div > button > img 순서다
+    //   e.target = e.target.parentNode; // 부모가 버튼이면, 버튼으로 옮겨준다
+    // } else if(e.target.clssName == 'vote-box') {
+    //   e.target = e.target.parentNode.firstElementChild;
+    // }
 
     let beforeSelected = document.querySelectorAll(`[data-socketid]`);
     for(let i of beforeSelected) {
       i.parentNode.style.border = this.playerContainerBorderStyle;
     }
+    
+    // selected design
+    e.currentTarget.style.border = this.selectedPlayerBorderStyle;
+    this.state.selectedPlayerSocketId = e.currentTarget.firstElementChild.dataset.socketid;
+    console.log('-----------1 ', e.currentTarget.firstElementChild.dataset.socketid)
+    console.log('-----------2 ', e.currentTarget.firstElementChild)
+    this.sendCandidate();
+    this.setState({selectedPlayerSocketId: e.currentTarget.firstElementChild.dataset.socketid});
 
     // selected design
-    e.target.parentNode.style.border = '4px solid red';
-    this.state.selectedPlayerSocketId = e.target.dataset.socketid;
-    this.sendCandidate();
-    this.setState({selectedPlayerSocketId: `${e.target.dataset.socketid}`});
-    // this.sendCandidateButton && (this.sendCandidateButton.style.border = "2px solid green")
+    // e.target.parentNode.style.border = '4px solid red';
+    // this.state.selectedPlayerSocketId = e.target.dataset.socketid;
+    // this.sendCandidate();
+    // this.setState({selectedPlayerSocketId: `${e.target.dataset.socketid}`});
     
   }
 
@@ -611,39 +645,39 @@ class mafiaGame extends Component {
           {/* {liveOrDieModal} */}
           {/* <div className="players-wrapper" style={{width: '100%'}}> */}
               <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
-                  <button className='player-button' data-player-number='1' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
+                  <button className='player-button' data-player-number='1' data-socketid="" style={playerButtonStyle}></button>
                   <div className="vote-box"></div>
               </div>
               <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
-                 <button className='player-button' data-player-number='2' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
+                 <button className='player-button' data-player-number='2' data-socketid="" style={playerButtonStyle}></button>
                  <div className="vote-box"></div>
               </div>
               <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
-                  <button className='player-button' data-player-number='3' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
+                  <button className='player-button' data-player-number='3' data-socketid="" style={playerButtonStyle}></button>
                   <div className="vote-box"></div>
               </div>
               <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
-                 <button className='player-button' data-player-number='4' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
+                 <button className='player-button' data-player-number='4' data-socketid="" style={playerButtonStyle}></button>
                  <div className="vote-box"></div>
               </div>
               <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
-                 <button className='player-button' data-player-number='5' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
+                 <button className='player-button' data-player-number='5' data-socketid="" style={playerButtonStyle}></button>
                  <div className="vote-box"></div>
               </div>
               <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
-                 <button className='player-button' data-player-number='6' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
+                 <button className='player-button' data-player-number='6' data-socketid="" style={playerButtonStyle}></button>
                  <div className="vote-box"></div>
               </div>
               <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
-                 <button className='player-button' data-player-number='7' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
+                 <button className='player-button' data-player-number='7' data-socketid="" style={playerButtonStyle}></button>
                  <div className="vote-box"></div>
               </div>
               <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
-                 <button className='player-button' data-player-number='8' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
+                 <button className='player-button' data-player-number='8' data-socketid="" style={playerButtonStyle}></button>
                  <div className="vote-box"></div>
               </div>
               <div className='player-container' style={playerContainerStyle} onClick={this.playerSelect}>
-                  <button className='player-button' data-player-number='9' data-socketid="" onClick={this.playerSelect} style={playerButtonStyle}></button>
+                  <button className='player-button' data-player-number='9' data-socketid="" style={playerButtonStyle}></button>
               </div>
               <div className='player-container' style={playerContainerStyle}>
                   {this.state.isMafiaGameStarted
