@@ -65,7 +65,7 @@ class User{
         this.status.y = Math.floor( 8 + Math.random()*12)*map.TILE_LENGTH;
         // this.status.x = 1680;
         // this.status.y = 300;
-        this.status.space = this.calcSpace(this.status.x, this.status.y);
+        this.status.space = this.calcSpace(this.socket.id, this.status.x, this.status.y);
         this.status.height = map.CHAR_SIZE;
         this.status.width = map.CHAR_SIZE;
     }
@@ -74,8 +74,12 @@ class User{
         this.socket.join(room.name);
     }
 
-    calcSpace = (x, y) => {
-        if (y > 360) {
+    calcSpace = (socketId, x, y) => {
+        if (0 <= x <= 120 && 1020 <= y <= 1140) {
+            console.log(aa)
+            return socketId
+        }
+        else if (y > 360) {
             return 1;
         }
         else if (x <= 780) {

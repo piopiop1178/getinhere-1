@@ -364,7 +364,7 @@ class Room extends Component {
     // requestAnimationFrame관련 함수
     drawCharacter = (statuses, idArray) =>{
         count++;
-        if ( count % 9 === 0){
+        // if ( count % 9 === 0){
         statuses = statusesGlobal;
         idArray = idArrayGlobal;
         const contextCharacter = this.state.contextCharacter;
@@ -441,8 +441,8 @@ class Room extends Component {
                 statuses[id].status.y + 90,
             );
         })
-        }
-        requestAnimationFrame(()=>{this.drawCharacter(statuses, idArray)});
+        // }
+        // requestAnimationFrame(()=>{this.drawCharacter(statuses, idArray)});
     }
 
     updatePosition = (statuses, idArray) => {
@@ -460,10 +460,10 @@ class Room extends Component {
         idArrayGlobal = idArray;
         this.storelocalStorage(myStatus);
 
-        // this.drawCharacter(statuses, idArrayGlobal)
-        if (animationFlag) {
-            requestAnimationFrame(()=>{this.drawCharacter(statuses, idArrayGlobal)})
-        }
+        this.drawCharacter(statuses, idArrayGlobal)
+        // if (animationFlag) {
+        //     requestAnimationFrame(()=>{this.drawCharacter(statuses, idArrayGlobal)})
+        // }
         animationFlag = false;
         
         curr_space = this.calcSpace(socket.id, myStatus.x, myStatus.y)
@@ -914,7 +914,8 @@ class Room extends Component {
     }
 
     calcSpace = (socketId, x, y) => { // caculate curr_space
-        if (x === 0 && y === 1140) {
+        if (0 <= x <= 120 && 1020 <= y <= 1140) {
+            console.log(aa);
             return socketId
         }
         else if (y > 360) {
