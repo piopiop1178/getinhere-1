@@ -10,6 +10,8 @@ body::-webkit-scrollbar {
 body {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+  /* 캠 공간을 위한 상단여백의 색깔 */
+  background-color: black;
 }
 
 /* -----------------  BODY END  ----------------- */
@@ -19,7 +21,10 @@ body {
 /* Canvas*/
 canvas {
   position: absolute;
-  top: 0px;
+  /* 캠 공간을 위한 상단여백 만들어주기 */
+  padding-top: 160px;
+  padding-right: 250px;
+  /* top: 0px; */
   left: 0px;
   display: block;
   border: none;
@@ -87,7 +92,7 @@ canvas {
   margin: 1px;
   width: 13vw;
   /* height: 400px; */
-  height: 60vh;
+  height: 55vh;
   padding: 0px;
   opacity: 0.7;
   transition: opacity 0.2s;
