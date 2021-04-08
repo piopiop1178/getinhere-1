@@ -242,9 +242,9 @@ class mafiaGame extends Component {
           }
           //* 투표 결과 알려주기
           if(results =='die') {
-            swal(`투표 결과 ${this.props.nicknameBySocketid[isSomebodyDieSocketId]} (이)가 죽었습니다`,"잠시 후 밤이 됩니다.")
+            swal(`죽었습니다`,`투표 결과 ${this.props.nicknameBySocketid[isSomebodyDieSocketId]} (이)가 죽었습니다\n잠시 후 밤이 됩니다.`)
           } else if (results == 'live') {
-            swal(`투표 결과 ${this.props.nicknameBySocketid[isSomebodyDieSocketId]} (이)가 살았습니다`,"잠시 후 밤이 됩니다.")
+            swal(`살았습니다`,`투표 결과 ${this.props.nicknameBySocketid[isSomebodyDieSocketId]} (이)가 살았습니다\n잠시 후 밤이 됩니다.`)
           }
 
           //* 죽은사람 화면에 표시해주기(greyscale, blur 효과)
@@ -348,7 +348,7 @@ class mafiaGame extends Component {
           this.state.deadPlayers.push(isSomebodyDieSocketId)
 
           // alert(`지난 밤 ${this.props.nicknameBySocketid[isSomebodyDieSocketId]}(이)가 죽었습니다`)
-          swal(`${this.props.nicknameBySocketid[isSomebodyDieSocketId]}`, `(이)가 지난 밤 죽었습니다`, "error");
+          swal(`${this.props.nicknameBySocketid[isSomebodyDieSocketId]}`, `(이)가 지난 밤 죽었습니다`);
           //* 죽은사람 필터 씌우기
           this.dieFilter(isSomebodyDieSocketId);
           //* 내가 죽었으면, 설정해주기
