@@ -129,7 +129,7 @@ class Mainpage extends Component {
                 this.drawBackground(contextBackground, map, width, height);
                 // this.drawBlockZone(contextObject, map._BLOCKED_AREA, map._TILE_LENGTH, map._TILE_WIDTH);
                 // console.log(map._MUSIC_LIST);
-                this.drawMusicObject(contextObject, map._MUSIC_LIST, map._TILE_LENGTH, map._TILE_WIDTH);
+                // this.drawMusicObject(contextObject, map._MUSIC_LIST, map._TILE_LENGTH, map._TILE_WIDTH);
             })
             .then(() => {
                 axios.get('/api/characterList')

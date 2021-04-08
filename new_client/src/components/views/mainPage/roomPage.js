@@ -104,12 +104,12 @@ window.onpopstate = function(event) {
 };
 
 // youtube synchro play
-var tag = document.createElement('script');
+let tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
-var firstScriptTag = document.getElementsByTagName('script')[0];
+let firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-var player1;
-var player2;
+let player1;
+let player2;
 function onYouTubeIframeAPIReady1(video_id) {
     player1 = new window.YT.Player("player1", {
         height: '100%',
@@ -155,7 +155,7 @@ function onYouTubeIframeAPIReady2(video_id) {
 function onPlayerReady(event) {
     event.target.setVolume(40);
 }
-var done = false;
+let done = false;
 function onPlayerStateChange(event) {
     if (event.data == window.YT.PlayerState.PLAYING && !done) {
         // setTimeout(player.unMute(), 1000);
@@ -167,6 +167,7 @@ function onPlayerStateChange(event) {
 let animationFlag = true;
 let idArrayGlobal;
 let statusesGlobal;
+let count = 0;
 
 
 class Room extends Component {
@@ -362,6 +363,8 @@ class Room extends Component {
 
     // requestAnimationFrame관련 함수
     drawCharacter = (statuses, idArray) =>{
+        count++;
+        // if ( count % 9 === 0){
         statuses = statusesGlobal;
         idArray = idArrayGlobal;
         const contextCharacter = this.state.contextCharacter;
@@ -438,6 +441,7 @@ class Room extends Component {
                 statuses[id].status.y + 90,
             );
         })
+        // }
         // requestAnimationFrame(()=>{this.drawCharacter(statuses, idArray)});
     }
 
@@ -456,11 +460,11 @@ class Room extends Component {
         idArrayGlobal = idArray;
         this.storelocalStorage(myStatus);
 
-        // if (animationFlag) {
-            // requestAnimationFrame(()=>{this.drawCharacter(statuses, idArrayGlobal)})
         this.drawCharacter(statuses, idArrayGlobal)
+        // if (animationFlag) {
+        //     requestAnimationFrame(()=>{this.drawCharacter(statuses, idArrayGlobal)})
         // }
-        // animationFlag = false;
+        animationFlag = false;
         
         curr_space = this.calcSpace(socket.id, myStatus.x, myStatus.y)
         if ((myStatus.space !== curr_space) && changeSpace) {
@@ -714,15 +718,16 @@ class Room extends Component {
         let videos = document.getElementById('videos')
 
         if (screenShareFlag === 1){
+            newVid.addEventListener('dblclick', this.dblclickhandler)
+        } else if (screenShareFlag === 2){
             let screenAudioConsumer = await this.createRealConsumer('screen-audio', recvTransport, socket_id, recvTransport.id)
             await this.resumeConsumer(screenAudioConsumer, 'screen-audio');
             newVid.addEventListener('dblclick', this.dblclickhandler)
             await newStream.addTrack(screenAudioConsumer.track);
-        } 
+        }
 
         newVid.srcObject = newStream
         newVid.id = socket_id
-        // newVid.playsinline = false
         newVid.autoplay = true
         newVid.className = "vid"
         videos.appendChild(newVid)
@@ -732,6 +737,7 @@ class Room extends Component {
         } else {
             newVid.style.display = 'none'
         }
+        console.log(newStream.getTracks())
         peers[socket_id] = null;
     }    
 
@@ -908,7 +914,8 @@ class Room extends Component {
     }
 
     calcSpace = (socketId, x, y) => { // caculate curr_space
-        if (x === 0 && y === 1140) {
+        if (0 <= x <= 120 && 1020 <= y <= 1140) {
+            console.log(aa);
             return socketId
         }
         else if (y > 360) {
@@ -1051,9 +1058,11 @@ class Room extends Component {
         
         let videoConsumer = await this.createRealConsumer('cam-video', recvTransport, peerId, transportId)
         let audioConsumer = await this.createRealConsumer('cam-audio', recvTransport, peerId, transportId)
-    
+        console.log(`createConsumer!! ${peerId}, ${sameSpace}`)
+        console.log(videoConsumer.track)
+
         let stream = await this.addVideoAudio(videoConsumer, audioConsumer);
-    
+        
         while (recvTransport.connectionState !== 'connected') {
         //   console.log('  transport connstate', recvTransport.connectionState );
             await this.sleep(100);
@@ -1082,7 +1091,7 @@ class Room extends Component {
             kind,
             rtpParameters,
         } = Data;
-    
+        console.log(`${mediaTag}, ${peerId}, ${producerId}, ${id}, ${kind}`)
         let codecOptions = {};
         const consumer = await transport.consume({
             id,
@@ -1094,6 +1103,10 @@ class Room extends Component {
         });
     
         consumers.push(consumer);
+        if(mediaTag === 'cam-video'){
+            console.log('i realconsumer')
+            console.log(consumer.track)
+        }
         return consumer;
     }
 
@@ -1212,11 +1225,13 @@ class Room extends Component {
     addVideoAudio = async (videoConsumer, audioConsumer) => {
         const stream = new MediaStream();
         await stream.addTrack(videoConsumer.track);
-
+        
         if (audioConsumer){
             await stream.addTrack(audioConsumer.track);
         }
-
+        console.log('addVideoAudio')
+        console.log(videoConsumer.track)
+        console.log(audioConsumer.track)
         return stream
     }
 
@@ -1224,6 +1239,9 @@ class Room extends Component {
         const stream = new MediaStream();
         await stream.addTrack(videoTrack);
         await stream.addTrack(audioTrack);
+        console.log('addTracks!')
+        console.log(videoTrack)
+        console.log(audioTrack)
         return stream;
     }
 
