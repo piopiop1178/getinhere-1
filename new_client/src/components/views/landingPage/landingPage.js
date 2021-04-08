@@ -42,8 +42,8 @@ class LandingPage extends Component {
                 this.setState({mobileOrNocamera:true});
             }
             else{
-                navigator.mediaDevices.getUserMedia(constraints).then( () => {
-                }).catch( () => {
+                navigator.mediaDevices.getUserMedia(constraints)
+                .catch( () => {
                     alert("현재는 카메라가 있는 노트북이나 데스크탑에서만 이용이 가능합니다. 다음 버전을 기대해주세요 !")
                     this.setState({mobileOrNocamera:true});
                 });
