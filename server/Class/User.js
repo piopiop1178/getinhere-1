@@ -62,7 +62,7 @@ class User{
 
     createCharacter(map){
         this.status.x = Math.floor(Math.random()*13)*map.TILE_LENGTH;
-        this.status.y = Math.floor( 8 + Math.random()*12)*map.TILE_LENGTH;
+        this.status.y = Math.floor( 8 + Math.random()*8)*map.TILE_LENGTH;
         // this.status.x = 1680;
         // this.status.y = 300;
         this.status.space = this.calcSpace(this.socket.id, this.status.x, this.status.y);
