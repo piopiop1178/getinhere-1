@@ -168,6 +168,7 @@ let animationFlag = true;
 let idArrayGlobal;
 let statusesGlobal;
 let count = 0;
+let iframeBackgroundColor = 'rgb(0,0,51)'
 
 
 class Room extends Component {
@@ -202,6 +203,19 @@ class Room extends Component {
     }
 
     componentDidMount = async () => {
+        /* 캔버스 상단 여백 생성 */ /* 캠 공간을 위한 상단여백 만들어주기 */
+        const canvasBackground = document.getElementById("background-layer")
+        const canvasObject = document.getElementById("object-layer")
+        const canvasCharacter = document.getElementById("character-layer")
+        const canvasTopEmptySpace = document.createElement("div");
+
+        canvasBackground.setAttribute("style", "padding-top: 170px; padding-right: 250px")
+        canvasObject.setAttribute("style", "padding-top: 170px; padding-right: 250px")
+        canvasCharacter.setAttribute("style", "padding-top: 170px; padding-right: 250px")
+        canvasTopEmptySpace.setAttribute("style", `position:relative; top:0px; width: 2650px; height:1370px; background-color: ${iframeBackgroundColor}; z-index: -4; `)
+        document.querySelector('body').appendChild(canvasTopEmptySpace);
+
+
         socket = this.props.socket;
 
         /* Room 에서 사용할 socket on 정의 */
@@ -266,7 +280,7 @@ class Room extends Component {
             if (e.code === "KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 2){
                 if (this.state.objects ===0) {
                     this.setState({objects : 3})
-                    document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,51)';
+                    document.getElementById("character-layer").style.backgroundColor = iframeBackgroundColor;
                 }
                 else {
                     this.setState({objects : 0})    
@@ -280,7 +294,7 @@ class Room extends Component {
                 // socket.emit('youtube');
                 if (this.state.objects ===0) {
                     this.setState({objects : 1})
-                    document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,51)';
+                    document.getElementById("character-layer").style.backgroundColor = iframeBackgroundColor;
                 }
                 else {
                     this.setState({objects : 0})      
@@ -293,7 +307,7 @@ class Room extends Component {
             if (e.code ==="KeyX" && document.activeElement.tagName ==='BODY' && curr_space === 1){            
                 if (this.state.objects ===0) {
                     this.setState({objects : 4})
-                    document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,51)';
+                    document.getElementById("character-layer").style.backgroundColor = iframeBackgroundColor;
                 }
                 else {
                     this.setState({objects : 0})      
@@ -1383,7 +1397,7 @@ class Room extends Component {
             } else {
                 const contextCharacter = this.state.contextCharacter;
                 contextCharacter.clearRect(0, 0, window.innerWidth*2, window.innerHeight*2);
-                document.getElementById("character-layer").style.backgroundColor = 'rgb(0,0,51)';
+                document.getElementById("character-layer").style.backgroundColor = iframeBackgroundColor;
             }
             
             e.target.classList.add('iframe-video');

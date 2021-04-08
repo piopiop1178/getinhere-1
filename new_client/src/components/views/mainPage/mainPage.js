@@ -99,6 +99,9 @@ class Mainpage extends Component {
                 const width = map._WIDTH;
                 const height = map._HEIGHT;
 
+                // /* 캔버스 상단 여백 생성 */
+                // const canvasTopEmptySpace = document.createElement("div");
+
                 /* canvas 생성 */
                 const canvasBackground = document.createElement("canvas");
                 const contextBackground = canvasBackground.getContext("2d");
