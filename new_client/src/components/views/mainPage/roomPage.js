@@ -42,7 +42,11 @@ let socket;
 let reconnect_checker = false
 
 let constraints = {
-    audio: true,
+    audio: {
+        echoCancellatioin: false,
+        autoGainControl: false,
+        noiseSuppression: false
+    },
     video: {
         width: {
             max: 1280,
@@ -222,13 +226,7 @@ class Room extends Component {
         await this.initSocket();
 
         /* 연결 준비가 되었음을 알림 */
-        if(this.props.faceMode) {
-            this.addMyFace()
-            socket.emit('ready', this.props.roomName, this.props.userName, this.props.faceMode);    
-        } else {
-            socket.emit('ready', this.props.roomName, this.props.userName, this.props.characterNum);
-            this.addCharacterInfoForMafiaGame(socket, this.props.characterNum ,this.props.userName)
-        }
+        socket.emit('queue', this.props.roomName);
         
         document.getElementById("chat-message").addEventListener("keyup", (e) => {
             if(e.code === "Enter"){
@@ -513,6 +511,15 @@ class Room extends Component {
     }
 
     initSocket = async () => {
+        socket.on('serverReady', () => {
+            if (this.props.faceMode) {
+                this.addMyFace()
+                socket.emit('ready', this.props.roomName, this.props.userName, this.props.faceMode);    
+            } else {
+                socket.emit('ready', this.props.roomName, this.props.userName, this.props.characterNum);
+                this.addCharacterInfoForMafiaGame(socket, this.props.characterNum ,this.props.userName)
+            }
+        });
         /* room에 자신의 socket이 추가된 후 해당 room의 기존 user 정보를 수신 */
         socket.on('sendUsers', async (users) => {
             await navigator.mediaDevices.getUserMedia(constraints).then(stream => {
@@ -526,12 +533,10 @@ class Room extends Component {
             let sameSpace
             let screenShareFlag
             for (let socketId in users){
+                console.log("socketId for sendUsers is", socketId);
                 if (this.state.users[socketId]) { continue };
                 sameSpace = (users[socketId].space === curr_space) ? true : false
                 screenShareFlag = users[socketId].screenShare;
-                if (sameSpace) {
-                    console.log("socketId for sendUsers is", socketId);
-                }
                 // console.log(screenShareFlag)
                 // console.log(users)
                 this.state.users[socketId] = users[socketId];
@@ -685,6 +690,7 @@ class Room extends Component {
 
         socket.on('disconnect', async () => {
             for (let socket_id in this.state.users){
+                if (socket_id === socket.id) { continue; }
                 this.disconnectPeer(socket_id);
             }
 
@@ -695,6 +701,11 @@ class Room extends Component {
             videoProducer = null
             audioProducer = null
             consumers = []
+            this.state.users = {}
+            this.state.faceList = []
+            this.state.characterNumberBySocketid = []
+            this.state.nicknameBySocketid = []
+            this.setState({objects : 0})
             await socket.connect()
         })
 
