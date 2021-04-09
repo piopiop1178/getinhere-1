@@ -243,8 +243,15 @@ class Room extends Component {
             }
 
             // if during event except music prevent move
-            if (this.state.objects !== 0 && this.state.objects !== 5){
+            if (this.state.objects !== 0 && this.state.objects !== 5 && e.code !== "Escape"){
                 return;
+            }
+
+            if (e.code ==="Escape"){
+                this.setState({objects : 0});
+                this.updatePositionSocketOn();
+                document.getElementById("character-layer").style.removeProperty("background-color");
+                if (this.state.guidance) this.guidanceOnOff();
             }
 
             // let st = localStorage.getItem('myStatus');
