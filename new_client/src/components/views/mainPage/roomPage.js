@@ -1078,6 +1078,15 @@ class Room extends Component {
         let transportId = recvTransport.id;
         
         let videoConsumer = await this.createRealConsumer('cam-video', recvTransport, peerId, transportId)
+        
+        //!----------tmp---------------------
+        while (videoConsumer.track.kind !== 'video'){
+            console.log('fucking!!')
+            await this.closeConsumer(videoConsumer);
+            videoConsumer = await this.createRealConsumer('cam-video', recvTransport, peerId, transportId)
+        }
+        //!----------tmp---------------------
+        
         let audioConsumer = await this.createRealConsumer('cam-audio', recvTransport, peerId, transportId)
         console.log(`createConsumer!! ${peerId}, ${sameSpace}`)
         console.log(videoConsumer.track)
