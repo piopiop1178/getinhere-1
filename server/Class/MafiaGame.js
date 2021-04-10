@@ -38,11 +38,9 @@ class MafiaGame{
     }
 
     endGame = (socketId) => {
-        console.log('-----------엔드게임----------');
         // if(this.isPlaying === true && socketId in this.players){
         if(socketId in this.players){
             for(let id in this.players){
-                console.log('게임 끝 emit')
                 this.players[id].socket.emit("gameShutdown", socketId);
             }
         }
@@ -196,14 +194,14 @@ class MafiaGame{
         console.log(this.turn, turn);
         if(this.checkGameOver() !== null){
             // 게임 종료 관련 구현 필요?
-            console.log("------------------게임 종료------------------", this.checkGameOver(), '승리');
+            // console.log("------------------게임 종료------------------", this.checkGameOver(), '승리');
             // this.turnInit();
             // this.init();
             this.endGame(undefined);
         }
         else{
             if(this.isDay){
-                console.log("밤이 되었습니다");
+                // console.log("밤이 되었습니다");
                 for(let socketId in this.players){
                     setTimeout(()=>{
                         this.players[socketId].socket.emit("doNightAction"); 
@@ -211,7 +209,7 @@ class MafiaGame{
                 }
             }
             else{
-                console.log("낮이 되었습니다");
+                // console.log("낮이 되었습니다");
                 for(let socketId in this.players){
                     this.players[socketId].socket.emit("turnEnd"); 
                 }
