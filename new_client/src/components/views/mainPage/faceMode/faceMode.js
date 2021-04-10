@@ -5,6 +5,7 @@ let requestId;
 class faceMode extends Component {
   
   componentDidMount() {
+    console.log(1);
     let photoBooth = document.querySelector("#video.video-preview") //  프리뷰 비디오
     let photoCanvas = document.querySelector('.photo-canvas')
     let ctx = photoCanvas.getContext("2d")
@@ -19,13 +20,14 @@ class faceMode extends Component {
     } else {
       return;
     }
-
+    console.log(2);
     let videoWidth =  photoBooth.videoWidth;
     let videoHeight = photoBooth.videoHeight;
     photoCanvas.style.height = `${photoBooth.clientHeight}px`;
     photoCanvas.style.width = `${photoBooth.clientHeight}px`;
-
+    console.log(3);
     function drawHeadZone(){
+      // console.log(1);
       ctx.beginPath();
       ctx.arc(50, 50, 50, 0, Math.PI * 2);
       ctx.clip();

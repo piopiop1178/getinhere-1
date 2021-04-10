@@ -62,7 +62,8 @@ export class PresetPage extends Component {
         userName: "",
         refresh: 0,
         ctx: null,
-        photoCanvas: document.querySelector('.photo-canvas')
+        photoCanvas: document.querySelector('.photo-canvas'),
+        videoIsLoaded: false,
     }    
     componentDidMount = () => {
         axios.get('/api/characterList')
@@ -133,16 +134,13 @@ export class PresetPage extends Component {
 
     loadingFinished = () => {
         this.props.loadingFinished();
-        this.setState({characterNum: this.state.characterList.length});
-        
+        this.setState({videoIsLoaded: true});
+        this.setState({characterNum: this.state.characterList.length});       
     } // mainPage->presetPage->videoPage로 함수 전달됨
 
     render() {
         let characterImage = null;
-        if (this.state.characterNum < this.state.characterList.length) {
-            characterImage = <img alt="character" src={this.state.characterList[this.state.characterNum]}></img>                      
-        } else {
-            // characterImage = <canvas ref={this.canvasRef} className="photo-canvas" style={faceModeCanvasStyle}> </canvas>
+        if (this.state.videoIsLoaded === true) {
             characterImage = <FaceMode/>
         }
         return (
