@@ -138,6 +138,13 @@ export class PresetPage extends Component {
         this.setState({characterNum: this.state.characterList.length});       
     } // mainPage->presetPage->videoPage로 함수 전달됨
 
+    refreshMyFace = () => {
+        this.setState({videoIsLoaded: false});
+        setInterval(()=> {
+            this.setState({videoIsLoaded: true});
+        }, 100);
+    }
+
     render() {
         let characterImage = null;
         if (this.state.videoIsLoaded === true) {
@@ -152,10 +159,12 @@ export class PresetPage extends Component {
                         <input onChange={this.inputChange} placeholder="_____________" className="name-input name-input2"></input>
                     </div>
                     <div className="charcter-changer">
-                        <button className="character-select-button" onClick={this.imageChangeLeft}>
+                        {/* <button className="character-select-button" onClick={this.imageChangeLeft}>
                             <i className="far fa-hand-point-left"></i></button>
                         <button className="character-select-button" onClick={this.imageChangeRight}>
-                            <i className="far fa-hand-point-right"></i></button>
+                            <i className="far fa-hand-point-right"></i></button> */}
+                        <button className="character-select-button" onClick={this.refreshMyFace}>
+                            <i className="fas fa-redo-alt"></i></button>
                     </div>
                     <div className="character-box"> 
                         <div className="character-image">
