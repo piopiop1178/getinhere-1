@@ -38,11 +38,9 @@ class MafiaGame{
     }
 
     endGame = (socketId) => {
-        console.log('-----------엔드게임----------');
         // if(this.isPlaying === true && socketId in this.players){
         if(socketId in this.players){
             for(let id in this.players){
-                console.log('게임 끝 emit')
                 this.players[id].socket.emit("gameShutdown", socketId);
             }
         }

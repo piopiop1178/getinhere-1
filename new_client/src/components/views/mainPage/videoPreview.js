@@ -20,19 +20,23 @@ class VideoPreview extends Component {
                 }
             }
         }
-        
-        const video = document.querySelector('video');
-        
-        let filter = "win16|win32|win64|mac|macintel";
-        if ( navigator.platform ) {
-            if ( filter.indexOf( navigator.platform.toLowerCase() ) >= 0 ) {
-                navigator.mediaDevices.getUserMedia(constraints)
+
+        async function checkCamera(){
+            await navigator.mediaDevices.getUserMedia(constraints)
                 .catch( (e) => alert(`카메라 상태를 확인해주세요 !`))
                 // .catch( (e) => alert(`카메라 상태를 확인해주세요 !${e}`))
                 .then(stream => {
                     // console.log('Received local stream');
                     video.srcObject = stream;
                 })
+        }
+
+        const video = document.querySelector('video');
+        
+        let filter = "win16|win32|win64|mac|macintel";
+        if ( navigator.platform ) {
+            if ( filter.indexOf( navigator.platform.toLowerCase() ) >= 0 ) {
+                checkCamera();
             }
         }
 

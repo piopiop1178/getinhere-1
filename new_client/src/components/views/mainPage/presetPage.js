@@ -62,7 +62,8 @@ export class PresetPage extends Component {
         userName: "",
         refresh: 0,
         ctx: null,
-        photoCanvas: document.querySelector('.photo-canvas')
+        photoCanvas: document.querySelector('.photo-canvas'),
+        videoIsLoaded: false,
     }    
     componentDidMount = () => {
         axios.get('/api/characterList')
@@ -133,16 +134,20 @@ export class PresetPage extends Component {
 
     loadingFinished = () => {
         this.props.loadingFinished();
-        this.setState({characterNum: this.state.characterList.length});
-        
+        this.setState({videoIsLoaded: true});
+        this.setState({characterNum: this.state.characterList.length});       
     } // mainPage->presetPage->videoPage로 함수 전달됨
+
+    refreshMyFace = () => {
+        this.setState({videoIsLoaded: false});
+        setInterval(()=> {
+            this.setState({videoIsLoaded: true});
+        }, 100);
+    }
 
     render() {
         let characterImage = null;
-        if (this.state.characterNum < this.state.characterList.length) {
-            characterImage = <img alt="character" src={this.state.characterList[this.state.characterNum]}></img>                      
-        } else {
-            // characterImage = <canvas ref={this.canvasRef} className="photo-canvas" style={faceModeCanvasStyle}> </canvas>
+        if (this.state.videoIsLoaded === true) {
             characterImage = <FaceMode/>
         }
         return (
@@ -154,10 +159,12 @@ export class PresetPage extends Component {
                         <input onChange={this.inputChange} placeholder="_____________" className="name-input name-input2"></input>
                     </div>
                     <div className="charcter-changer">
-                        <button className="character-select-button" onClick={this.imageChangeLeft}>
+                        {/* <button className="character-select-button" onClick={this.imageChangeLeft}>
                             <i className="far fa-hand-point-left"></i></button>
                         <button className="character-select-button" onClick={this.imageChangeRight}>
-                            <i className="far fa-hand-point-right"></i></button>
+                            <i className="far fa-hand-point-right"></i></button> */}
+                        <button className="character-select-button" onClick={this.refreshMyFace}>
+                            <i className="fas fa-redo-alt"></i></button>
                     </div>
                     <div className="character-box"> 
                         <div className="character-image">

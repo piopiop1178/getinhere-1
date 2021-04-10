@@ -1,7 +1,7 @@
 .iframe-wrapper {
   font-family: Gaegu;
   position: fixed;
-  width: 87vw;
+  width: 85vw;
   height: 78vh;
   bottom: 0px;
   z-index: 5; /* mainPage.css:video-box z-index:3 */
@@ -39,7 +39,7 @@
 .iframe-close-button {
   font-family: Gaegu;
   position: fixed;
-  right: 13vw;
+  right: 11vw;
   font-size: 1.5rem;
   border-radius: 5%;
   background-color: goldenrod;
@@ -56,7 +56,7 @@
 .go-to-iframegamemenu-button {
   font-family: Gaegu;
   position: fixed;
-  right: 20vw;
+  right: 18vw;
   font-size: 1.5rem;
   border-radius: 5%;
   background-color: goldenrod;
@@ -68,7 +68,7 @@
   flex-flow: column;
   align-items: center;
   justify-content: space-evenly;
-  width: 87vw;
+  width: 85vw;
   height: 78vh;
   bottom: 0px;
 }

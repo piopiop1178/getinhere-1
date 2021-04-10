@@ -1,9 +1,7 @@
 'use strict';
 
 /* Class */
-// const LobbyManager = require('./LobbyManager');
 const RoomManager = require('./RoomManager');
-// const MapManager = require('./MapManager');
 const mediasoup = require('mediasoup');
 const config = require('../config');
 
@@ -23,7 +21,7 @@ module.exports = (io) => {
 
           /* 기능 별 socket on 설정 */
           initWebRTC(socket, room);
-          initKeyEvent(socket, room);
+          // initKeyEvent(socket, room);
           initMusic(socket, room);
           initChat(socket, room);
           initAlcholIcon(socket, room);
@@ -31,6 +29,16 @@ module.exports = (io) => {
           initSpaceChange(socket, room);
           initMafiaGame(socket, room);
         });
+
+        socket.on('queue', (roomName) => {
+          room = RoomManager.getRoomByRoomName(roomName);
+          room.waitQue.push(socket);
+          if (!room.waitFlag) {
+            room.waitFlag = true;
+            room.waitQue.shift();
+            socket.emit('serverReady');
+          }
+        })
 
         socket.on('ready', async (roomName, userName, characterNum) => {
           console.log('ready');
@@ -57,6 +65,15 @@ module.exports = (io) => {
           }
           // socket.broadcast.to('roomName').emit('addUser', socket.id, userName, characterNum);
           // io.to(roomName).emit('addUser', socket.id, userName, characterNum);
+          
+          initKeyEvent(socket, room); //!
+
+          room.waitFlag = false;
+          if (room.waitQue.length) {
+            room.waitFlag = true;
+            let nextSocket = room.waitQue.shift();
+            nextSocket.emit('serverReady');
+          }
         });
     });
     
