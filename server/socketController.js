@@ -1,9 +1,7 @@
 'use strict';
 
 /* Class */
-// const LobbyManager = require('./LobbyManager');
 const RoomManager = require('./RoomManager');
-// const MapManager = require('./MapManager');
 const mediasoup = require('mediasoup');
 const config = require('../config');
 

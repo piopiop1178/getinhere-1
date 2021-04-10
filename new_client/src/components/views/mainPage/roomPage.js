@@ -172,7 +172,7 @@ let animationFlag = true;
 let idArrayGlobal;
 let statusesGlobal;
 let count = 0;
-let iframeBackgroundColor = 'rgb(0,0,51)'
+let iframeBackgroundColor = 'rgb(30,30,46)'
 
 
 class Room extends Component {
