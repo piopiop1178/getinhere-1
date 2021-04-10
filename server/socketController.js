@@ -12,10 +12,13 @@ module.exports = (io) => {
     /* connect 요청 시 */
     RoomManager.init(io);
     io.on('connect', (socket) => {
+        //!redis 관련
+        console.log(`Worker ${process.pid} Socket ${socket.id}`);
+
         let room;
         /* MainPage 접속 시 initSocket 수신 */
         socket.on('initSocket', (roomName) => {
-          // console.log('initSocket');
+          console.log('initSocket');
           room = RoomManager.getRoomByRoomName(roomName);
 
           /* 기능 별 socket on 설정 */
@@ -30,7 +33,7 @@ module.exports = (io) => {
         });
 
         socket.on('ready', async (roomName, userName, characterNum) => {
-          // console.log('ready');
+          console.log('ready');
           room = RoomManager.getRoomByRoomName(roomName)
           if (room === undefined){
             console.log("ERROR : io.on('connect'), room === undefined");
@@ -467,11 +470,13 @@ async function closeTransport(roomState, transport) {
         // calling closeProducer() and closeConsumer() on all the producers
         // and consumers associated with this transport
         // console.log(transport)
-        await transport.close();
+        transport && await transport.close();
+        // await transport.close();
 
         // so all we need to do, after we call transport.close(), is update
         // our roomState data structure
-        delete roomState.transports[transport.id];
+        transport && roomState && roomState.transports && roomState.transports[transport.id] && delete roomState.transports[transport.id];
+        // delete roomState.transports[transport.id];
     } catch (e) {
         console.error(e);
     }
