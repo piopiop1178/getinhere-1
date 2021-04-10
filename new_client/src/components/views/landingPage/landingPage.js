@@ -101,11 +101,11 @@ class LandingPage extends Component {
                 <source src={video} type="video/mp4" />
                 <strong>Your browser does not support the video tag.</strong>
             </video>
-            <img className="map-image" alt="maps" src={this.state.maps[this.state.map_index]}></img>
+            {/* <img className="map-image" alt="maps" src={this.state.maps[this.state.map_index]}></img> */}
             <div className="main-message">
                 GET IN HERE 🍻
             </div>
-            <div className="map-setting">
+            {/* <div className="map-setting">
                 <button className="map-select-button" onClick={this.MapLeft}>
                     <i className="far fa-hand-point-left"></i>
                 </button>
@@ -113,7 +113,7 @@ class LandingPage extends Component {
                 <button className="map-select-button" onClick={this.MapRight}>
                     <i className="far fa-hand-point-right"></i>
                 </button>
-            </div>
+            </div> */}
             {startButton}
             </>
         )

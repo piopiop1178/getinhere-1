@@ -39,7 +39,7 @@
 .iframe-close-button {
   font-family: Gaegu;
   position: fixed;
-  right: 11vw;
+  right: 15vw;
   font-size: 1.5rem;
   border-radius: 5%;
   background-color: goldenrod;
@@ -56,7 +56,7 @@
 .go-to-iframegamemenu-button {
   font-family: Gaegu;
   position: fixed;
-  right: 18vw;
+  right: 22vw;
   font-size: 1.5rem;
   border-radius: 5%;
   background-color: goldenrod;
