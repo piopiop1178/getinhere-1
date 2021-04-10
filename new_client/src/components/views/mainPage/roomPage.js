@@ -99,7 +99,7 @@ let arrowUpThisFlag;
 let arrowRightThisFlag;
 let arrowLeftThisFlag;
 let keyUpBuffer = {};
-let curr_space
+let curr_space = 1;
 let changeSpace = true
 
 /* * 뒤로가기 시 그냥 리로드하기 */
@@ -408,14 +408,7 @@ class Room extends Component {
                     86,
                 );
             } else {
-                // 캐릭터 삽입 코드
-                contextCharacter.drawImage(
-                    this.props.characterList[statuses[id].characterNum], 
-                    statuses[id].status.x - 3,
-                    statuses[id].status.y - 3,
-                    statuses[id].status.width + 6,
-                    statuses[id].status.height + 6,
-                );
+                return;
             }
         
             if (statuses[id].status.alchol) {
@@ -555,6 +548,8 @@ class Room extends Component {
                 socket.emit('start', this.props.roomName, this.props.userName, this.props.characterNum, curr_space);
                 this.addCharacterInfoForMafiaGame(socketId, this.props.characterNum ,this.props.userName)
             }
+
+            socket.on("update", this.updatePosition );
         });
 
         socket.on('music_on', (video_id) => {
@@ -617,7 +612,7 @@ class Room extends Component {
         })
 
         // socket.on("update", (statuses, idArray) => {this.updatePosition(statuses, idArray)} );
-        socket.on("update", this.updatePosition );
+        // socket.on("update", this.updatePosition );
 
         socket.on('addUser', async (socketId, userName, characterNum, space) => {
             console.log("socketId for addUser is", socketId);

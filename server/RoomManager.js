@@ -44,16 +44,16 @@ class RoomManager {   // Room 함수 실행
         let worker = getMediasoupWorker(this.workers);
         if (worker == null)
         {
-            console.log('All worker is accupied!')
+            console.log('All worker is occupied!')
             return; 
         }
         let mediasoupRouter = await worker.createRouter({ mediaCodecs });
+        room.worker = nextMediasoupWorkerIdx === 0 ? workers.length - 1 : nextMediasoupWorkerIdx - 1;
         worker.appData.numRouters += 1;
         /* 생성한 router를 room 에 할당 */
         room.router = mediasoupRouter;
         // console.log(roomName);
         // return room;
-
         return roomName;
     }
 
@@ -102,6 +102,7 @@ class RoomManager {   // Room 함수 실행
         // console.log("-------------------------------------");
         if(this.roomByName[room.name] !== undefined && room.isEmpty()){
             // console.log("room empty delete!!");
+            this.workers[room.worker].appData.numRouters -= 1;
             delete this.roomByName[room.name];
             return;
         }

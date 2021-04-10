@@ -12,7 +12,7 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
         this.users = {};
         this.waitQue = [];
         this.waitFlag = false;
-
+        this.worker;
         this.router;
         this.music = false;
         this.roomState = {
@@ -23,6 +23,13 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
         }
         this.video = false;
         this.mafiaGame = new MafiaGame();
+    }
+
+    get worker(){
+        return this._worker;
+    }
+    set worker(value){
+        this._worker = value;
     }
 
     get router(){
