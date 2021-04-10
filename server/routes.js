@@ -28,10 +28,9 @@ module.exports = async (app) => {
     });
 
     app.get('/api/mapIndex', async (req, res) => {
-        // console.log(`/api/mapIndex ${req.query}`);
         const mapIndex = req.query.mapIndex;
         const map = MapManager.getMapByIndex(mapIndex);
-        const roomName = await RoomManager.createRoom(map);
+        const roomName = await RoomManager.createRoom(map); // getin 버튼을 누르면 createRoom을 하게된다
         return res.status(200).json({
             "roomName": roomName,
             "success": true,
