@@ -69,8 +69,8 @@ class Mainpage extends Component {
         if ( navigator.platform ) {
             if ( filter.indexOf( navigator.platform.toLowerCase() ) < 0 
               || navigator.userAgent.toLowerCase().indexOf("chrome") === -1
-            //   || (navigator.appName === 'Netscape' && agent.indexOf('trident') !== -1)
-            //   || agent.indexOf("msie") !== -1
+              || (navigator.appName === 'Netscape' && navigator.userAgent.toLowerCase().indexOf('trident') !== -1)
+              || agent.indexOf("msie") !== -1
               ){
                 //mobile || notChrome
                 window.location.href="/"
