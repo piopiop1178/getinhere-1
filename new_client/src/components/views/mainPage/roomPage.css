@@ -8,3 +8,22 @@
     bottom: 0px;
     z-index: 5; /* mainPage.css:video-box z-index:3 */
   }
+
+  .side-box{
+    position: fixed;
+    right: 0;
+    width: 14.5vw;
+    height: 100vh;
+    background-color: rgba(30,30,46,1);
+    display: flex;
+    justify-content: center;
+    padding: 0.3vw;
+    padding-top: 0.6vw;
+  }
+
+  .jungle-logo{
+    height: 7vh;
+    background-color: white;
+    border-radius: 0.2vw;
+    padding: 0.2vw 0.2vw;
+  }

@@ -94,17 +94,10 @@ canvas {
 .chat-box {
   z-index: 3;
   position: fixed;
-  /* right: 0px; */
-  right: 1rem;
-  top: 0.5rem;
-  margin: 1px;
-  width: 13vw;
-  /* height: 400px; */
   height: 55vh;
-  padding: 0px;
   opacity: 0.7;
   transition: opacity 0.2s;
-  margin-bottom: 1rem;
+  width: 14vw;
 }
 
 div#chat-box:hover {
@@ -117,13 +110,14 @@ div#chat-box:hover {
 } */
 
 .message-box {
-  width: 100%;
-  height: 100%;
+  width: 13vw;
+  height: 25vw;
   /* background-color: ivory; */
   background-color: ivory;
-  border-radius: 10px;
+  border-radius: 0.2vw;
   overflow: auto;
-  padding: 5px;
+  padding: 0.2vw;
+  margin: auto
 }
 
 .message-box::-webkit-scrollbar {
@@ -142,46 +136,51 @@ div#chat-box:hover {
 }
 
 .message-name {
-  font-size: 12px;
+  font-size: 1.7vh;
 }
 
 .message-text {
-  font-size: 15px;
-  height: auto;
+  font-size: 2.2vh;
+  width: auto;
+  max-width: 12vw;
+  word-break: break-all;
+  margin: 0.2vw;
 }
 
 .input-bar {
+  width: 14vw;
+  display: flex;
+  margin: 0.4vh 0;
+  padding: 0.3vw;
+  /* padding: 0.2vw; */
   /* width: 100%; */
-  width: 13vw;
   /* height: 17px; */
   /* text-align: center; */
-  display: flex;
   /* flex-flow: wrap column; */
   /* justify-content: space-between; */
   /* justify-content: space-between; */
   /* align-items: center; */
   /* vertical-align: middle; */
-  margin-top: 1vh;
 }
 
 #chat-message {
-  width: 70%;
-  /* height: 50%; */
-  height: 0.5rem;
-  
+  width: 10.8vw;
+  height: 3.5vh;
+  padding: 0;
   border: 3px solid white;
   background-color: ivory;
-  border-radius: 10px;
-  margin-right: 3px;
+  border-radius: 0.2vw;
+  margin-right: 0.3vw;
 }
 
 .char-message-send-button {
   /* position: fixed; */
   /* right: 0px; */
   display: block;
-  border-radius: 20%;
-  /* height: 5rem; */
-  font-size: 1.5rem;
+  border-radius: 0.3vw;
+  /* height: 4.5vh; */
+  font-size: 2.5vh;
+  width: 2vw;
 }
 
 /* 내 영상 + 채팅창 등 토글버튼 */
@@ -191,7 +190,9 @@ div#chat-box:hover {
   /* justify-content: center; */
   justify-content: space-between;
   margin: 1vh 0px;
-  padding: 0px 0.5vw
+  padding: 0.2vw 0.5vw;
+  background-color: ivory;
+  border-radius: 0.5vw;
 }
 
 .upper-toggles {
@@ -208,8 +209,9 @@ div#chat-box:hover {
   /* margin: 10px 10px; */
   /* margin: 1vh 0.1vw 1vh 0.9vw; */
   background-color: ivory;
-  border-radius: 20%;
+  border-radius: 0.3vw;
   font-size: 1.5vw;
+  border: solid 0.16vw black
 }
 
 .screen-toggle,
@@ -237,17 +239,20 @@ div#chat-box:hover {
   z-index: 3;
   position: fixed;
   /* right: 0px; */
-  right: 0.5vw;
+  right: 0.6vw;
   bottom: 0.5vh;
   /* margin: 1px; */
 }
 
 #localVideo {
   /* margin: 0px auto; */
-  width: 13vw;
+  width: 13.2vw;
   border-radius: 10%;
   /* border-radius: 10%; */
-  border: 3px solid ivory;
+  border: 0.2vw solid ivory;
+  transform: rotateY(180deg); 
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
 }
 
 .setting-container {
@@ -255,12 +260,13 @@ div#chat-box:hover {
   justify-content: center;
   position: relative;
   bottom: 0px;
-  margin: 1% 0px;
+  margin: 1vh 0px;
 }
 
 .video-box {
   position: fixed;
-  width: 100%;
+  width: 85vw;
+  height: 21vh;
   justify-content: center;
   top: 1%; /* 디자인특성을 어떻게 가져가야할지 고민 */
   z-index: 3;
@@ -274,16 +280,17 @@ div#chat-box:hover {
 .video-container {
   display: flex;
   width: auto;
+  height: 21vh;
   overflow-x: auto;
 }
 
 /* 화상 비디오 영상 상대방화면 영상크기 */
 .vid { 
   flex: 0 1 auto;
-  height: 150px;
+  height: 19vh;
   border-radius: 10%;
   margin: 0px 5px;
-  border: 3px solid ivory;
+  border: 0.27vw solid ivory;
 }
 
 /* 기존 코드 */

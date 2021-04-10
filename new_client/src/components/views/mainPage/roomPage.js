@@ -1484,7 +1484,6 @@ class Room extends Component {
         else guidance = <></>
 
         return (
-          
             <div className="room" id="room">
                 {guidance}
                 {iframeRender}
@@ -1501,15 +1500,28 @@ class Room extends Component {
                 <div className="video-box">
                     <div id="videos" className="video-container"></div>
                 </div>
-                <div className="local-video-box">
-                    <div className="upper-toggles">
-                        <div className="screen-toggle" onClick={this.screenShare}>💻</div>
+
+                <div className="side-box">
+                    <div className="chat-box" id="chat-box">
+                        <div className="message-box" id="message-box">
+                        </div>
+                        <div className="input-bar">
+                            <input autoComplete="off" type="text" id="chat-message" maxLength='140'/>
+                            <button onClick={this.sendChat} className="char-message-send-button">✉</button>
+                        </div>
                     </div>
-                    <ToggleButton guidanceOnOff ={this.guidanceOnOff} />
-                    <video id="localVideo" autoPlay muted></video>
-                    <div className="setting-container">
-                        {/* <button id="muteButton" className="settings" onClick={this.toggleMute}>Unmuted</button>
-                        <button id="vidButton" className="settings" onClick={this.toggleVid}>Video Enabled</button> */}
+                    <div className="local-video-box">
+                        <a href="https://swjungle.net/" target="_blank"><img className="jungle-logo" src="/images/jungle_logo.png"></img></a>
+                        {/* <a href="https://channel.io/ko" target="_blank"><img className="jungle-logo" src="/images/channel_logo.png"></img></a> */}
+                        <ToggleButton
+                            guidanceOnOff ={this.guidanceOnOff}
+                            screenShare ={this.screenShare}
+                            />
+                        <video id="localVideo" autoPlay muted></video>
+                        <div className="setting-container">
+                            {/* <button id="muteButton" className="settings" onClick={this.toggleMute}>Unmuted</button>
+                            <button id="vidButton" className="settings" onClick={this.toggleVid}>Video Enabled</button> */}
+                        </div>
                     </div>
                 </div>
                 <MafiaGame 
@@ -1518,22 +1530,6 @@ class Room extends Component {
                     characterNumberBySocketid={this.state.characterNumberBySocketid} 
                     nicknameBySocketid={this.state.nicknameBySocketid}
                     characterList={this.props.characterList}  />
-                    
-                <div className="chat-box" id="chat-box">
-                    <div className="message-box" id="message-box">
-                        <div className="message-other">
-                            <div className="message-name"> other </div>
-                            <div className="message-text"> message </div>
-                        </div>
-                        <div className="message-own">
-                            <div className="message-text"> my message </div>
-                        </div>
-                    </div>
-                    <div className="input-bar">
-                        <input autoComplete="off" type="text" id="chat-message" maxLength='140'/>
-                        <button onClick={this.sendChat} className="char-message-send-button">✉</button>
-                    </div>
-                </div>
             </div>
         );
     }

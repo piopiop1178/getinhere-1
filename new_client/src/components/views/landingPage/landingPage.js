@@ -14,9 +14,9 @@ class LandingPage extends Component {
     componentDidMount = () =>{
         axios.get('/api/mapList')
         .then(response => {
-            this.setState({maps : response.data.mapList})
+            this.setState({maps : response.data.mapList});
+            console.log(this.state.maps);
         });
-
         this.mobileOrNocameraOrNochromeBan();
     }
 
