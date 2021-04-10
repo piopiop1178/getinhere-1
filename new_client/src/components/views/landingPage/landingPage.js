@@ -8,7 +8,7 @@ class LandingPage extends Component {
     state = {
         map_index : 0,
         maps : [],
-        mobileOrNocamera : false,
+        mobileOrNocameraOrNochrome : false,
     }
 
     componentDidMount = () =>{
@@ -17,10 +17,10 @@ class LandingPage extends Component {
             this.setState({maps : response.data.mapList})
         });
 
-        this.mobileOrNocameraBan();
+        this.mobileOrNocameraOrNochromeBan();
     }
 
-    mobileOrNocameraBan = () => {
+    mobileOrNocameraOrNochromeBan = () => {
         let filter = "win16|win32|win64|mac|macintel";
         let constraints = {
             video: {
@@ -35,20 +35,24 @@ class LandingPage extends Component {
             }
         }
         
-        if ( navigator.platform) {
-            if ( filter.indexOf( navigator.platform.toLowerCase() ) < 0 ) {
-                //mobile
-                alert("현재는 카메라가 있는 노트북이나 데스크탑에서만 이용이 가능합니다. 다음 버전을 기대해주세요 !");
-                this.setState({mobileOrNocamera:true});
-            }
-            else{
-                navigator.mediaDevices.getUserMedia(constraints)
-                .catch( () => {
-                    alert("현재는 카메라가 있는 노트북이나 데스크탑에서만 이용이 가능합니다. 다음 버전을 기대해주세요 !")
-                    this.setState({mobileOrNocamera:true});
-                });
-            }
+        if ( filter.indexOf( navigator.platform.toLowerCase() ) < 0 ) {
+            //mobile
+            this.setState({mobileOrNocameraOrNochrome:true});
+            alert("현재는 카메라가 있는 노트북이나 데스크탑에서만 이용이 가능합니다. 다음 버전을 기대해주세요 !");
         }
+        else if (navigator.userAgent.toLowerCase().indexOf("chrome") === -1){
+            alert("현재는 크롬(Chrome)브라우저에서만 지원하고 있습니다. 다음 버전을 기대해주세요 !");
+            this.setState({mobileOrNocameraOrNochrome:true});
+        }
+        else{
+            navigator.mediaDevices.getUserMedia(constraints)
+            .catch( () => {
+                this.setState({mobileOrNocameraOrNochrome:true});
+                alert("현재는 카메라가 있는 노트북이나 데스크탑에서만 이용이 가능합니다. 다음 버전을 기대해주세요 !");
+            });
+            // this.otherBrowserBan();
+        }
+
     }
 
     mapIndexSend = () => {
@@ -82,7 +86,7 @@ class LandingPage extends Component {
 
     render(){
         let startButton
-        if (this.state.mobileOrNocamera){
+        if (this.state.mobileOrNocameraOrNochrome){
             startButton = <button className="start-button" onClick={window.close}>SEE YOU !</button>
         }
         else {
