@@ -10,6 +10,8 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
         this.map = map;
         this.memberCount = 0;
         this.users = {};
+        this.waitQue = [];
+        this.waitFlag = false;
 
         this.router;
         this.music = false;
@@ -64,6 +66,20 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
 
     set memberCount(value){
         this._memberCount = value;
+    }
+
+    get waitQue() {
+        return this._waitQue;
+    }
+    set waitQue(value) {
+        this._waitQue = value;
+    }
+
+    get waitFlag() {
+        return this._waitFlag;
+    }
+    set waitFlag(value) {
+        this._waitFlag = value;
     }
 
     get music(){
