@@ -67,8 +67,12 @@ class Mainpage extends Component {
 
         let filter = "win16|win32|win64|mac|macintel";
         if ( navigator.platform ) {
-            if ( filter.indexOf( navigator.platform.toLowerCase() ) < 0 ) {
-                //mobile
+            if ( filter.indexOf( navigator.platform.toLowerCase() ) < 0 
+              || navigator.userAgent.toLowerCase().indexOf("chrome") === -1
+              || (navigator.appName === 'Netscape' && navigator.userAgent.toLowerCase().indexOf('trident') !== -1)
+            //   || agent.indexOf("msie") !== -1
+              ){
+                //mobile || notChrome
                 window.location.href="/"
             }
         }

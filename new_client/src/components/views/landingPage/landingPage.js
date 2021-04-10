@@ -41,7 +41,7 @@ class LandingPage extends Component {
             alert("현재는 카메라가 있는 노트북이나 데스크탑에서만 이용이 가능합니다. 다음 버전을 기대해주세요 !");
         }
         else if (navigator.userAgent.toLowerCase().indexOf("chrome") === -1
-                // || (navigator.appName === 'Netscape' && agent.indexOf('trident') !== -1)
+                || (navigator.appName === 'Netscape' && navigator.userAgent.toLowerCase().indexOf('trident') !== -1)
                 // || agent.indexOf("msie") !== -1
             ){
             alert("현재는 크롬(Chrome)브라우저에서만 지원하고 있습니다. 다음 버전을 기대해주세요 !");
