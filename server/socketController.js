@@ -10,13 +10,10 @@ module.exports = (io) => {
     /* connect 요청 시 */
     RoomManager.init(io);
     io.on('connect', (socket) => {
-        //!redis 관련
-        console.log(`Worker ${process.pid} Socket ${socket.id}`);
 
         let room;
         /* MainPage 접속 시 initSocket 수신 */
         socket.on('initSocket', (roomName) => {
-          console.log('initSocket');
           room = RoomManager.getRoomByRoomName(roomName);
 
           /* 기능 별 socket on 설정 */
