@@ -75,10 +75,13 @@ class User{
     }
 
     calcSpace = (socketId, x, y) => {
-        if (0 <= x && x <= 120 && 1020 <= y && y <= 1140) {
+        if (0 <= x && x <= 360 && 780 <= y && y <= 1140) {
             return socketId
         }
         else if (y > 360) {
+            if (1680 <= x && 780 <= y){
+                return 5;
+            }
             return 1;
         }
         else if (x <= 780) {
