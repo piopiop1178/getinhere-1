@@ -54,7 +54,6 @@ class RoomManager {   // Room 함수 실행
         room.router = mediasoupRouter;
         // console.log(roomName);
         // return room;
-        console.log(this.roomByName)
         return roomName;
     }
 
