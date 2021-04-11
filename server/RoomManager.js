@@ -48,12 +48,13 @@ class RoomManager {   // Room 함수 실행
             return; 
         }
         let mediasoupRouter = await worker.createRouter({ mediaCodecs });
-        room.worker = nextMediasoupWorkerIdx === 0 ? workers.length - 1 : nextMediasoupWorkerIdx - 1;
+        room.worker = nextMediasoupWorkerIdx === 0 ? this.workers.length - 1 : nextMediasoupWorkerIdx - 1;
         worker.appData.numRouters += 1;
         /* 생성한 router를 room 에 할당 */
         room.router = mediasoupRouter;
         // console.log(roomName);
         // return room;
+        console.log(this.roomByName)
         return roomName;
     }
 
