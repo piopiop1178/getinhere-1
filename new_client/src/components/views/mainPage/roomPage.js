@@ -23,6 +23,7 @@ import YoutubeIframe from '../youtubePage/youtubeIframe';
 import ToggleButton from './toggleButton/toggleButton';
 import { Spring, animated } from 'react-spring'
 import Guidance from './guidance';
+import Guidance2 from './guidance2';
 import MafiaGame from './mafiaGame/mafiaGame';
 import './roomPage.css'
 
@@ -1480,7 +1481,9 @@ class Room extends Component {
         }
 
         let guidance;
-        if (this.state.guidance) guidance = <Guidance/> 
+        if (this.state.guidance) guidance = <Guidance2
+                                                guidanceOnOff ={this.guidanceOnOff}
+                                            /> 
         else guidance = <></>
 
         return (

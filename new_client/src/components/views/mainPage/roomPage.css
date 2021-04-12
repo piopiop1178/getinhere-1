@@ -27,3 +27,76 @@
     border-radius: 0.2vw;
     padding: 0.2vw 0.2vw;
   }
+
+  .guidance{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    background-color: rgba(0,0,0,0.7);
+    height: 100vh;
+    width: 100vw;
+    z-index: 200;
+
+    -ms-user-select: none; 
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .guidance-box{
+    height: 65vh;
+    width: 50vw;
+    background-color: #faebd7;
+    border-radius: 0.2vw;
+  }
+  
+  .guidance-left{
+    position: absolute;
+    left: 26vw;
+    top: 48vh;
+    font-size: 2vw;
+  }
+
+  .guidance-right{
+    position: absolute;
+    right: 26vw;
+    top: 48vh;
+    font-size: 2vw;
+  }
+
+  .guidance-img-box{
+    width: 40vw;
+    height: 42vh;
+    border: black 1px solid;
+    margin: auto;
+    position: relative;
+    top: 2vh;
+  }
+
+  .guidance-img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .guidance-comment{
+    font-family: "Gaegu";
+    font-size: 1.5vw;
+    position: relative;
+    width: 40vw;
+    height: 15vh;
+    margin: auto;
+    bottom: -4vh;
+  }
+  
+  .guidance-close{
+    position: relative;
+    text-align: right;
+    font-size: 1.2vw;
+  }
+
+  .pointer{
+    cursor: pointer;
+  }

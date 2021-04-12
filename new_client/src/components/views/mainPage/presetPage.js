@@ -168,6 +168,7 @@ export class PresetPage extends Component {
                     </div>
                     <div className="character-box"> 
                         <div className="character-image">
+                            <span> 여기가 보이나</span>
                             {characterImage}
                         </div>
                     </div>
