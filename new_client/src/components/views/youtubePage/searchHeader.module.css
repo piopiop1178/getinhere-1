@@ -46,8 +46,9 @@
 
 .closeButton {
   font-family: Gaegu;
-  font-size: 1.5rem;
-
+  font-size: 3vh;
+  height: 3.7vh;
+  font-weight: bold;
   border-radius: 5%;
   background-color: goldenrod;
 }
