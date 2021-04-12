@@ -42,7 +42,7 @@ class LandingPage extends Component {
         }
         else if (navigator.userAgent.toLowerCase().indexOf("chrome") === -1
                 || (navigator.appName === 'Netscape' && navigator.userAgent.toLowerCase().indexOf('trident') !== -1)
-                // || agent.indexOf("msie") !== -1
+                || navigator.userAgent.toLowerCase().indexOf("msie") !== -1
             ){
             alert("현재는 크롬(Chrome)브라우저에서만 지원하고 있습니다. 다음 버전을 기대해주세요 !");
             this.setState({mobileOrNocameraOrNochrome:true});
