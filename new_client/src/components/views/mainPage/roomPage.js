@@ -246,6 +246,7 @@ class Room extends Component {
             }
 
             if (e.code ==="Escape"){
+<<<<<<< HEAD
                 if (this.state.objects === 6 && bigScreen){
                     let videos = document.getElementById('videos')
                     bigScreen.classList.remove('iframe-video');
@@ -256,7 +257,14 @@ class Room extends Component {
                 this.setState({objects : 0});
                 this.updatePositionSocketOn();
                 document.getElementById("character-layer").style.removeProperty("background-color");
+=======
+>>>>>>> 56b1b0a4db3940e4016d5151d828da9500d57620
                 if (this.state.guidance) this.guidanceOnOff();
+                else{
+                    this.setState({objects : 0});
+                    this.updatePositionSocketOn();
+                    document.getElementById("character-layer").style.removeProperty("background-color");
+                }
             }
 
             // let st = localStorage.getItem('myStatus');

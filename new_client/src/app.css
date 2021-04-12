@@ -190,21 +190,21 @@ select {
 .guidanceForm {
   font-family: "Gaegu";
   background-color: antiquewhite;
-  font-size: 1.3rem;
   width: 50vw;
-  height: 100vh;
+  height: 40vh;
   overflow-y: scroll;
+  margin-top: 30vh;
   margin-left: 25vw;
   position: fixed;
-  line-height: 1.8rem;
-  z-index: 10;
+  line-height: 1.3rem;
+  z-index: 11;
 }
-.guidanceImg {
-  width: 40vw;
+/* .guidanceImg {
+  width: 44vw;
   height: 40vh;
-  margin-left: 5vw;
-}
+  margin-left: 3vw;
+} */
 .guidanceLetter {
   margin: auto;
-  width: 40vw;
+  width: 48vw;
 }
