@@ -29,11 +29,13 @@ module.exports = (io) => {
 
         socket.on('queue', (roomName) => {
           room = RoomManager.getRoomByRoomName(roomName);
-          room.waitQue.push(socket);
-          if (!room.waitFlag) {
-            room.waitFlag = true;
-            room.waitQue.shift();
-            socket.emit('serverReady');
+          if(room) {
+            room.waitQue.push(socket);
+            if (!room.waitFlag) {
+              room.waitFlag = true;
+              room.waitQue.shift();
+              socket.emit('serverReady');
+            }
           }
         })
 

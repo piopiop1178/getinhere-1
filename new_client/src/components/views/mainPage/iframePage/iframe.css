@@ -36,11 +36,16 @@
   margin-right: 20px;
 }
 
+.right-buttons {
+  display: flex;
+  flex-flow: row-reverse nowrap;
+}
+
 .iframe-close-button {
   font-family: Gaegu;
-  position: fixed;
-  right: 15vw;
-  font-size: 1.5rem;
+  display: flex;
+  margin-left: 1vw;
+  font-size: 3vh;
   border-radius: 5%;
   background-color: goldenrod;
   opacity: 0.7;
@@ -55,9 +60,8 @@
 
 .go-to-iframegamemenu-button {
   font-family: Gaegu;
-  position: fixed;
-  right: 22vw;
-  font-size: 1.5rem;
+  display: flex;
+  font-size: 3vh;
   border-radius: 5%;
   background-color: goldenrod;
   opacity: 0.7;
@@ -70,7 +74,6 @@
   justify-content: space-evenly;
   width: 85vw;
   height: 78vh;
-  bottom: 0px;
 }
 
 .select-game-button {

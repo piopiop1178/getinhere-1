@@ -7,7 +7,9 @@
 
 .closeButton {
   position: fixed;
-  right: 13vw;
+  right: 15vw;
   border-radius: 5%;
   background-color: goldenrod;
+  font-size: 4vh;
+  font-family: "Gaegu";
 }

@@ -49,8 +49,10 @@ class IframePage extends Component {
     return (
       <>
         <div className='iframe-wrapper'>
-            <div><button className="go-to-iframegamemenu-button" onClick={this.returnMenu}>다른 게임하기</button></div>
-            <div><button className='iframe-close-button' onClick={this.closeIframe}>돌아가기</button></div>
+            <div className="right-buttons">
+                <div><button className='iframe-close-button' onClick={this.closeIframe}>돌아가기</button></div>
+                <div><button className="go-to-iframegamemenu-button" onClick={this.returnMenu}>다른 게임하기</button></div>
+            </div>
             <IframeGame
                 gameNumber={this.state.gameNumber}
                 runGame1={this.runGame1}

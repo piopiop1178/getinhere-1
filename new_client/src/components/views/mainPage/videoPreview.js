@@ -22,9 +22,17 @@ class VideoPreview extends Component {
         }
 
         async function checkCamera(){
+            let deviceList=[] ;
+            navigator.mediaDevices.enumerateDevices()
+                .then(devices => {
+                    devices.forEach(device => {deviceList.push(device.kind);
+                });
+                if (deviceList.indexOf("videoinput") < 0){
+                    window.location.href="/"
+                }
+            })
             await navigator.mediaDevices.getUserMedia(constraints)
-                .catch( (e) => alert(`카메라 상태를 확인해주세요 !`))
-                // .catch( (e) => alert(`카메라 상태를 확인해주세요 !${e}`))
+                // .catch( (e) => alert(`카메라 상태를 확인해주세요 !`))
                 .then(stream => {
                     // console.log('Received local stream');
                     video.srcObject = stream;
@@ -33,12 +41,7 @@ class VideoPreview extends Component {
 
         const video = document.querySelector('video');
         
-        let filter = "win16|win32|win64|mac|macintel";
-        if ( navigator.platform ) {
-            if ( filter.indexOf( navigator.platform.toLowerCase() ) >= 0 ) {
-                checkCamera();
-            }
-        }
+        checkCamera();
 
         video.addEventListener('play', () => {
             setTimeout(() => this.props.loadingFinished(), 1500);

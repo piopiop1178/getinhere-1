@@ -38,7 +38,7 @@ export class LoadingPage2 extends Component {
             position: "fixed",
             bottom: "0px",
             left: "0px",
-            width: "87vw",
+            width: "85vw",
             height: "78vh",
             backgroundColor: "white",
             zIndex: "5",
@@ -151,7 +151,7 @@ export class PresetPage extends Component {
             characterImage = <FaceMode/>
         }
         return (
-            <div id="preset">
+            <div id="preset" style={{"position":"fixed"}}>
             <div className="container">
                 <div className="item1">
                     <div className="name-box">

@@ -23,6 +23,15 @@ class Room { // TODO 어떤 map을 사용하고 있는지 정보 저장해두기
         }
         this.video = false;
         this.mafiaGame = new MafiaGame();
+        this.isStarted = false;
+    }
+
+    get isStarted() {
+        return this._isStarted;
+    }
+
+    set isStarted(value) {
+        this._isStarted = value;
     }
 
     get worker(){
