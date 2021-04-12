@@ -207,6 +207,8 @@ class Room extends Component {
     }
 
     componentDidMount = async () => {
+
+
         /* 캔버스 상단 여백 생성 */ /* 캠 공간을 위한 상단여백 만들어주기 */
         const canvasBackground = document.getElementById("background-layer")
         const canvasObject = document.getElementById("object-layer")
@@ -221,6 +223,11 @@ class Room extends Component {
 
 
         socket = this.props.socket;
+
+        /* 서버와 연결이 끊겼으면, swal로 알려주기 */
+        socket.on("disconnect", () => {
+            window.swal("서버와의 연결이 끊겼습니다","","error")
+        })
 
         /* Room 에서 사용할 socket on 정의 */
         await this.initSocket();
