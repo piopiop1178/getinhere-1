@@ -58,8 +58,9 @@ class LandingPage extends Component {
 
     }
 
-    mapIndexSend = () => {
+    mapIndexSend = (e) => {
         console.log('mapIndexSend Get in 버튼을 눌렀습니다')
+        e.target.setAttribute('disabled', 'true');
         axios.get('/api/mapIndex', {
             params: { 
                 mapIndex : this.state.map_index}

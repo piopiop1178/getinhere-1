@@ -38,7 +38,7 @@ export class LoadingPage2 extends Component {
             position: "fixed",
             bottom: "0px",
             left: "0px",
-            width: "87vw",
+            width: "85vw",
             height: "78vh",
             backgroundColor: "white",
             zIndex: "5",
