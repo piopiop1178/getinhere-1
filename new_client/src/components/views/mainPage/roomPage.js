@@ -246,10 +246,12 @@ class Room extends Component {
             }
 
             if (e.code ==="Escape"){
-                this.setState({objects : 0});
-                this.updatePositionSocketOn();
-                document.getElementById("character-layer").style.removeProperty("background-color");
                 if (this.state.guidance) this.guidanceOnOff();
+                else{
+                    this.setState({objects : 0});
+                    this.updatePositionSocketOn();
+                    document.getElementById("character-layer").style.removeProperty("background-color");
+                }
             }
 
             // let st = localStorage.getItem('myStatus');
