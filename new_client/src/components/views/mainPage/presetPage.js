@@ -151,7 +151,7 @@ export class PresetPage extends Component {
             characterImage = <FaceMode/>
         }
         return (
-            <div id="preset">
+            <div id="preset" style={{"position":"fixed"}}>
             <div className="container">
                 <div className="item1">
                     <div className="name-box">
