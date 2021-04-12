@@ -67,7 +67,9 @@ class RoomManager {   // Room 함수 실행
         /* user를 roomName에 해당하는 Room 추가 */
         socket.join(room.name);
         if (room.memberCount === 1){
+            if (room.isStarted == true) return;
             room.start(this.io);
+            room.isStarted = true;
         }
         return;
     }
