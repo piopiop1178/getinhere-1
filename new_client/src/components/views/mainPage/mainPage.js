@@ -84,7 +84,7 @@ class Mainpage extends Component {
         })
         .then((response) => {
             console.log(response.data.usersCount);
-            if(response.data.usersCount > 8){
+            if(response.data.usersCount > 20){
                 this.goBack("방이 꽉 찼습니다");
             }
         })

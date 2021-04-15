@@ -30,7 +30,7 @@ module.exports = async (app) => {
     app.get('/api/mapIndex', async (req, res) => {
         const mapIndex = req.query.mapIndex;
         const map = MapManager.getMapByIndex(mapIndex);
-        const roomName = await RoomManager.createRoom(map); // getin 버튼을 누르면 createRoom을 하게된다
+        const roomName = await RoomManager.createRoom(map);
         return res.status(200).json({
             "roomName": roomName,
             "success": true,
@@ -38,8 +38,6 @@ module.exports = async (app) => {
     });
 
     app.get('/api/map', (req, res) => {
-        // console.log(`/api/mapIndex ${req.query}`);
-        // console.log(req.query);
         const roomName = req.query.roomName;
         const map = RoomManager.getRoomByRoomName(roomName).map;
         return res.status(200).json({
@@ -57,8 +55,6 @@ module.exports = async (app) => {
     });
 
     app.get('/api/preset', (req, res) => {
-        // console.log(req.query.userName);
-        // console.log(req.query.characterNum);
         return res.status(200).json({
             "success": true,
         }); 

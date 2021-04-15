@@ -1,13 +1,10 @@
 'use strict';
 
 /* 서버 실행에 필요한 node module require */
-// const http = require('http');
 const https = require('https');
 const fs = require('fs');
-const path = require('path');
 const express = require('express');
 const app = express();
-// const app2 = express();
 
 require('dotenv').config();
 const mongoose = require('mongoose');
