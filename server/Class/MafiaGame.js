@@ -4,7 +4,8 @@ const gameRoles = {
     2: {"citizen" : 1, "mafia" : 1, "police" : 0, "doctor" : 0},
     3: {"citizen" : 2, "mafia" : 1, "police" : 0, "doctor" : 0},
     4: {"citizen" : 2, "mafia" : 1, "police" : 1, "doctor" : 0},
-    5: {"citizen" : 3, "mafia" : 1, "police" : 1, "doctor" : 0},
+    5: {"citizen" : 4, "mafia" : 1, "police" : 0, "doctor" : 0},
+    // 5: {"citizen" : 3, "mafia" : 1, "police" : 1, "doctor" : 0}, !!! 시연 후 원복
     6: {"citizen" : 2, "mafia" : 2, "police" : 1, "doctor" : 1},
     7: {"citizen" : 3, "mafia" : 2, "police" : 1, "doctor" : 1},
     8: {"citizen" : 4, "mafia" : 2, "police" : 1, "doctor" : 1},
