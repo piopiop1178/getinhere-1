@@ -98,7 +98,7 @@ export class PresetPage extends Component {
             // if(response.data.success === false){
             //     this.props.goBack("유효하지 않은 방입니다.\n(유저가 없는 방은 30초 이후에 삭제됩니다)");
             // }
-            if(response.data.usersCount > 20) {
+            if(response.data.usersCount > 8) {
                 this.props.goBack("방이 꽉 찼습니다");
                 return;
             }
